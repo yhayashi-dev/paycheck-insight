@@ -79,7 +79,9 @@ def verification_table_html(items: list[dict]) -> str:
         return "<p>該当項目はありません。</p>"
 
     rows = []
+    cards = []
     for item in items:
+        status_class = "is-confirmed" if item["status"] == "確認済み" else "is-pending"
         source_url = item["source_url"]
         if source_url:
             source = (
@@ -100,6 +102,33 @@ def verification_table_html(items: list[dict]) -> str:
             f"<td>{source}</td>"
             "</tr>"
         )
+        cards.append(
+            '<article class="verification-mobile-card">'
+            '<div class="verification-mobile-header">'
+            f'<span class="verification-mobile-section">{escape(item["section"])}</span>'
+            f'<strong class="verification-mobile-item">{escape(item["item"])}</strong>'
+            f'<span class="verification-mobile-status {status_class}">{escape(item["status"])}</span>'
+            "</div>"
+            '<dl class="verification-mobile-fields">'
+            '<div class="verification-mobile-field">'
+            '<dt>適用年度・条件</dt>'
+            f'<dd>{escape(item["applicable_period"])}</dd>'
+            "</div>"
+            '<div class="verification-mobile-field">'
+            '<dt>適用開始日</dt>'
+            f'<dd>{escape(item["effective_from"])}</dd>'
+            "</div>"
+            '<div class="verification-mobile-field">'
+            '<dt>最終確認日</dt>'
+            f'<dd>{escape(item["last_verified_on"])}</dd>'
+            "</div>"
+            '<div class="verification-mobile-field">'
+            '<dt>出典</dt>'
+            f"<dd>{source}</dd>"
+            "</div>"
+            "</dl>"
+            "</article>"
+        )
 
     return (
         '<div class="verification-table-wrap">'
@@ -109,6 +138,7 @@ def verification_table_html(items: list[dict]) -> str:
         f"<tbody>{''.join(rows)}</tbody>"
         "</table>"
         "</div>"
+        f'<div class="verification-mobile-list">{"".join(cards)}</div>'
     )
 
 st.markdown(
@@ -159,6 +189,7 @@ st.markdown(
     }
     .verification-table {
         width: 100%;
+        min-width: 960px;
         border-collapse: collapse;
         font-size: 0.86rem;
         line-height: 1.35;
@@ -178,6 +209,9 @@ st.markdown(
     }
     .verification-table tr:last-child td {
         border-bottom: 0;
+    }
+    .verification-mobile-list {
+        display: none;
     }
     [data-testid="stTextInput"] {
         margin-bottom: 0.35rem;
@@ -276,6 +310,71 @@ st.markdown(
         }
         .compact-warning {
             padding: 0.4rem 0.55rem;
+        }
+        .verification-table-wrap {
+            display: none;
+        }
+        .verification-mobile-list {
+            display: grid;
+            gap: 0.65rem;
+            margin: 0.35rem 0 0.8rem;
+        }
+        .verification-mobile-card {
+            background: white;
+            border: 1px solid rgba(49, 51, 63, 0.16);
+            border-radius: 8px;
+            overflow: hidden;
+        }
+        .verification-mobile-header {
+            display: grid;
+            gap: 0.25rem;
+            padding: 0.7rem 0.75rem;
+            background: rgba(240, 242, 246, 0.7);
+        }
+        .verification-mobile-section {
+            color: rgba(49, 51, 63, 0.64);
+            font-size: 0.75rem;
+            font-weight: 700;
+        }
+        .verification-mobile-item {
+            color: rgb(49, 51, 63);
+            font-size: 0.95rem;
+            line-height: 1.4;
+            overflow-wrap: anywhere;
+        }
+        .verification-mobile-status {
+            font-size: 0.8rem;
+            font-weight: 700;
+        }
+        .verification-mobile-status.is-confirmed {
+            color: rgb(0, 104, 89);
+        }
+        .verification-mobile-status.is-pending {
+            color: rgb(146, 92, 0);
+        }
+        .verification-mobile-fields {
+            margin: 0;
+            padding: 0 0.75rem;
+        }
+        .verification-mobile-field {
+            border-bottom: 1px solid rgba(49, 51, 63, 0.1);
+            padding: 0.6rem 0;
+        }
+        .verification-mobile-field:last-child {
+            border-bottom: 0;
+        }
+        .verification-mobile-field dt {
+            color: rgba(49, 51, 63, 0.64);
+            font-size: 0.75rem;
+            font-weight: 700;
+            margin-bottom: 0.18rem;
+        }
+        .verification-mobile-field dd {
+            color: rgb(49, 51, 63);
+            font-size: 0.84rem;
+            line-height: 1.45;
+            margin: 0;
+            overflow-wrap: anywhere;
         }
         .summary-grid {
             grid-template-columns: repeat(2, minmax(0, 1fr));

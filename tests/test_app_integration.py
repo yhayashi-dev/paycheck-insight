@@ -125,3 +125,32 @@ def test_app_osaka_rates_use_osaka_sources_and_preserve_common_sources():
         and "東京都" in item["source_name"]
         for item in verified_items + unverified_items
     )
+
+
+def test_verification_html_includes_mobile_card_fields_and_desktop_table():
+    import app
+
+    html = app.verification_table_html(
+        [
+            {
+                "section": "社会保険料",
+                "item": "健康保険料率",
+                "status": "確認済み",
+                "applicable_period": "2026年度・大阪府",
+                "effective_from": "2026年3月分",
+                "last_verified_on": "2026-06-20",
+                "source_name": "協会けんぽ 大阪府保険料額表",
+                "source_url": "https://example.com/osaka.pdf",
+            }
+        ]
+    )
+
+    assert 'class="verification-table"' in html
+    assert 'class="verification-mobile-list"' in html
+    assert 'class="verification-mobile-card"' in html
+    assert "社会保険料" in html
+    assert "健康保険料率" in html
+    assert "確認済み" in html
+    assert "適用年度・条件" in html
+    assert "適用開始日" in html
+    assert "出典" in html
