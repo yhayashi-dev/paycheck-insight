@@ -11,7 +11,7 @@
     "bonus": false,
     "salary_payment": "年収を12か月均等支給",
     "provisional": true,
-    "notice": "一部未確認項目あり: 所得税・住民税・給与所得控除は公式資料に基づき確認済みです。社会保険料など未確認の項目は引き続き provisional=true として表示します。"
+    "notice": "一部未確認項目あり: 所得税・住民税・給与所得控除と主要な社会保険料率は公式資料に基づき確認済みです。所得税額の最終端数処理と、子ども・子育て支援金の計算反映は未確認項目として表示します。"
   },
   "regional_scope": {
     "prefecture_code": "tokyo",
@@ -209,42 +209,77 @@
   },
   "social_insurance": {
     "provisional": true,
-    "note": "2026年度の協会けんぽ東京都料率・介護保険料率・雇用保険料率は公式確認前。暫定値を使用。",
+    "note": "健康保険、介護保険、厚生年金、標準報酬月額、雇用保険、子ども・子育て拠出金は公式資料で確認済み。別制度の子ども・子育て支援金0.23%は現在の計算に未反映のため、区分全体は provisional=true を維持。",
     "verification": [
       {
         "item": "健康保険料率",
-        "provisional": true,
-        "applicable_period": "2026年度",
-        "source_name": "未確認",
-        "source_url": ""
+        "provisional": false,
+        "status": "confirmed",
+        "applicable_period": "2026年度・東京都・協会けんぽ 9.85%",
+        "effective_from": "2026年3月分（4月納付分）",
+        "last_verified_on": "2026-06-20",
+        "source_name": "協会けんぽ 令和8年度 東京都保険料額表",
+        "source_url": "https://www.kyoukaikenpo.or.jp/assets/R8_13tokyo.pdf"
       },
       {
         "item": "介護保険料率",
-        "provisional": true,
-        "applicable_period": "2026年度",
-        "source_name": "未確認",
-        "source_url": ""
+        "provisional": false,
+        "status": "confirmed",
+        "applicable_period": "2026年度・40歳から64歳・全国一律 1.62%",
+        "effective_from": "2026年3月分（4月納付分）",
+        "last_verified_on": "2026-06-20",
+        "source_name": "協会けんぽ 令和8年度 東京都保険料額表",
+        "source_url": "https://www.kyoukaikenpo.or.jp/assets/R8_13tokyo.pdf"
       },
       {
-        "item": "厚生年金保険料率・標準報酬月額",
-        "provisional": true,
-        "applicable_period": "2026年度",
-        "source_name": "未確認",
-        "source_url": ""
+        "item": "厚生年金保険料率",
+        "provisional": false,
+        "status": "confirmed",
+        "applicable_period": "2026年度 18.3%（労使折半）",
+        "effective_from": "2017年9月分",
+        "last_verified_on": "2026-06-20",
+        "source_name": "日本年金機構 厚生年金保険の保険料",
+        "source_url": "https://www.nenkin.go.jp/service/kounen/hokenryo/hoshu/20150515-01.html"
+      },
+      {
+        "item": "標準報酬月額",
+        "provisional": false,
+        "status": "confirmed",
+        "applicable_period": "令和8年度・東京都・協会けんぽ／厚生年金",
+        "effective_from": "2026年3月分（令和8年度表）",
+        "last_verified_on": "2026-06-20",
+        "source_name": "協会けんぽ 令和8年度 東京都保険料額表",
+        "source_url": "https://www.kyoukaikenpo.or.jp/assets/R8_13tokyo.pdf"
       },
       {
         "item": "雇用保険料率",
-        "provisional": true,
-        "applicable_period": "2026年度",
-        "source_name": "未確認",
-        "source_url": ""
+        "provisional": false,
+        "status": "confirmed",
+        "applicable_period": "令和8年度・一般の事業（労働者5/1,000、事業主8.5/1,000）",
+        "effective_from": "2026-04-01",
+        "last_verified_on": "2026-06-20",
+        "source_name": "厚生労働省 令和8年度 雇用保険料率のご案内",
+        "source_url": "https://www.mhlw.go.jp/content/001692566.pdf"
       },
       {
         "item": "子ども・子育て拠出金率",
+        "provisional": false,
+        "status": "confirmed",
+        "applicable_period": "令和8年度 0.36%（事業主のみ負担）",
+        "effective_from": "2020年4月分",
+        "last_verified_on": "2026-06-20",
+        "source_name": "日本年金機構 保険料額表（令和2年9月分～）",
+        "source_url": "https://www.nenkin.go.jp/service/kounen/hokenryo/ryogaku/ryogakuhyo/20200825.html"
+      },
+      {
+        "item": "子ども・子育て支援金率（計算未反映）",
         "provisional": true,
-        "applicable_period": "2026年度",
-        "source_name": "未確認",
-        "source_url": ""
+        "status": "pending_implementation",
+        "applicable_period": "令和8年度 0.23%（健康保険料と併せて徴収）",
+        "effective_from": "2026年4月分（5月納付分）",
+        "last_verified_on": "2026-06-20",
+        "source_name": "協会けんぽ 令和8年度の都道府県単位保険料率",
+        "source_url": "https://www.kyoukaikenpo.or.jp/about/business/insurance_rate/rate_prefectures/r08/index.html"
       }
     ],
     "health_insurance_rate": 0.0985,

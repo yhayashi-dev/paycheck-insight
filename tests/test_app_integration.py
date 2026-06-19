@@ -65,7 +65,35 @@ def test_app_verification_metadata_splits_confirmed_and_unconfirmed_items():
 
     assert any(item["item"] == "所得税の基礎控除" for item in verified_items)
     assert any(item["item"] == "均等割" for item in verified_items)
+    assert len(verified_items) == 21
+    assert len(unverified_items) == 2
+    assert all(
+        item["status"] == "確認済み"
+        for item in verified_items
+        if item["section"] == "社会保険料"
+    )
+    assert {
+        item["item"]
+        for item in verified_items
+        if item["section"] == "社会保険料"
+    } == {
+        "健康保険料率",
+        "介護保険料率",
+        "厚生年金保険料率",
+        "標準報酬月額",
+        "雇用保険料率",
+        "子ども・子育て拠出金率",
+    }
     assert any(item["item"] == "所得税額の最終端数処理" for item in unverified_items)
-    assert any(item["section"] == "社会保険料" for item in unverified_items)
+    assert any(
+        item["item"] == "子ども・子育て支援金率（計算未反映）"
+        and item["status"] == "計算未反映"
+        for item in unverified_items
+    )
     assert all("source_name" in item for item in verified_items + unverified_items)
     assert all("applicable_period" in item for item in verified_items + unverified_items)
+    assert all(
+        item["effective_from"] != "-" and item["last_verified_on"] == "2026-06-20"
+        for item in verified_items + unverified_items
+        if item["section"] == "社会保険料"
+    )

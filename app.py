@@ -37,6 +37,12 @@ VERIFICATION_SECTIONS = {
     "social_insurance": "社会保険料",
 }
 
+VERIFICATION_STATUS_LABELS = {
+    "confirmed": "確認済み",
+    "unconfirmed": "未確認",
+    "pending_implementation": "計算未反映",
+}
+
 
 def collect_verification_items(rates: dict) -> tuple[list[dict], list[dict]]:
     """Collect display-only verification metadata from the rate file."""
@@ -48,7 +54,13 @@ def collect_verification_items(rates: dict) -> tuple[list[dict], list[dict]]:
             row = {
                 "section": section_label,
                 "item": item["item"],
+                "status": VERIFICATION_STATUS_LABELS.get(
+                    item.get("status", "unconfirmed" if item["provisional"] else "confirmed"),
+                    item.get("status", "未確認"),
+                ),
                 "applicable_period": item["applicable_period"],
+                "effective_from": item.get("effective_from", "-"),
+                "last_verified_on": item.get("last_verified_on", "-"),
                 "source_name": item["source_name"],
                 "source_url": item["source_url"],
             }
@@ -81,7 +93,10 @@ def verification_table_html(items: list[dict]) -> str:
             "<tr>"
             f"<td>{escape(item['section'])}</td>"
             f"<td>{escape(item['item'])}</td>"
+            f"<td>{escape(item['status'])}</td>"
             f"<td>{escape(item['applicable_period'])}</td>"
+            f"<td>{escape(item['effective_from'])}</td>"
+            f"<td>{escape(item['last_verified_on'])}</td>"
             f"<td>{source}</td>"
             "</tr>"
         )
@@ -89,7 +104,8 @@ def verification_table_html(items: list[dict]) -> str:
     return (
         '<div class="verification-table-wrap">'
         '<table class="verification-table">'
-        "<thead><tr><th>分類</th><th>項目</th><th>適用年度</th><th>出典</th></tr></thead>"
+        "<thead><tr><th>分類</th><th>項目</th><th>状態</th><th>適用年度・条件</th>"
+        "<th>適用開始日</th><th>最終確認日</th><th>出典</th></tr></thead>"
         f"<tbody>{''.join(rows)}</tbody>"
         "</table>"
         "</div>"
