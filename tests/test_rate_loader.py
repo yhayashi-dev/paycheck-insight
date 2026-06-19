@@ -2,7 +2,7 @@ import json
 
 import pytest
 
-from src.services.rate_loader import get_supported_prefectures, load_rates
+from src.services.prefecture_rate_loader import get_supported_prefectures, load_rates
 
 
 def test_supported_prefectures_contains_only_tokyo_for_now():
