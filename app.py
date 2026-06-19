@@ -4,7 +4,7 @@ from html import escape
 
 import streamlit as st
 
-from src.services.rate_loader import load_rates
+from src.services.rate_loader import get_supported_prefectures, load_rates
 from src.services.simulation import simulate_annual_salary, simulate_salary_range
 from src.ui.tables import (
     dataframe_to_responsive_html,
@@ -20,12 +20,8 @@ st.set_page_config(page_title="2026年 手取り試算", layout="wide")
 
 
 @st.cache_data
-def get_rates() -> dict:
-    return load_rates()
-
-
-rates = get_rates()
-metadata = rates["metadata"]
+def get_rates(prefecture_code: str = "tokyo") -> dict:
+    return load_rates(prefecture_code=prefecture_code)
 
 
 VERIFICATION_SECTIONS = {
@@ -331,8 +327,24 @@ st.markdown(
 st.markdown(
     """
     <h1 class="app-title">2026年 会社員向け 税・社会保険料・手取り試算</h1>
-    <p class="app-caption">東京都・52歳・単身・扶養なし・会社員・協会けんぽ・給与収入のみ・賞与なし・12か月均等支給の概算です。</p>
     """,
+    unsafe_allow_html=True,
+)
+
+prefecture_configs = get_supported_prefectures()
+prefecture_names = {config.code: config.display_name for config in prefecture_configs}
+selected_prefecture_code = st.selectbox(
+    "都道府県",
+    options=[config.code for config in prefecture_configs],
+    format_func=prefecture_names.__getitem__,
+)
+
+rates = get_rates(selected_prefecture_code)
+metadata = rates["metadata"]
+
+st.markdown(
+    f'<p class="app-caption">{escape(metadata["prefecture"])}・52歳・単身・扶養なし・会社員・'
+    '協会けんぽ・給与収入のみ・賞与なし・12か月均等支給の概算です。</p>',
     unsafe_allow_html=True,
 )
 

@@ -13,6 +13,14 @@
     "provisional": true,
     "notice": "一部未確認項目あり: 所得税・住民税・給与所得控除は公式資料に基づき確認済みです。社会保険料など未確認の項目は引き続き provisional=true として表示します。"
   },
+  "regional_scope": {
+    "prefecture_code": "tokyo",
+    "prefecture_name": "東京都",
+    "prefecture_dependent_fields": [
+      "social_insurance.health_insurance_rate",
+      "resident_tax"
+    ]
+  },
   "rounding": {
     "taxable_income_unit": 1000,
     "annual_tax_unit": 1,

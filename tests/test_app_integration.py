@@ -4,7 +4,7 @@ from src.services.simulation import simulate_annual_salary
 def test_app_get_rates_loads_default_rates_for_500_man_yen_case():
     import app
 
-    rates = app.get_rates()
+    rates = app.get_rates("tokyo")
     result = simulate_annual_salary(5_000_000, rates)
 
     assert rates["income_tax"]["basic_deduction_brackets"][2]["deduction"] == 680_000
@@ -13,12 +13,17 @@ def test_app_get_rates_loads_default_rates_for_500_man_yen_case():
     assert result.tax.income_tax == 117_109
     assert result.tax.taxable_income_for_resident_tax == 2_372_000
     assert result.tax.resident_tax == 239_700
+    assert result.insurance.employee_total == 757_336
+    assert result.insurance.employer_total == 792_548
+    assert result.annual_take_home == 3_885_855
+    assert result.monthly_take_home_average == 323_821
+    assert result.total_labor_cost == 5_792_548
 
 
 def test_app_verification_metadata_splits_confirmed_and_unconfirmed_items():
     import app
 
-    rates = app.get_rates()
+    rates = app.get_rates("tokyo")
     verified_items, unverified_items = app.collect_verification_items(rates)
 
     assert rates["metadata"]["provisional"] is True
