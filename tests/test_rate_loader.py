@@ -5,11 +5,15 @@ import pytest
 from src.services.prefecture_rate_loader import get_supported_prefectures, load_rates
 
 
-def test_supported_prefectures_contains_only_tokyo_for_now():
+def test_supported_prefectures_contains_tokyo_and_osaka():
     prefectures = get_supported_prefectures()
 
-    assert [(item.code, item.display_name) for item in prefectures] == [("tokyo", "東京都")]
+    assert [(item.code, item.display_name) for item in prefectures] == [
+        ("tokyo", "東京都"),
+        ("osaka", "大阪府"),
+    ]
     assert prefectures[0].rate_file.name == "rates_2026_tokyo.json"
+    assert prefectures[1].rate_file.name == "rates_2026_osaka.json"
 
 
 def test_load_rates_selects_tokyo_and_marks_prefecture_dependent_fields():
@@ -27,9 +31,22 @@ def test_load_rates_selects_tokyo_and_marks_prefecture_dependent_fields():
     assert rates["social_insurance"]["health_insurance_rate"] == 0.0985
 
 
+def test_load_rates_selects_osaka_and_inherits_common_settings():
+    rates = load_rates(prefecture_code="osaka")
+
+    assert rates["metadata"]["prefecture"] == "大阪府"
+    assert rates["regional_scope"]["prefecture_code"] == "osaka"
+    assert rates["social_insurance"]["health_insurance_rate"] == 0.1013
+    assert rates["social_insurance"]["care_insurance_rate"] == 0.0162
+    assert rates["social_insurance"]["pension_rate"] == 0.183
+    assert rates["resident_tax"]["municipality_class"] == "osaka_city"
+    assert rates["resident_tax"]["per_capita"] == 4300
+    assert rates["income_tax"] == load_rates(prefecture_code="tokyo")["income_tax"]
+
+
 def test_load_rates_rejects_unsupported_prefecture():
-    with pytest.raises(ValueError, match="Unsupported prefecture_code: osaka"):
-        load_rates(prefecture_code="osaka")
+    with pytest.raises(ValueError, match="Unsupported prefecture_code: aichi"):
+        load_rates(prefecture_code="aichi")
 
 
 def test_load_rates_requires_income_tax_basic_deduction_brackets(tmp_path):

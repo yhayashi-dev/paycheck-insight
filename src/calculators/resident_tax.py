@@ -6,7 +6,7 @@ from src.calculators.common import round_down_to_unit, yen
 
 
 def calculate_resident_tax(salary_income: int, social_insurance_employee: int, rates: dict[str, Any]) -> tuple[int, int]:
-    """Calculate annual resident tax using configured provisional Tokyo values."""
+    """Calculate annual resident tax using the selected regional settings."""
 
     resident_tax = rates["resident_tax"]
     rounding = rates["rounding"]

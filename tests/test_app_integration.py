@@ -97,3 +97,31 @@ def test_app_verification_metadata_splits_confirmed_and_unconfirmed_items():
         for item in verified_items + unverified_items
         if item["section"] == "社会保険料"
     )
+
+
+def test_app_osaka_rates_use_osaka_sources_and_preserve_common_sources():
+    import app
+
+    rates = app.get_rates("osaka")
+    verified_items, unverified_items = app.collect_verification_items(rates)
+
+    assert rates["metadata"]["prefecture"] == "大阪府"
+    assert any(
+        item["item"] == "健康保険料率"
+        and "大阪府保険料額表" in item["source_name"]
+        for item in verified_items
+    )
+    assert any(
+        item["item"] == "非課税判定（大阪市）"
+        and item["source_url"].startswith("https://www.city.osaka.lg.jp/")
+        for item in verified_items
+    )
+    assert any(
+        item["item"] == "市民税・府民税の個別100円未満切捨て（計算未反映）"
+        for item in unverified_items
+    )
+    assert not any(
+        item["section"] in {"住民税", "社会保険料"}
+        and "東京都" in item["source_name"]
+        for item in verified_items + unverified_items
+    )

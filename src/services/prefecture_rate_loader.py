@@ -25,6 +25,11 @@ PREFECTURE_RATE_CONFIGS = {
         display_name="東京都",
         rate_file=DATA_DIR / "rates_2026_tokyo.json",
     ),
+    "osaka": PrefectureRateConfig(
+        code="osaka",
+        display_name="大阪府",
+        rate_file=DATA_DIR / "rates_2026_osaka.json",
+    ),
 }
 DEFAULT_RATE_FILE = PREFECTURE_RATE_CONFIGS[DEFAULT_PREFECTURE_CODE].rate_file
 
@@ -50,13 +55,41 @@ def load_rates(
         )
 
     rate_file = path or prefecture_config.rate_file
-    with rate_file.open(encoding="utf-8") as file:
-        rates = json.load(file)
+    rates = _load_rate_file(rate_file)
 
     _validate_rates(rates, rate_file)
     if path is None:
         _validate_prefecture_scope(rates, rate_file, prefecture_config)
     return rates
+
+
+def _load_rate_file(rate_file: Path, loading: frozenset[Path] = frozenset()) -> dict[str, Any]:
+    resolved_file = rate_file.resolve()
+    if resolved_file in loading:
+        raise ValueError(f"Circular rate-file inheritance detected at {rate_file}.")
+
+    with rate_file.open(encoding="utf-8") as file:
+        rates = json.load(file)
+
+    parent_name = rates.pop("extends", None)
+    if parent_name is None:
+        return rates
+    if not isinstance(parent_name, str) or Path(parent_name).name != parent_name:
+        raise ValueError(f"{rate_file} extends must name a JSON file in the same directory.")
+
+    parent_file = rate_file.parent / parent_name
+    parent_rates = _load_rate_file(parent_file, loading | {resolved_file})
+    return _deep_merge(parent_rates, rates)
+
+
+def _deep_merge(base: dict[str, Any], overrides: dict[str, Any]) -> dict[str, Any]:
+    merged = dict(base)
+    for key, value in overrides.items():
+        if isinstance(value, dict) and isinstance(merged.get(key), dict):
+            merged[key] = _deep_merge(merged[key], value)
+        else:
+            merged[key] = value
+    return merged
 
 
 def _validate_prefecture_scope(

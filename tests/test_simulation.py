@@ -39,7 +39,6 @@ def test_salary_range_contains_200_to_1000_man_yen():
         9_000_000,
         10_000_000,
     ]
-
     assert [
         (
             result.annual_salary,
@@ -62,3 +61,21 @@ def test_salary_range_contains_200_to_1000_man_yen():
         (9_000_000, 1_274_856, 1_161_342, 6_563_802, 546_984, 1_334_436, 10_334_436),
         (10_000_000, 1_334_912, 1_447_289, 7_217_799, 601_483, 1_397_992, 11_397_992),
     ]
+
+
+def test_osaka_simulation_uses_osaka_health_rate_and_resident_tax_settings():
+    rates = load_rates(prefecture_code="osaka")
+    result = simulate_annual_salary(5_000_000, rates)
+
+    assert result.insurance.health_standard_monthly == 410_000
+    assert result.insurance.health_employee == 249_192
+    assert result.insurance.care_employee == 39_852
+    assert result.insurance.pension_employee == 450_180
+    assert result.insurance.employment_employee == 25_000
+    assert result.insurance.employee_total == 764_224
+    assert result.tax.income_tax == 116_394
+    assert result.tax.resident_tax == 239_300
+    assert result.insurance.employer_total == 799_436
+    assert result.annual_take_home == 3_880_082
+    assert result.monthly_take_home_average == 323_340
+    assert result.total_labor_cost == 5_799_436
