@@ -1,4 +1,34 @@
+import os
+from pathlib import Path
+import subprocess
+import sys
+
 from src.services.simulation import simulate_annual_salary
+
+
+def test_app_imports_local_src_package_outside_project_directory(tmp_path):
+    project_root = Path(__file__).resolve().parents[1]
+    environment = os.environ.copy()
+    environment.pop("PYTHONPATH", None)
+
+    completed = subprocess.run(
+        [
+            sys.executable,
+            "-c",
+            (
+                "import runpy; "
+                f"runpy.run_path({str(project_root / 'app.py')!r}, run_name='__main__')"
+            ),
+        ],
+        cwd=tmp_path,
+        env=environment,
+        capture_output=True,
+        text=True,
+        timeout=30,
+        check=False,
+    )
+
+    assert completed.returncode == 0, completed.stderr
 
 
 def test_app_get_rates_loads_default_rates_for_500_man_yen_case():

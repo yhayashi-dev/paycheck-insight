@@ -1,8 +1,14 @@
 from __future__ import annotations
 
+import sys
 from html import escape
+from pathlib import Path
 
 import streamlit as st
+
+# Streamlit Cloud may execute the entry point without placing the repository root first.
+PROJECT_ROOT = Path(__file__).resolve().parent
+sys.path.insert(0, str(PROJECT_ROOT))
 
 from src.services.rate_loader import get_supported_prefectures, load_rates
 from src.services.simulation import simulate_annual_salary, simulate_salary_range
