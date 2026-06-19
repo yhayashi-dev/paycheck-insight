@@ -111,6 +111,12 @@ st.markdown(
         letter-spacing: 0 !important;
         max-width: 36em;
     }
+    .app-subtitle {
+        color: rgba(49, 51, 63, 0.78);
+        font-size: 0.95rem !important;
+        line-height: 1.4 !important;
+        margin: 0 0 0.65rem !important;
+    }
     .app-caption {
         color: rgba(49, 51, 63, 0.72);
         font-size: clamp(0.78rem, 0.95vw, 0.9rem) !important;
@@ -332,7 +338,8 @@ st.markdown(
 
 st.markdown(
     """
-    <h1 class="app-title">2026年 会社員向け 税・社会保険料・手取り試算</h1>
+    <h1 class="app-title">2026年 手取り試算</h1>
+    <p class="app-subtitle">会社員向け 税・社会保険料・手取りの概算</p>
     """,
     unsafe_allow_html=True,
 )
