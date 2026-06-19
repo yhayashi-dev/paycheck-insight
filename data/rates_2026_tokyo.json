@@ -1,0 +1,339 @@
+{
+  "metadata": {
+    "year": 2026,
+    "prefecture": "東京都",
+    "age": 52,
+    "household": "single",
+    "dependents": 0,
+    "employee_type": "会社員",
+    "health_insurer": "協会けんぽ",
+    "income_type": "給与収入のみ",
+    "bonus": false,
+    "salary_payment": "年収を12か月均等支給",
+    "provisional": true,
+    "notice": "一部未確認項目あり: 所得税・住民税・給与所得控除は公式資料に基づき確認済みです。社会保険料など未確認の項目は引き続き provisional=true として表示します。"
+  },
+  "rounding": {
+    "taxable_income_unit": 1000,
+    "annual_tax_unit": 1,
+    "monthly_premium_unit": 1
+  },
+  "salary_income_deduction": {
+    "provisional": false,
+    "note": "2026年分の給与所得控除は国税庁 No.1410 給与所得控除および令和7年度税制改正資料で確認。令和7年分以降のテーブルを使用。",
+    "verification": [
+      {
+        "item": "給与所得控除",
+        "provisional": false,
+        "applicable_period": "令和7年分以後。2026年分に適用。",
+        "source_name": "国税庁 No.1410 給与所得控除",
+        "source_url": "https://www.nta.go.jp/taxes/shiraberu/taxanswer/shotoku/1410.htm"
+      },
+      {
+        "item": "給与所得控除の最低保障額",
+        "provisional": false,
+        "applicable_period": "令和7年分以後。2026年分に適用。",
+        "source_name": "国税庁 令和7年度税制改正による所得税の基礎控除の見直し等について（源泉所得税関係）",
+        "source_url": "https://www.nta.go.jp/publication/pamph/gensen/0025004-025.pdf"
+      }
+    ],
+    "brackets": [
+      {"upper": 1900000, "fixed": 650000, "rate": 0.0, "adjustment": 0},
+      {"upper": 3600000, "fixed": 0, "rate": 0.3, "adjustment": 80000},
+      {"upper": 6600000, "fixed": 0, "rate": 0.2, "adjustment": 440000},
+      {"upper": 8500000, "fixed": 0, "rate": 0.1, "adjustment": 1100000},
+      {"upper": null, "fixed": 1950000, "rate": 0.0, "adjustment": 0}
+    ]
+  },
+  "income_tax": {
+    "provisional": true,
+    "note": "2026年分の基礎控除、速算表、復興特別所得税、社会保険料控除、課税所得の1,000円未満切捨ては公式資料で確認。所得税額の最終端数処理は公式確認前のため現行処理を維持。",
+    "verification": [
+      {
+        "item": "所得税の基礎控除",
+        "provisional": false,
+        "applicable_period": "令和8年分。2026年分に適用。",
+        "source_name": "国税庁 No.1199 基礎控除",
+        "source_url": "https://www.nta.go.jp/taxes/shiraberu/taxanswer/shotoku/1199.htm"
+      },
+      {
+        "item": "所得税の速算表",
+        "provisional": false,
+        "applicable_period": "2026年分",
+        "source_name": "国税庁 No.2260 所得税の税率",
+        "source_url": "https://www.nta.go.jp/taxes/shiraberu/taxanswer/shotoku/2260.htm"
+      },
+      {
+        "item": "復興特別所得税率",
+        "provisional": false,
+        "applicable_period": "平成25年分から令和19年分まで。2026年分に適用。",
+        "source_name": "国税庁 復興特別所得税関係",
+        "source_url": "https://www.nta.go.jp/taxes/shiraberu/taxanswer/shotoku/2290.htm"
+      },
+      {
+        "item": "社会保険料控除",
+        "provisional": false,
+        "applicable_period": "2026年分",
+        "source_name": "国税庁 No.1130 社会保険料控除",
+        "source_url": "https://www.nta.go.jp/taxes/shiraberu/taxanswer/shotoku/1130.htm"
+      },
+      {
+        "item": "課税所得の1,000円未満切捨て",
+        "provisional": false,
+        "applicable_period": "2026年分",
+        "source_name": "国税庁 確定申告書等作成コーナー 所得税及び復興特別所得税の税額計算",
+        "source_url": "https://www.keisan.nta.go.jp/r7yokuaru/cat2/cat21/cat214/cid076.html"
+      },
+      {
+        "item": "所得税額の最終端数処理",
+        "provisional": true,
+        "applicable_period": "未確認",
+        "source_name": "未確認",
+        "source_url": ""
+      }
+    ],
+    "basic_deduction_brackets": [
+      {"upper": 1320000, "deduction": 950000},
+      {"upper": 3360000, "deduction": 880000},
+      {"upper": 4890000, "deduction": 680000},
+      {"upper": 6550000, "deduction": 630000},
+      {"upper": 23500000, "deduction": 580000},
+      {"upper": 24000000, "deduction": 480000},
+      {"upper": 24500000, "deduction": 320000},
+      {"upper": 25000000, "deduction": 160000},
+      {"upper": null, "deduction": 0}
+    ],
+    "reconstruction_surtax_rate": 0.021,
+    "brackets": [
+      {"lower": 0, "upper": 1950000, "rate": 0.05, "deduction": 0},
+      {"lower": 1950000, "upper": 3300000, "rate": 0.10, "deduction": 97500},
+      {"lower": 3300000, "upper": 6950000, "rate": 0.20, "deduction": 427500},
+      {"lower": 6950000, "upper": 9000000, "rate": 0.23, "deduction": 636000},
+      {"lower": 9000000, "upper": 18000000, "rate": 0.33, "deduction": 1536000},
+      {"lower": 18000000, "upper": 40000000, "rate": 0.40, "deduction": 2796000},
+      {"lower": 40000000, "upper": null, "rate": 0.45, "deduction": 4796000}
+    ]
+  },
+  "resident_tax": {
+    "provisional": false,
+    "note": "2026年度東京都23区の個人住民税は東京都主税局・地方税法等で確認。所得割10%、基礎控除43万円、均等割4,000円、森林環境税1,000円、調整控除、東京23区の非課税判定を使用。",
+    "verification": [
+      {
+        "item": "前年所得課税",
+        "provisional": false,
+        "applicable_period": "2026年度は2025年中所得で算定",
+        "source_name": "東京都主税局 個人住民税",
+        "source_url": "https://www.tax.metro.tokyo.lg.jp/kazei/kojin_ju.html"
+      },
+      {
+        "item": "住民税の基礎控除",
+        "provisional": false,
+        "applicable_period": "令和8年度個人住民税",
+        "source_name": "東京都主税局 令和8年度個人住民税の所得控除額",
+        "source_url": "https://www.tax.metro.tokyo.lg.jp/documents/d/tax/hyou04"
+      },
+      {
+        "item": "所得割の税率",
+        "provisional": false,
+        "applicable_period": "2026年度",
+        "source_name": "東京都主税局 個人住民税",
+        "source_url": "https://www.tax.metro.tokyo.lg.jp/kazei/kojin_ju.html"
+      },
+      {
+        "item": "均等割",
+        "provisional": false,
+        "applicable_period": "2026年度",
+        "source_name": "東京都主税局 個人住民税",
+        "source_url": "https://www.tax.metro.tokyo.lg.jp/kazei/kojin_ju.html"
+      },
+      {
+        "item": "森林環境税",
+        "provisional": false,
+        "applicable_period": "令和6年度から。2026年度も適用。",
+        "source_name": "東京都主税局 個人住民税",
+        "source_url": "https://www.tax.metro.tokyo.lg.jp/kazei/kojin_ju.html"
+      },
+      {
+        "item": "調整控除",
+        "provisional": false,
+        "applicable_period": "2026年度",
+        "source_name": "東京都主税局 個人住民税",
+        "source_url": "https://www.tax.metro.tokyo.lg.jp/kazei/kojin_ju.html"
+      },
+      {
+        "item": "非課税判定（東京23区）",
+        "provisional": false,
+        "applicable_period": "2026年度",
+        "source_name": "東京都主税局 個人住民税",
+        "source_url": "https://www.tax.metro.tokyo.lg.jp/kazei/kojin_ju.html"
+      },
+      {
+        "item": "税額の100円未満切捨て",
+        "provisional": false,
+        "applicable_period": "現行地方税法。令和6年度以後の個人住民税・森林環境税に適用。",
+        "source_name": "e-Gov法令検索 地方税法 第二十条の四の二",
+        "source_url": "https://laws.e-gov.go.jp/api/1/lawdata/325AC0000000226"
+      }
+    ],
+    "municipality_class": "tokyo_23_wards",
+    "basic_deduction": 430000,
+    "income_rate": 0.10,
+    "per_capita": 4000,
+    "forest_environment_tax": 1000,
+    "tax_amount_unit": 100,
+    "non_taxable": {
+      "tokyo_23_wards": {
+        "no_dependents_total_income": 450000,
+        "no_dependents_income_portion_income": 450000,
+        "dependent_base": 350000,
+        "per_person": 350000,
+        "per_person_income_portion": 350000,
+        "dependent_addition": 310000,
+        "dependent_income_portion_addition": 420000
+      }
+    },
+    "adjustment_deduction": {
+      "enabled": true,
+      "threshold": 2000000,
+      "rate": 0.05,
+      "minimum": 2500
+    }
+  },
+  "social_insurance": {
+    "provisional": true,
+    "note": "2026年度の協会けんぽ東京都料率・介護保険料率・雇用保険料率は公式確認前。暫定値を使用。",
+    "verification": [
+      {
+        "item": "健康保険料率",
+        "provisional": true,
+        "applicable_period": "2026年度",
+        "source_name": "未確認",
+        "source_url": ""
+      },
+      {
+        "item": "介護保険料率",
+        "provisional": true,
+        "applicable_period": "2026年度",
+        "source_name": "未確認",
+        "source_url": ""
+      },
+      {
+        "item": "厚生年金保険料率・標準報酬月額",
+        "provisional": true,
+        "applicable_period": "2026年度",
+        "source_name": "未確認",
+        "source_url": ""
+      },
+      {
+        "item": "雇用保険料率",
+        "provisional": true,
+        "applicable_period": "2026年度",
+        "source_name": "未確認",
+        "source_url": ""
+      },
+      {
+        "item": "子ども・子育て拠出金率",
+        "provisional": true,
+        "applicable_period": "2026年度",
+        "source_name": "未確認",
+        "source_url": ""
+      }
+    ],
+    "health_insurance_rate": 0.0985,
+    "care_insurance_rate": 0.0162,
+    "pension_rate": 0.183,
+    "employment_insurance": {
+      "worker_rate": 0.0050,
+      "employer_rate": 0.0085
+    },
+    "child_care_contribution_rate": 0.0036,
+    "standard_monthly_remuneration": {
+      "health": [
+        {"standard": 58000, "lower": 0, "upper": 63000},
+        {"standard": 68000, "lower": 63000, "upper": 73000},
+        {"standard": 78000, "lower": 73000, "upper": 83000},
+        {"standard": 88000, "lower": 83000, "upper": 93000},
+        {"standard": 98000, "lower": 93000, "upper": 101000},
+        {"standard": 104000, "lower": 101000, "upper": 107000},
+        {"standard": 110000, "lower": 107000, "upper": 114000},
+        {"standard": 118000, "lower": 114000, "upper": 122000},
+        {"standard": 126000, "lower": 122000, "upper": 130000},
+        {"standard": 134000, "lower": 130000, "upper": 138000},
+        {"standard": 142000, "lower": 138000, "upper": 146000},
+        {"standard": 150000, "lower": 146000, "upper": 155000},
+        {"standard": 160000, "lower": 155000, "upper": 165000},
+        {"standard": 170000, "lower": 165000, "upper": 175000},
+        {"standard": 180000, "lower": 175000, "upper": 185000},
+        {"standard": 190000, "lower": 185000, "upper": 195000},
+        {"standard": 200000, "lower": 195000, "upper": 210000},
+        {"standard": 220000, "lower": 210000, "upper": 230000},
+        {"standard": 240000, "lower": 230000, "upper": 250000},
+        {"standard": 260000, "lower": 250000, "upper": 270000},
+        {"standard": 280000, "lower": 270000, "upper": 290000},
+        {"standard": 300000, "lower": 290000, "upper": 310000},
+        {"standard": 320000, "lower": 310000, "upper": 330000},
+        {"standard": 340000, "lower": 330000, "upper": 350000},
+        {"standard": 360000, "lower": 350000, "upper": 370000},
+        {"standard": 380000, "lower": 370000, "upper": 395000},
+        {"standard": 410000, "lower": 395000, "upper": 425000},
+        {"standard": 440000, "lower": 425000, "upper": 455000},
+        {"standard": 470000, "lower": 455000, "upper": 485000},
+        {"standard": 500000, "lower": 485000, "upper": 515000},
+        {"standard": 530000, "lower": 515000, "upper": 545000},
+        {"standard": 560000, "lower": 545000, "upper": 575000},
+        {"standard": 590000, "lower": 575000, "upper": 605000},
+        {"standard": 620000, "lower": 605000, "upper": 635000},
+        {"standard": 650000, "lower": 635000, "upper": 665000},
+        {"standard": 680000, "lower": 665000, "upper": 695000},
+        {"standard": 710000, "lower": 695000, "upper": 730000},
+        {"standard": 750000, "lower": 730000, "upper": 770000},
+        {"standard": 790000, "lower": 770000, "upper": 810000},
+        {"standard": 830000, "lower": 810000, "upper": 855000},
+        {"standard": 880000, "lower": 855000, "upper": 905000},
+        {"standard": 930000, "lower": 905000, "upper": 955000},
+        {"standard": 980000, "lower": 955000, "upper": 1005000},
+        {"standard": 1030000, "lower": 1005000, "upper": 1055000},
+        {"standard": 1090000, "lower": 1055000, "upper": 1115000},
+        {"standard": 1150000, "lower": 1115000, "upper": 1175000},
+        {"standard": 1210000, "lower": 1175000, "upper": 1235000},
+        {"standard": 1270000, "lower": 1235000, "upper": 1295000},
+        {"standard": 1330000, "lower": 1295000, "upper": 1355000},
+        {"standard": 1390000, "lower": 1355000, "upper": null}
+      ],
+      "pension": [
+        {"standard": 88000, "lower": 0, "upper": 93000},
+        {"standard": 98000, "lower": 93000, "upper": 101000},
+        {"standard": 104000, "lower": 101000, "upper": 107000},
+        {"standard": 110000, "lower": 107000, "upper": 114000},
+        {"standard": 118000, "lower": 114000, "upper": 122000},
+        {"standard": 126000, "lower": 122000, "upper": 130000},
+        {"standard": 134000, "lower": 130000, "upper": 138000},
+        {"standard": 142000, "lower": 138000, "upper": 146000},
+        {"standard": 150000, "lower": 146000, "upper": 155000},
+        {"standard": 160000, "lower": 155000, "upper": 165000},
+        {"standard": 170000, "lower": 165000, "upper": 175000},
+        {"standard": 180000, "lower": 175000, "upper": 185000},
+        {"standard": 190000, "lower": 185000, "upper": 195000},
+        {"standard": 200000, "lower": 195000, "upper": 210000},
+        {"standard": 220000, "lower": 210000, "upper": 230000},
+        {"standard": 240000, "lower": 230000, "upper": 250000},
+        {"standard": 260000, "lower": 250000, "upper": 270000},
+        {"standard": 280000, "lower": 270000, "upper": 290000},
+        {"standard": 300000, "lower": 290000, "upper": 310000},
+        {"standard": 320000, "lower": 310000, "upper": 330000},
+        {"standard": 340000, "lower": 330000, "upper": 350000},
+        {"standard": 360000, "lower": 350000, "upper": 370000},
+        {"standard": 380000, "lower": 370000, "upper": 395000},
+        {"standard": 410000, "lower": 395000, "upper": 425000},
+        {"standard": 440000, "lower": 425000, "upper": 455000},
+        {"standard": 470000, "lower": 455000, "upper": 485000},
+        {"standard": 500000, "lower": 485000, "upper": 515000},
+        {"standard": 530000, "lower": 515000, "upper": 545000},
+        {"standard": 560000, "lower": 545000, "upper": 575000},
+        {"standard": 590000, "lower": 575000, "upper": 605000},
+        {"standard": 620000, "lower": 605000, "upper": 635000},
+        {"standard": 650000, "lower": 635000, "upper": null}
+      ]
+    }
+  }
+}

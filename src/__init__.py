@@ -1,0 +1,1 @@
+"""Paycheck Insight package."""
