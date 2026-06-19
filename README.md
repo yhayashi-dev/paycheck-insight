@@ -2,6 +2,10 @@
 
 2026年の会社員向けに、税金・社会保険料・手取り額を概算する Streamlit アプリです。
 
+## 公開アプリ
+
+https://paycheck-insight-dfnvaodwxttypa7gtdouhj.streamlit.app
+
 現在の対象条件は、東京都・52歳・単身・扶養なし・会社員・協会けんぽ・給与収入のみ・賞与なし・年収を12か月均等支給に固定しています。
 
 ## 概要
@@ -119,4 +123,3 @@ paycheck-insight/
 - [2026年分 所得税公式確認レポート](docs/income_tax_official_verification_2026_salary_5000000.md)
 - [2026年度 住民税公式確認レポート](docs/resident_tax_official_verification_2026_tokyo_salary_5000000.md)
 - [2026年 東京都 500万円ケース検証](docs/calculation_validation_5000000_2026_tokyo.md)
-
