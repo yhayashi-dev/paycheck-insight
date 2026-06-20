@@ -50,6 +50,40 @@ def test_app_get_rates_loads_default_rates_for_500_man_yen_case():
     assert result.total_labor_cost == 5_792_548
 
 
+def test_app_ui_text_defaults_to_japanese_and_supports_major_english_labels():
+    import app
+
+    assert app.ui_text("ja", "title") == "2026年 手取り試算"
+    assert app.ui_text("unknown", "prefecture") == "都道府県"
+    assert app.ui_text("en", "title") == "2026 Take-home Pay Simulator"
+    assert app.ui_text("en", "subtitle") == (
+        "Estimate taxes, social insurance, and take-home pay for employees in Japan"
+    )
+    assert app.ui_text("en", "annual_salary") == "Annual salary"
+    assert app.ui_text("en", "verification_status_sources") == (
+        "Verification status and sources"
+    )
+
+
+def test_prefecture_comparison_uses_english_labels_when_requested():
+    import app
+
+    tokyo_result = simulate_annual_salary(5_000_000, app.get_rates("tokyo"))
+    osaka_result = simulate_annual_salary(5_000_000, app.get_rates("osaka"))
+
+    html = app.prefecture_comparison_html(
+        tokyo_result,
+        osaka_result,
+        language="en",
+    )
+
+    assert "Annual take-home pay" in html
+    assert "Monthly average take-home pay" in html
+    assert "Employer burden" in html
+    assert "Total labor cost" in html
+    assert "3,885,855円" in html
+
+
 def test_app_verification_metadata_splits_confirmed_and_unconfirmed_items():
     import app
 

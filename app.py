@@ -25,6 +25,48 @@ from src.ui.tables import (
 st.set_page_config(page_title="2026年 手取り試算", layout="wide")
 
 
+UI_TEXT = {
+    "ja": {
+        "title": "2026年 手取り試算",
+        "subtitle": "会社員向け 税・社会保険料・手取りの概算",
+        "prefecture": "都道府県",
+        "annual_salary": "年収",
+        "results": "試算結果",
+        "annual_take_home": "年間手取り",
+        "monthly_take_home": "月平均手取り",
+        "employer_burden": "会社負担分",
+        "total_labor_cost": "総人件費",
+        "social_insurance_total": "社会保険料合計",
+        "tax_total": "税金合計",
+        "verification_status_sources": "確認状況と出典",
+        "salary_examples": "年収別一覧",
+        "prefecture_comparison": "地域比較",
+    },
+    "en": {
+        "title": "2026 Take-home Pay Simulator",
+        "subtitle": "Estimate taxes, social insurance, and take-home pay for employees in Japan",
+        "prefecture": "Prefecture",
+        "annual_salary": "Annual salary",
+        "results": "Results",
+        "annual_take_home": "Annual take-home pay",
+        "monthly_take_home": "Monthly average take-home pay",
+        "employer_burden": "Employer burden",
+        "total_labor_cost": "Total labor cost",
+        "social_insurance_total": "Total social insurance",
+        "tax_total": "Total taxes",
+        "verification_status_sources": "Verification status and sources",
+        "salary_examples": "Salary examples",
+        "prefecture_comparison": "Prefecture comparison",
+    },
+}
+
+
+def ui_text(language: str, key: str) -> str:
+    """Return a UI label while keeping Japanese as the default language."""
+
+    return UI_TEXT.get(language, UI_TEXT["ja"])[key]
+
+
 @st.cache_data
 def get_rates(prefecture_code: str = "tokyo") -> dict:
     return load_rates(prefecture_code=prefecture_code)
@@ -45,12 +87,12 @@ VERIFICATION_STATUS_LABELS = {
 
 PREFECTURE_COMPARISON_SALARY = 5_000_000
 PREFECTURE_COMPARISON_METRICS = (
-    ("年間手取り", lambda result: result.annual_take_home),
-    ("月平均手取り", lambda result: result.monthly_take_home_average),
-    ("社会保険料合計", lambda result: result.insurance.employee_total),
-    ("税金合計", lambda result: result.tax.total),
-    ("会社負担分", lambda result: result.insurance.employer_total),
-    ("総人件費", lambda result: result.total_labor_cost),
+    ("annual_take_home", lambda result: result.annual_take_home),
+    ("monthly_take_home", lambda result: result.monthly_take_home_average),
+    ("social_insurance_total", lambda result: result.insurance.employee_total),
+    ("tax_total", lambda result: result.tax.total),
+    ("employer_burden", lambda result: result.insurance.employer_total),
+    ("total_labor_cost", lambda result: result.total_labor_cost),
 )
 
 
@@ -142,6 +184,7 @@ def format_signed_yen(value: int) -> str:
 def prefecture_comparison_html(
     prefecture_results: list[tuple[str, object]] | object,
     legacy_osaka_result: object | None = None,
+    language: str = "ja",
 ) -> str:
     """Render fixed-salary prefecture results and differences from the first item."""
 
@@ -158,10 +201,10 @@ def prefecture_comparison_html(
     prefecture_cards = []
     for prefecture_name, comparison_result in prefecture_results:
         metric_rows = []
-        for label, getter in PREFECTURE_COMPARISON_METRICS:
+        for label_key, getter in PREFECTURE_COMPARISON_METRICS:
             metric_rows.append(
                 '<div class="comparison-metric-row">'
-                f'<dt>{escape(label)}</dt>'
+                f'<dt>{escape(ui_text(language, label_key))}</dt>'
                 f'<dd>{format_yen(getter(comparison_result))}</dd>'
                 "</div>"
             )
@@ -176,11 +219,11 @@ def prefecture_comparison_html(
     difference_sections = []
     for prefecture_name, comparison_result in prefecture_results[1:]:
         difference_rows = []
-        for label, getter in PREFECTURE_COMPARISON_METRICS:
+        for label_key, getter in PREFECTURE_COMPARISON_METRICS:
             difference = getter(comparison_result) - getter(reference_result)
             difference_rows.append(
                 '<div class="comparison-difference-row">'
-                f'<span>{escape(label)}</span>'
+                f'<span>{escape(ui_text(language, label_key))}</span>'
                 '<strong>'
                 f'{escape(prefecture_name)}は{escape(reference_name)}より '
                 f'<span class="comparison-difference-value">{format_signed_yen(difference)}</span>'
@@ -522,10 +565,17 @@ st.markdown(
     unsafe_allow_html=True,
 )
 
+language_names = {"ja": "日本語", "en": "English"}
+selected_language = st.selectbox(
+    "表示言語 / Language",
+    options=list(language_names),
+    format_func=language_names.__getitem__,
+)
+
 st.markdown(
-    """
-    <h1 class="app-title">2026年 手取り試算</h1>
-    <p class="app-subtitle">会社員向け 税・社会保険料・手取りの概算</p>
+    f"""
+    <h1 class="app-title">{escape(ui_text(selected_language, "title"))}</h1>
+    <p class="app-subtitle">{escape(ui_text(selected_language, "subtitle"))}</p>
     """,
     unsafe_allow_html=True,
 )
@@ -533,7 +583,7 @@ st.markdown(
 prefecture_configs = get_supported_prefectures()
 prefecture_names = {config.code: config.display_name for config in prefecture_configs}
 selected_prefecture_code = st.selectbox(
-    "都道府県",
+    ui_text(selected_language, "prefecture"),
     options=[config.code for config in prefecture_configs],
     format_func=prefecture_names.__getitem__,
 )
@@ -554,7 +604,7 @@ if metadata["provisional"]:
     )
 
 verified_items, unverified_items = collect_verification_items(rates)
-with st.expander("確認状況と出典"):
+with st.expander(ui_text(selected_language, "verification_status_sources")):
     st.markdown(
         f"一部未確認項目あり。確認済み {len(verified_items)} 件、未確認 {len(unverified_items)} 件です。"
     )
@@ -564,7 +614,7 @@ with st.expander("確認状況と出典"):
     st.markdown(verification_cards_html(unverified_items), unsafe_allow_html=True)
 
 annual_salary_text = st.text_input(
-    "年収",
+    ui_text(selected_language, "annual_salary"),
     value=format_yen(5_000_000),
     help="3桁カンマ付きで入力できます。例: 5,000,000円",
 )
@@ -577,13 +627,16 @@ except ValueError:
 
 result = simulate_annual_salary(int(annual_salary), rates)
 
-st.subheader("試算結果")
+st.subheader(ui_text(selected_language, "results"))
 
 summary_items = [
-    ("年間手取り", format_yen(result.annual_take_home)),
-    ("月平均手取り", format_yen(result.monthly_take_home_average)),
-    ("会社負担分", format_yen(result.insurance.employer_total)),
-    ("総人件費", format_yen(result.total_labor_cost)),
+    (ui_text(selected_language, "annual_take_home"), format_yen(result.annual_take_home)),
+    (
+        ui_text(selected_language, "monthly_take_home"),
+        format_yen(result.monthly_take_home_average),
+    ),
+    (ui_text(selected_language, "employer_burden"), format_yen(result.insurance.employer_total)),
+    (ui_text(selected_language, "total_labor_cost"), format_yen(result.total_labor_cost)),
 ]
 summary_html = '<div class="summary-grid">'
 for label, value in summary_items:
@@ -598,7 +651,7 @@ st.markdown(summary_html, unsafe_allow_html=True)
 
 st.table(result_to_display_rows(result))
 
-st.subheader("地域比較")
+st.subheader(ui_text(selected_language, "prefecture_comparison"))
 st.markdown(
     f'<p class="app-caption">年収 {format_yen(PREFECTURE_COMPARISON_SALARY)}・52歳・単身・扶養なし・'
     '賞与なし・12か月均等支給で比較しています。</p>',
@@ -612,7 +665,7 @@ comparison_results = [
     for config in prefecture_configs
 ]
 st.markdown(
-    prefecture_comparison_html(comparison_results),
+    prefecture_comparison_html(comparison_results, language=selected_language),
     unsafe_allow_html=True,
 )
 
@@ -633,7 +686,7 @@ with st.expander("計算前提"):
         }
     )
 
-st.subheader("年収別一覧")
+st.subheader(ui_text(selected_language, "salary_examples"))
 range_results = simulate_salary_range(rates)
 df = results_to_dataframe(range_results)
 display_df = format_results_dataframe(df)

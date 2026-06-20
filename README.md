@@ -2,6 +2,8 @@
 
 2026年の会社員向けに、税金・社会保険料・手取り額を概算する Streamlit アプリです。
 
+English UI is partially supported. Use the language selector at the top of the app to switch major labels to English.
+
 ## 公開アプリ
 
 https://paycheck-insight-dfnvaodwxttypa7gtdouhj.streamlit.app
