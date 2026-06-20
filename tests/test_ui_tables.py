@@ -76,6 +76,7 @@ def test_dataframe_to_responsive_html_uses_cards_without_a_table():
     assert "<table" not in html
     assert html.count('class="range-mobile-card"') == 1
     assert "詳細を表示" in html
+    assert "詳細を閉じる" in html
     for label in [
         "年収",
         "月額給与",
@@ -87,3 +88,34 @@ def test_dataframe_to_responsive_html_uses_cards_without_a_table():
         "月平均手取り",
     ]:
         assert f"<span>{label}</span>" in html
+
+    english_html = dataframe_to_responsive_html(
+        df,
+        labels={
+            "年収": "Annual salary",
+            "月額給与": "Monthly salary",
+            "所得税": "Income tax",
+            "住民税": "Resident tax",
+            "健康保険": "Health insurance",
+            "介護保険": "Long-term care insurance",
+            "厚生年金": "Employees' pension",
+            "雇用保険": "Employment insurance",
+            "社会保険料合計": "Total social insurance",
+            "税金合計": "Total taxes",
+            "年間手取り": "Annual take-home pay",
+            "月平均手取り": "Monthly average take-home pay",
+            "会社負担分": "Employer burden",
+            "総人件費": "Total labor cost",
+            "手取り率": "Take-home rate",
+        },
+        show_details_label="Show details",
+        hide_details_label="Hide details",
+    )
+
+    assert "Annual salary" in english_html
+    assert "Monthly average take-home pay" in english_html
+    assert "Long-term care insurance" in english_html
+    assert "Employees&#x27; pension" in english_html
+    assert "Show details" in english_html
+    assert "Hide details" in english_html
+    assert "5,000,000円" in english_html

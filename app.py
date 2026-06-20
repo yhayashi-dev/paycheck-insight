@@ -73,6 +73,48 @@ ENGLISH_PREFECTURE_NAMES = {
     "kanagawa": "Kanagawa (Yokohama assumed)",
 }
 
+SALARY_EXAMPLE_LABELS = {
+    "ja": {
+        "年収": "年収",
+        "月額給与": "月額給与",
+        "所得税": "所得税",
+        "住民税": "住民税",
+        "健康保険": "健康保険",
+        "介護保険": "介護保険",
+        "厚生年金": "厚生年金",
+        "雇用保険": "雇用保険",
+        "社会保険料合計": "社会保険料合計",
+        "税金合計": "税金合計",
+        "年間手取り": "年間手取り",
+        "月平均手取り": "月平均手取り",
+        "会社負担分": "会社負担分",
+        "総人件費": "総人件費",
+        "手取り率": "手取り率",
+    },
+    "en": {
+        "年収": "Annual salary",
+        "月額給与": "Monthly salary",
+        "所得税": "Income tax",
+        "住民税": "Resident tax",
+        "健康保険": "Health insurance",
+        "介護保険": "Long-term care insurance",
+        "厚生年金": "Employees' pension",
+        "雇用保険": "Employment insurance",
+        "社会保険料合計": "Total social insurance",
+        "税金合計": "Total taxes",
+        "年間手取り": "Annual take-home pay",
+        "月平均手取り": "Monthly average take-home pay",
+        "会社負担分": "Employer burden",
+        "総人件費": "Total labor cost",
+        "手取り率": "Take-home rate",
+    },
+}
+
+SALARY_EXAMPLE_DETAIL_LABELS = {
+    "ja": ("詳細を表示", "詳細を閉じる"),
+    "en": ("Show details", "Hide details"),
+}
+
 
 def ui_text(language: str, key: str) -> str:
     """Return a UI label while keeping Japanese as the default language."""
@@ -588,6 +630,15 @@ st.markdown(
         font-weight: 700;
         list-style-position: inside;
     }
+    .range-details-hide {
+        display: none;
+    }
+    .range-mobile-details[open] .range-details-show {
+        display: none;
+    }
+    .range-mobile-details[open] .range-details-hide {
+        display: inline;
+    }
     .range-mobile-details .range-mobile-detail-row:last-child {
         border-bottom: 0;
     }
@@ -808,4 +859,13 @@ range_results = simulate_salary_range(rates)
 df = results_to_dataframe(range_results)
 display_df = format_results_dataframe(df, selected_currency_unit)
 
-st.markdown(dataframe_to_responsive_html(display_df), unsafe_allow_html=True)
+show_details_label, hide_details_label = SALARY_EXAMPLE_DETAIL_LABELS[selected_language]
+st.markdown(
+    dataframe_to_responsive_html(
+        display_df,
+        labels=SALARY_EXAMPLE_LABELS[selected_language],
+        show_details_label=show_details_label,
+        hide_details_label=hide_details_label,
+    ),
+    unsafe_allow_html=True,
+)

@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 from html import escape
+from typing import Mapping
 
 import pandas as pd
 
@@ -126,22 +127,45 @@ DETAIL_RANGE_COLUMNS = [
 ]
 
 
-def dataframe_to_responsive_html(df: pd.DataFrame) -> str:
+def dataframe_to_responsive_html(
+    df: pd.DataFrame,
+    labels: Mapping[str, str] | None = None,
+    show_details_label: str = "詳細を表示",
+    hide_details_label: str = "詳細を閉じる",
+) -> str:
     """Render annual income results as responsive cards."""
 
-    return _mobile_range_cards(df)
+    return _mobile_range_cards(
+        df,
+        labels or {},
+        show_details_label,
+        hide_details_label,
+    )
 
 
-def _mobile_range_cards(df: pd.DataFrame) -> str:
+def _mobile_range_cards(
+    df: pd.DataFrame,
+    labels: Mapping[str, str],
+    show_details_label: str,
+    hide_details_label: str,
+) -> str:
     cards = []
     for _, row in df.iterrows():
         important_items = "".join(
-            _mobile_value_row(column, row[column], "range-mobile-main-row")
+            _mobile_value_row(
+                labels.get(column, column),
+                row[column],
+                "range-mobile-main-row",
+            )
             for column in IMPORTANT_RANGE_COLUMNS
             if column in df.columns
         )
         detail_items = "".join(
-            _mobile_value_row(column, row[column], "range-mobile-detail-row")
+            _mobile_value_row(
+                labels.get(column, column),
+                row[column],
+                "range-mobile-detail-row",
+            )
             for column in DETAIL_RANGE_COLUMNS
             if column in df.columns
         )
@@ -149,7 +173,10 @@ def _mobile_range_cards(df: pd.DataFrame) -> str:
             '<section class="range-mobile-card">'
             f"{important_items}"
             '<details class="range-mobile-details">'
-            "<summary>詳細を表示</summary>"
+            "<summary>"
+            f'<span class="range-details-show">{escape(show_details_label)}</span>'
+            f'<span class="range-details-hide">{escape(hide_details_label)}</span>'
+            "</summary>"
             f"{detail_items}"
             "</details>"
             "</section>"
