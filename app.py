@@ -88,6 +88,14 @@ def warning_message(language: str, metadata: dict) -> str:
     return metadata["notice"]
 
 
+def prefecture_display_name(language: str, prefecture_code: str, japanese_name: str) -> str:
+    """Translate a prefecture label without changing its internal selection code."""
+
+    if language == "en":
+        return ENGLISH_PREFECTURE_NAMES[prefecture_code]
+    return japanese_name
+
+
 def assumption_summary(language: str, prefecture_code: str, metadata: dict) -> str:
     """Describe the fixed simulation assumptions in the selected UI language."""
 
@@ -618,7 +626,14 @@ st.markdown(
 )
 
 prefecture_configs = get_supported_prefectures()
-prefecture_names = {config.code: config.display_name for config in prefecture_configs}
+prefecture_names = {
+    config.code: prefecture_display_name(
+        selected_language,
+        config.code,
+        config.display_name,
+    )
+    for config in prefecture_configs
+}
 selected_prefecture_code = st.selectbox(
     ui_text(selected_language, "prefecture"),
     options=[config.code for config in prefecture_configs],

@@ -98,6 +98,21 @@ def test_assumption_summary_preserves_japanese_and_translates_prefecture_names()
         assert summary.endswith("No bonus · Paid evenly over 12 months.")
 
 
+def test_prefecture_display_names_change_language_without_changing_rate_keys():
+    import app
+
+    expected_names = {
+        "tokyo": ("東京都", "Tokyo"),
+        "osaka": ("大阪府", "Osaka"),
+        "kanagawa": ("神奈川県（横浜市想定）", "Kanagawa (Yokohama assumed)"),
+    }
+
+    for prefecture_code, (japanese_name, english_name) in expected_names.items():
+        assert app.prefecture_display_name("ja", prefecture_code, japanese_name) == japanese_name
+        assert app.prefecture_display_name("en", prefecture_code, japanese_name) == english_name
+        assert app.get_rates(prefecture_code)["regional_scope"]["prefecture_code"] == prefecture_code
+
+
 def test_prefecture_comparison_uses_english_labels_when_requested():
     import app
 
