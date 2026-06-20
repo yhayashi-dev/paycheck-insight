@@ -226,6 +226,20 @@ def format_signed_yen(value: int) -> str:
     return f"{value:+,}円"
 
 
+def comparison_assumption_summary(language: str) -> str:
+    """Describe the fixed inputs used for the prefecture comparison."""
+
+    if language == "en":
+        return (
+            f"Annual salary {format_yen(PREFECTURE_COMPARISON_SALARY)} · Age 52 · Single · "
+            "No dependents · No bonus · Paid evenly over 12 months."
+        )
+    return (
+        f"年収 {format_yen(PREFECTURE_COMPARISON_SALARY)}・52歳・単身・扶養なし・"
+        "賞与なし・12か月均等支給で比較しています。"
+    )
+
+
 def prefecture_comparison_html(
     prefecture_results: list[tuple[str, object]] | object,
     legacy_osaka_result: object | None = None,
@@ -234,9 +248,14 @@ def prefecture_comparison_html(
     """Render fixed-salary prefecture results and differences from the first item."""
 
     if legacy_osaka_result is not None:
+        legacy_names = (
+            ("Tokyo", "Osaka")
+            if language == "en"
+            else ("東京都", "大阪府")
+        )
         prefecture_results = [
-            ("東京都", prefecture_results),
-            ("大阪府", legacy_osaka_result),
+            (legacy_names[0], prefecture_results),
+            (legacy_names[1], legacy_osaka_result),
         ]
     if not isinstance(prefecture_results, list):
         raise TypeError("prefecture_results must be a list of name and result pairs.")
@@ -266,18 +285,34 @@ def prefecture_comparison_html(
         difference_rows = []
         for label_key, getter in PREFECTURE_COMPARISON_METRICS:
             difference = getter(comparison_result) - getter(reference_result)
+            if language == "en":
+                difference_copy = (
+                    f"{escape(prefecture_name)} compared with {escape(reference_name)}: "
+                )
+            else:
+                difference_copy = (
+                    f"{escape(prefecture_name)}は{escape(reference_name)}より "
+                )
             difference_rows.append(
                 '<div class="comparison-difference-row">'
                 f'<span>{escape(ui_text(language, label_key))}</span>'
                 '<strong>'
-                f'{escape(prefecture_name)}は{escape(reference_name)}より '
+                f'{difference_copy}'
                 f'<span class="comparison-difference-value">{format_signed_yen(difference)}</span>'
                 "</strong>"
                 "</div>"
             )
+        if language == "en":
+            difference_title = (
+                f"Difference ({escape(prefecture_name)} - {escape(reference_name)})"
+            )
+        else:
+            difference_title = (
+                f"差額（{escape(prefecture_name)} − {escape(reference_name)}）"
+            )
         difference_sections.append(
             '<h4 class="comparison-difference-title">'
-            f'差額（{escape(prefecture_name)} − {escape(reference_name)}）'
+            f'{difference_title}'
             "</h4>"
             f'<div class="comparison-difference-list">{"".join(difference_rows)}</div>'
         )
@@ -704,13 +739,12 @@ st.table(result_to_display_rows(result))
 
 st.subheader(ui_text(selected_language, "prefecture_comparison"))
 st.markdown(
-    f'<p class="app-caption">年収 {format_yen(PREFECTURE_COMPARISON_SALARY)}・52歳・単身・扶養なし・'
-    '賞与なし・12か月均等支給で比較しています。</p>',
+    f'<p class="app-caption">{escape(comparison_assumption_summary(selected_language))}</p>',
     unsafe_allow_html=True,
 )
 comparison_results = [
     (
-        config.display_name,
+        prefecture_display_name(selected_language, config.code, config.display_name),
         simulate_annual_salary(PREFECTURE_COMPARISON_SALARY, get_rates(config.code)),
     )
     for config in prefecture_configs

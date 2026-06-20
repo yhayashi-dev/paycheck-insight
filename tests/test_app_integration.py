@@ -129,7 +129,27 @@ def test_prefecture_comparison_uses_english_labels_when_requested():
     assert "Monthly average take-home pay" in html
     assert "Employer burden" in html
     assert "Total labor cost" in html
+    assert "Tokyo" in html
+    assert "Osaka" in html
+    assert "Difference (Osaka - Tokyo)" in html
+    assert (
+        "Osaka compared with Tokyo: "
+        '<span class="comparison-difference-value">-5,773円</span>' in html
+    )
     assert "3,885,855円" in html
+
+
+def test_prefecture_comparison_assumption_summary_changes_language():
+    import app
+
+    assert app.comparison_assumption_summary("ja") == (
+        "年収 5,000,000円・52歳・単身・扶養なし・賞与なし・"
+        "12か月均等支給で比較しています。"
+    )
+    assert app.comparison_assumption_summary("en") == (
+        "Annual salary 5,000,000円 · Age 52 · Single · No dependents · "
+        "No bonus · Paid evenly over 12 months."
+    )
 
 
 def test_app_verification_metadata_splits_confirmed_and_unconfirmed_items():
