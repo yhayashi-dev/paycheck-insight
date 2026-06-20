@@ -5,10 +5,12 @@ from src.ui.tables import dataframe_to_responsive_html, format_results_dataframe
 
 def test_format_yen_uses_commas_and_yen_suffix():
     assert format_yen(5_000_000) == "5,000,000円"
+    assert format_yen(5_000_000, "JPY") == "5,000,000 JPY"
 
 
 def test_parse_yen_input_accepts_commas_and_yen_suffix():
     assert parse_yen_input("5,000,000円") == 5_000_000
+    assert parse_yen_input("5,000,000 JPY") == 5_000_000
 
 
 def test_format_results_dataframe_formats_money_columns():
@@ -40,6 +42,10 @@ def test_format_results_dataframe_formats_money_columns():
     assert formatted.loc[0, "年間手取り"] == "3,832,500円"
     assert formatted.loc[0, "総人件費"] == "5,795,000円"
     assert formatted.loc[0, "手取り率"] == "76.7%"
+
+    english_formatted = format_results_dataframe(df, "JPY")
+    assert english_formatted.loc[0, "年収"] == "5,000,000 JPY"
+    assert english_formatted.loc[0, "年間手取り"] == "3,832,500 JPY"
 
 
 def test_dataframe_to_responsive_html_uses_cards_without_a_table():

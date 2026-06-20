@@ -7,10 +7,11 @@ import pandas as pd
 from src.models import SimulationResult
 
 
-def format_yen(value: int) -> str:
-    """Format an integer yen amount for Streamlit tables."""
+def format_yen(value: int, unit: str = "円") -> str:
+    """Format an integer yen amount with a display-only localized unit."""
 
-    return f"{value:,.0f}円"
+    separator = "" if unit == "円" else " "
+    return f"{value:,.0f}{separator}{unit}"
 
 
 def format_percent(value: float) -> str:
@@ -20,30 +21,33 @@ def format_percent(value: float) -> str:
 
 
 def parse_yen_input(value: str) -> int:
-    """Parse a yen input string such as '5,000,000円' into an integer."""
+    """Parse a yen input string such as '5,000,000円' or '5,000,000 JPY'."""
 
-    normalized = value.replace(",", "").replace("円", "").strip()
+    normalized = value.upper().replace(",", "").replace("円", "").replace("JPY", "").strip()
     if not normalized:
         return 0
     return int(normalized)
 
 
-def result_to_display_rows(result: SimulationResult) -> list[dict[str, str]]:
+def result_to_display_rows(
+    result: SimulationResult,
+    unit: str = "円",
+) -> list[dict[str, str]]:
     """Convert a single simulation into labeled display rows."""
 
     return [
-        {"項目": "所得税", "金額": format_yen(result.tax.income_tax)},
-        {"項目": "住民税", "金額": format_yen(result.tax.resident_tax)},
-        {"項目": "健康保険", "金額": format_yen(result.insurance.health_employee)},
-        {"項目": "介護保険", "金額": format_yen(result.insurance.care_employee)},
-        {"項目": "厚生年金", "金額": format_yen(result.insurance.pension_employee)},
-        {"項目": "雇用保険", "金額": format_yen(result.insurance.employment_employee)},
-        {"項目": "社会保険料合計", "金額": format_yen(result.insurance.employee_total)},
-        {"項目": "税金合計", "金額": format_yen(result.tax.total)},
-        {"項目": "年間手取り", "金額": format_yen(result.annual_take_home)},
-        {"項目": "月平均手取り", "金額": format_yen(result.monthly_take_home_average)},
-        {"項目": "会社負担分", "金額": format_yen(result.insurance.employer_total)},
-        {"項目": "総人件費", "金額": format_yen(result.total_labor_cost)},
+        {"項目": "所得税", "金額": format_yen(result.tax.income_tax, unit)},
+        {"項目": "住民税", "金額": format_yen(result.tax.resident_tax, unit)},
+        {"項目": "健康保険", "金額": format_yen(result.insurance.health_employee, unit)},
+        {"項目": "介護保険", "金額": format_yen(result.insurance.care_employee, unit)},
+        {"項目": "厚生年金", "金額": format_yen(result.insurance.pension_employee, unit)},
+        {"項目": "雇用保険", "金額": format_yen(result.insurance.employment_employee, unit)},
+        {"項目": "社会保険料合計", "金額": format_yen(result.insurance.employee_total, unit)},
+        {"項目": "税金合計", "金額": format_yen(result.tax.total, unit)},
+        {"項目": "年間手取り", "金額": format_yen(result.annual_take_home, unit)},
+        {"項目": "月平均手取り", "金額": format_yen(result.monthly_take_home_average, unit)},
+        {"項目": "会社負担分", "金額": format_yen(result.insurance.employer_total, unit)},
+        {"項目": "総人件費", "金額": format_yen(result.total_labor_cost, unit)},
     ]
 
 
@@ -74,7 +78,7 @@ def results_to_dataframe(results: list[SimulationResult]) -> pd.DataFrame:
     return pd.DataFrame(rows)
 
 
-def format_results_dataframe(df: pd.DataFrame) -> pd.DataFrame:
+def format_results_dataframe(df: pd.DataFrame, unit: str = "円") -> pd.DataFrame:
     """Format simulation dataframe values for display without changing calculations."""
 
     formatted = df.copy()
@@ -95,7 +99,7 @@ def format_results_dataframe(df: pd.DataFrame) -> pd.DataFrame:
         "総人件費",
     ]
     for column in yen_columns:
-        formatted[column] = formatted[column].map(format_yen)
+        formatted[column] = formatted[column].map(lambda value: format_yen(value, unit))
     formatted["手取り率"] = formatted["手取り率"].map(format_percent)
     return formatted
 

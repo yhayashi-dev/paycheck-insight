@@ -63,6 +63,8 @@ def test_app_ui_text_defaults_to_japanese_and_supports_major_english_labels():
     assert app.ui_text("en", "verification_status_sources") == (
         "Verification status and sources"
     )
+    assert app.currency_unit("ja") == "円"
+    assert app.currency_unit("en") == "JPY"
 
 
 def test_warning_message_preserves_japanese_metadata_and_translates_english_mode():
@@ -134,9 +136,9 @@ def test_prefecture_comparison_uses_english_labels_when_requested():
     assert "Difference (Osaka - Tokyo)" in html
     assert (
         "Osaka compared with Tokyo: "
-        '<span class="comparison-difference-value">-5,773円</span>' in html
+        '<span class="comparison-difference-value">-5,773 JPY</span>' in html
     )
-    assert "3,885,855円" in html
+    assert "3,885,855 JPY" in html
 
 
 def test_prefecture_comparison_assumption_summary_changes_language():
@@ -147,7 +149,7 @@ def test_prefecture_comparison_assumption_summary_changes_language():
         "12か月均等支給で比較しています。"
     )
     assert app.comparison_assumption_summary("en") == (
-        "Annual salary 5,000,000円 · Age 52 · Single · No dependents · "
+        "Annual salary 5,000,000 JPY · Age 52 · Single · No dependents · "
         "No bonus · Paid evenly over 12 months."
     )
 

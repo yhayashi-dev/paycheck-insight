@@ -80,6 +80,12 @@ def ui_text(language: str, key: str) -> str:
     return UI_TEXT.get(language, UI_TEXT["ja"])[key]
 
 
+def currency_unit(language: str) -> str:
+    """Return the display-only currency unit for the selected language."""
+
+    return "JPY" if language == "en" else "円"
+
+
 def warning_message(language: str, metadata: dict) -> str:
     """Use the existing regional notice in Japanese and a shared English notice."""
 
@@ -220,10 +226,12 @@ def verification_cards_html(items: list[dict]) -> str:
     )
 
 
-def format_signed_yen(value: int) -> str:
+def format_signed_yen(value: int, language: str = "ja") -> str:
     """Format a comparison difference with an explicit sign."""
 
-    return f"{value:+,}円"
+    unit = currency_unit(language)
+    separator = "" if unit == "円" else " "
+    return f"{value:+,}{separator}{unit}"
 
 
 def comparison_assumption_summary(language: str) -> str:
@@ -231,7 +239,8 @@ def comparison_assumption_summary(language: str) -> str:
 
     if language == "en":
         return (
-            f"Annual salary {format_yen(PREFECTURE_COMPARISON_SALARY)} · Age 52 · Single · "
+            f"Annual salary {format_yen(PREFECTURE_COMPARISON_SALARY, currency_unit(language))} · "
+            "Age 52 · Single · "
             "No dependents · No bonus · Paid evenly over 12 months."
         )
     return (
@@ -263,13 +272,14 @@ def prefecture_comparison_html(
         raise ValueError("Prefecture comparison requires at least two results.")
 
     prefecture_cards = []
+    unit = currency_unit(language)
     for prefecture_name, comparison_result in prefecture_results:
         metric_rows = []
         for label_key, getter in PREFECTURE_COMPARISON_METRICS:
             metric_rows.append(
                 '<div class="comparison-metric-row">'
                 f'<dt>{escape(ui_text(language, label_key))}</dt>'
-                f'<dd>{format_yen(getter(comparison_result))}</dd>'
+                f'<dd>{format_yen(getter(comparison_result), unit)}</dd>'
                 "</div>"
             )
         prefecture_cards.append(
@@ -298,7 +308,7 @@ def prefecture_comparison_html(
                 f'<span>{escape(ui_text(language, label_key))}</span>'
                 '<strong>'
                 f'{difference_copy}'
-                f'<span class="comparison-difference-value">{format_signed_yen(difference)}</span>'
+                f'<span class="comparison-difference-value">{format_signed_yen(difference, language)}</span>'
                 "</strong>"
                 "</div>"
             )
@@ -651,6 +661,7 @@ selected_language = st.selectbox(
     options=list(language_names),
     format_func=language_names.__getitem__,
 )
+selected_currency_unit = currency_unit(selected_language)
 
 st.markdown(
     f"""
@@ -701,7 +712,7 @@ with st.expander(ui_text(selected_language, "verification_status_sources")):
 
 annual_salary_text = st.text_input(
     ui_text(selected_language, "annual_salary"),
-    value=format_yen(5_000_000),
+    value=format_yen(5_000_000, selected_currency_unit),
     help="3桁カンマ付きで入力できます。例: 5,000,000円",
 )
 
@@ -716,13 +727,22 @@ result = simulate_annual_salary(int(annual_salary), rates)
 st.subheader(ui_text(selected_language, "results"))
 
 summary_items = [
-    (ui_text(selected_language, "annual_take_home"), format_yen(result.annual_take_home)),
+    (
+        ui_text(selected_language, "annual_take_home"),
+        format_yen(result.annual_take_home, selected_currency_unit),
+    ),
     (
         ui_text(selected_language, "monthly_take_home"),
-        format_yen(result.monthly_take_home_average),
+        format_yen(result.monthly_take_home_average, selected_currency_unit),
     ),
-    (ui_text(selected_language, "employer_burden"), format_yen(result.insurance.employer_total)),
-    (ui_text(selected_language, "total_labor_cost"), format_yen(result.total_labor_cost)),
+    (
+        ui_text(selected_language, "employer_burden"),
+        format_yen(result.insurance.employer_total, selected_currency_unit),
+    ),
+    (
+        ui_text(selected_language, "total_labor_cost"),
+        format_yen(result.total_labor_cost, selected_currency_unit),
+    ),
 ]
 summary_html = '<div class="summary-grid">'
 for label, value in summary_items:
@@ -735,7 +755,7 @@ for label, value in summary_items:
 summary_html += "</div>"
 st.markdown(summary_html, unsafe_allow_html=True)
 
-st.table(result_to_display_rows(result))
+st.table(result_to_display_rows(result, selected_currency_unit))
 
 st.subheader(ui_text(selected_language, "prefecture_comparison"))
 st.markdown(
@@ -764,16 +784,28 @@ with st.expander("計算前提"):
             "扶養人数": metadata["dependents"],
             "保険者": metadata["health_insurer"],
             "賞与": "なし",
-            "健康保険 標準報酬月額": f"{result.insurance.health_standard_monthly:,.0f}円",
-            "厚生年金 標準報酬月額": f"{result.insurance.pension_standard_monthly:,.0f}円",
-            "所得税 課税所得": f"{result.tax.taxable_income_for_income_tax:,.0f}円",
-            "住民税 課税所得": f"{result.tax.taxable_income_for_resident_tax:,.0f}円",
+            "健康保険 標準報酬月額": format_yen(
+                result.insurance.health_standard_monthly,
+                selected_currency_unit,
+            ),
+            "厚生年金 標準報酬月額": format_yen(
+                result.insurance.pension_standard_monthly,
+                selected_currency_unit,
+            ),
+            "所得税 課税所得": format_yen(
+                result.tax.taxable_income_for_income_tax,
+                selected_currency_unit,
+            ),
+            "住民税 課税所得": format_yen(
+                result.tax.taxable_income_for_resident_tax,
+                selected_currency_unit,
+            ),
         }
     )
 
 st.subheader(ui_text(selected_language, "salary_examples"))
 range_results = simulate_salary_range(rates)
 df = results_to_dataframe(range_results)
-display_df = format_results_dataframe(df)
+display_df = format_results_dataframe(df, selected_currency_unit)
 
 st.markdown(dataframe_to_responsive_html(display_df), unsafe_allow_html=True)
