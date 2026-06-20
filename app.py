@@ -167,6 +167,53 @@ def currency_unit(language: str) -> str:
     return "JPY" if language == "en" else "円"
 
 
+def format_display_currency(value: int, unit: str) -> str:
+    """Localize the stable one-argument yen formatter for hot-reload compatibility."""
+
+    yen_text = format_yen(value)
+    if unit == "円":
+        return yen_text
+    numeric_text = yen_text[:-1] if yen_text.endswith("円") else yen_text
+    return f"{numeric_text} {unit}"
+
+
+def parse_currency_input(value: str) -> int:
+    """Normalize the English display unit before using the stable yen parser."""
+
+    return parse_yen_input(value.upper().replace("JPY", "円"))
+
+
+def localize_yen_text(value: object, unit: str) -> object:
+    """Convert already-formatted yen text without changing its numeric value."""
+
+    if unit == "円" or not isinstance(value, str) or not value.endswith("円"):
+        return value
+    return f"{value[:-1]} {unit}"
+
+
+def localized_result_rows(result: object, unit: str) -> list[dict[str, str]]:
+    """Localize result rows while calling the imported helper with its stable API."""
+
+    rows = result_to_display_rows(result)
+    return [
+        {**row, "金額": str(localize_yen_text(row["金額"], unit))}
+        for row in rows
+    ]
+
+
+def localized_results_dataframe(df: object, unit: str) -> object:
+    """Localize a formatted salary table without passing new args to cached helpers."""
+
+    formatted = format_results_dataframe(df)
+    if unit == "円":
+        return formatted
+    for column in formatted.columns:
+        formatted[column] = formatted[column].map(
+            lambda value: localize_yen_text(value, unit)
+        )
+    return formatted
+
+
 def warning_message(language: str, metadata: dict) -> str:
     """Use the existing regional notice in Japanese and a shared English notice."""
 
@@ -358,7 +405,7 @@ def comparison_assumption_summary(language: str) -> str:
 
     if language == "en":
         return (
-            f"Annual salary {format_yen(PREFECTURE_COMPARISON_SALARY, currency_unit(language))} · "
+            f"Annual salary {format_display_currency(PREFECTURE_COMPARISON_SALARY, currency_unit(language))} · "
             "Age 52 · Single · "
             "No dependents · No bonus · Paid evenly over 12 months."
         )
@@ -398,7 +445,7 @@ def prefecture_comparison_html(
             metric_rows.append(
                 '<div class="comparison-metric-row">'
                 f'<dt>{escape(ui_text(language, label_key))}</dt>'
-                f'<dd>{format_yen(getter(comparison_result), unit)}</dd>'
+                f'<dd>{format_display_currency(getter(comparison_result), unit)}</dd>'
                 "</div>"
             )
         prefecture_cards.append(
@@ -877,12 +924,12 @@ with st.expander(ui_text(selected_language, "verification_status_sources")):
 
 annual_salary_text = st.text_input(
     ui_text(selected_language, "annual_salary"),
-    value=format_yen(5_000_000, selected_currency_unit),
+    value=format_display_currency(5_000_000, selected_currency_unit),
     help="3桁カンマ付きで入力できます。例: 5,000,000円",
 )
 
 try:
-    annual_salary = parse_yen_input(annual_salary_text)
+    annual_salary = parse_currency_input(annual_salary_text)
 except ValueError:
     st.error("年収は 5,000,000円 のように数字、カンマ、円で入力してください。")
     st.stop()
@@ -894,19 +941,19 @@ st.subheader(ui_text(selected_language, "results"))
 summary_items = [
     (
         ui_text(selected_language, "annual_take_home"),
-        format_yen(result.annual_take_home, selected_currency_unit),
+        format_display_currency(result.annual_take_home, selected_currency_unit),
     ),
     (
         ui_text(selected_language, "monthly_take_home"),
-        format_yen(result.monthly_take_home_average, selected_currency_unit),
+        format_display_currency(result.monthly_take_home_average, selected_currency_unit),
     ),
     (
         ui_text(selected_language, "employer_burden"),
-        format_yen(result.insurance.employer_total, selected_currency_unit),
+        format_display_currency(result.insurance.employer_total, selected_currency_unit),
     ),
     (
         ui_text(selected_language, "total_labor_cost"),
-        format_yen(result.total_labor_cost, selected_currency_unit),
+        format_display_currency(result.total_labor_cost, selected_currency_unit),
     ),
 ]
 summary_html = '<div class="summary-grid">'
@@ -920,7 +967,7 @@ for label, value in summary_items:
 summary_html += "</div>"
 st.markdown(summary_html, unsafe_allow_html=True)
 
-st.table(result_to_display_rows(result, selected_currency_unit))
+st.table(localized_result_rows(result, selected_currency_unit))
 
 st.subheader(ui_text(selected_language, "prefecture_comparison"))
 st.markdown(
@@ -949,19 +996,19 @@ with st.expander("計算前提"):
             "扶養人数": metadata["dependents"],
             "保険者": metadata["health_insurer"],
             "賞与": "なし",
-            "健康保険 標準報酬月額": format_yen(
+            "健康保険 標準報酬月額": format_display_currency(
                 result.insurance.health_standard_monthly,
                 selected_currency_unit,
             ),
-            "厚生年金 標準報酬月額": format_yen(
+            "厚生年金 標準報酬月額": format_display_currency(
                 result.insurance.pension_standard_monthly,
                 selected_currency_unit,
             ),
-            "所得税 課税所得": format_yen(
+            "所得税 課税所得": format_display_currency(
                 result.tax.taxable_income_for_income_tax,
                 selected_currency_unit,
             ),
-            "住民税 課税所得": format_yen(
+            "住民税 課税所得": format_display_currency(
                 result.tax.taxable_income_for_resident_tax,
                 selected_currency_unit,
             ),
@@ -971,7 +1018,7 @@ with st.expander("計算前提"):
 st.subheader(ui_text(selected_language, "salary_examples"))
 range_results = simulate_salary_range(rates)
 df = results_to_dataframe(range_results)
-display_df = format_results_dataframe(df, selected_currency_unit)
+display_df = localized_results_dataframe(df, selected_currency_unit)
 
 show_details_label, hide_details_label = SALARY_EXAMPLE_DETAIL_LABELS[selected_language]
 st.markdown(

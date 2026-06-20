@@ -1,11 +1,17 @@
 import pandas as pd
 
-from src.ui.tables import dataframe_to_responsive_html, format_results_dataframe, format_yen, parse_yen_input
+from src.ui.tables import (
+    dataframe_to_responsive_html,
+    format_currency,
+    format_results_dataframe,
+    format_yen,
+    parse_yen_input,
+)
 
 
 def test_format_yen_uses_commas_and_yen_suffix():
     assert format_yen(5_000_000) == "5,000,000円"
-    assert format_yen(5_000_000, "JPY") == "5,000,000 JPY"
+    assert format_currency(5_000_000, "JPY") == "5,000,000 JPY"
 
 
 def test_parse_yen_input_accepts_commas_and_yen_suffix():

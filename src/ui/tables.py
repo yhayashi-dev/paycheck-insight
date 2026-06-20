@@ -8,11 +8,17 @@ import pandas as pd
 from src.models import SimulationResult
 
 
-def format_yen(value: int, unit: str = "円") -> str:
+def format_currency(value: int, unit: str = "円") -> str:
     """Format an integer yen amount with a display-only localized unit."""
 
     separator = "" if unit == "円" else " "
     return f"{value:,.0f}{separator}{unit}"
+
+
+def format_yen(value: int) -> str:
+    """Format an integer yen amount using the stable Japanese display API."""
+
+    return format_currency(value, "円")
 
 
 def format_percent(value: float) -> str:
@@ -37,18 +43,18 @@ def result_to_display_rows(
     """Convert a single simulation into labeled display rows."""
 
     return [
-        {"項目": "所得税", "金額": format_yen(result.tax.income_tax, unit)},
-        {"項目": "住民税", "金額": format_yen(result.tax.resident_tax, unit)},
-        {"項目": "健康保険", "金額": format_yen(result.insurance.health_employee, unit)},
-        {"項目": "介護保険", "金額": format_yen(result.insurance.care_employee, unit)},
-        {"項目": "厚生年金", "金額": format_yen(result.insurance.pension_employee, unit)},
-        {"項目": "雇用保険", "金額": format_yen(result.insurance.employment_employee, unit)},
-        {"項目": "社会保険料合計", "金額": format_yen(result.insurance.employee_total, unit)},
-        {"項目": "税金合計", "金額": format_yen(result.tax.total, unit)},
-        {"項目": "年間手取り", "金額": format_yen(result.annual_take_home, unit)},
-        {"項目": "月平均手取り", "金額": format_yen(result.monthly_take_home_average, unit)},
-        {"項目": "会社負担分", "金額": format_yen(result.insurance.employer_total, unit)},
-        {"項目": "総人件費", "金額": format_yen(result.total_labor_cost, unit)},
+        {"項目": "所得税", "金額": format_currency(result.tax.income_tax, unit)},
+        {"項目": "住民税", "金額": format_currency(result.tax.resident_tax, unit)},
+        {"項目": "健康保険", "金額": format_currency(result.insurance.health_employee, unit)},
+        {"項目": "介護保険", "金額": format_currency(result.insurance.care_employee, unit)},
+        {"項目": "厚生年金", "金額": format_currency(result.insurance.pension_employee, unit)},
+        {"項目": "雇用保険", "金額": format_currency(result.insurance.employment_employee, unit)},
+        {"項目": "社会保険料合計", "金額": format_currency(result.insurance.employee_total, unit)},
+        {"項目": "税金合計", "金額": format_currency(result.tax.total, unit)},
+        {"項目": "年間手取り", "金額": format_currency(result.annual_take_home, unit)},
+        {"項目": "月平均手取り", "金額": format_currency(result.monthly_take_home_average, unit)},
+        {"項目": "会社負担分", "金額": format_currency(result.insurance.employer_total, unit)},
+        {"項目": "総人件費", "金額": format_currency(result.total_labor_cost, unit)},
     ]
 
 
@@ -100,7 +106,7 @@ def format_results_dataframe(df: pd.DataFrame, unit: str = "円") -> pd.DataFram
         "総人件費",
     ]
     for column in yen_columns:
-        formatted[column] = formatted[column].map(lambda value: format_yen(value, unit))
+        formatted[column] = formatted[column].map(lambda value: format_currency(value, unit))
     formatted["手取り率"] = formatted["手取り率"].map(format_percent)
     return formatted
 

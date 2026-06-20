@@ -65,6 +65,9 @@ def test_app_ui_text_defaults_to_japanese_and_supports_major_english_labels():
     )
     assert app.currency_unit("ja") == "円"
     assert app.currency_unit("en") == "JPY"
+    assert app.format_display_currency(5_000_000, "円") == "5,000,000円"
+    assert app.format_display_currency(5_000_000, "JPY") == "5,000,000 JPY"
+    assert app.parse_currency_input("5,000,000 JPY") == 5_000_000
     assert app.SALARY_EXAMPLE_LABELS["ja"]["年収"] == "年収"
     assert app.SALARY_EXAMPLE_LABELS["en"]["年収"] == "Annual salary"
     assert app.SALARY_EXAMPLE_LABELS["en"]["厚生年金"] == "Employees' pension"
