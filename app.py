@@ -121,6 +121,41 @@ SALARY_EXAMPLE_DETAIL_LABELS = {
     "en": ("Show details", "Hide details"),
 }
 
+RESULT_BREAKDOWN_LABELS = {
+    "ja": {
+        "item_column": "項目",
+        "amount_column": "金額",
+        "所得税": "所得税",
+        "住民税": "住民税",
+        "健康保険": "健康保険",
+        "介護保険": "介護保険",
+        "厚生年金": "厚生年金",
+        "雇用保険": "雇用保険",
+        "社会保険料合計": "社会保険料合計",
+        "税金合計": "税金合計",
+        "年間手取り": "年間手取り",
+        "月平均手取り": "月平均手取り",
+        "会社負担分": "会社負担分",
+        "総人件費": "総人件費",
+    },
+    "en": {
+        "item_column": "Item",
+        "amount_column": "Amount",
+        "所得税": "Income tax",
+        "住民税": "Resident tax",
+        "健康保険": "Health insurance",
+        "介護保険": "Long-term care insurance",
+        "厚生年金": "Employees’ pension",
+        "雇用保険": "Employment insurance",
+        "社会保険料合計": "Total social insurance",
+        "税金合計": "Total taxes",
+        "年間手取り": "Annual take-home pay",
+        "月平均手取り": "Monthly average take-home pay",
+        "会社負担分": "Employer burden",
+        "総人件費": "Total labor cost",
+    },
+}
+
 VERIFICATION_DISPLAY_TEXT = {
     "ja": {
         "verified_items": "確認済み項目",
@@ -191,12 +226,20 @@ def localize_yen_text(value: object, unit: str) -> object:
     return f"{value[:-1]} {unit}"
 
 
-def localized_result_rows(result: object, unit: str) -> list[dict[str, str]]:
+def localized_result_rows(
+    result: object,
+    unit: str,
+    language: str = "ja",
+) -> list[dict[str, str]]:
     """Localize result rows while calling the imported helper with its stable API."""
 
     rows = result_to_display_rows(result)
+    labels = RESULT_BREAKDOWN_LABELS.get(language, RESULT_BREAKDOWN_LABELS["ja"])
     return [
-        {**row, "金額": str(localize_yen_text(row["金額"], unit))}
+        {
+            labels["item_column"]: labels.get(row["項目"], row["項目"]),
+            labels["amount_column"]: str(localize_yen_text(row["金額"], unit)),
+        }
         for row in rows
     ]
 
@@ -967,7 +1010,7 @@ for label, value in summary_items:
 summary_html += "</div>"
 st.markdown(summary_html, unsafe_allow_html=True)
 
-st.table(localized_result_rows(result, selected_currency_unit))
+st.table(localized_result_rows(result, selected_currency_unit, selected_language))
 
 st.subheader(ui_text(selected_language, "prefecture_comparison"))
 st.markdown(

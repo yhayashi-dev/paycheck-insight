@@ -49,6 +49,20 @@ def test_app_get_rates_loads_default_rates_for_500_man_yen_case():
     assert result.monthly_take_home_average == 323_821
     assert result.total_labor_cost == 5_792_548
 
+    japanese_rows = app.localized_result_rows(result, "円", "ja")
+    assert japanese_rows[0] == {"項目": "所得税", "金額": "117,109円"}
+
+    english_rows = app.localized_result_rows(result, "JPY", "en")
+    assert english_rows[0] == {"Item": "Income tax", "Amount": "117,109 JPY"}
+    assert english_rows[3]["Item"] == "Long-term care insurance"
+    assert english_rows[4]["Item"] == "Employees’ pension"
+    assert english_rows[6]["Item"] == "Total social insurance"
+    assert english_rows[7]["Item"] == "Total taxes"
+    assert english_rows[8] == {
+        "Item": "Annual take-home pay",
+        "Amount": "3,885,855 JPY",
+    }
+
 
 def test_app_ui_text_defaults_to_japanese_and_supports_major_english_labels():
     import app
