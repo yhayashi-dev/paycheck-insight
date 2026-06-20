@@ -83,6 +83,16 @@ def test_warning_message_preserves_japanese_metadata_and_translates_english_mode
     assert "local tax rounding rules" in app.warning_message("en", metadata)
 
 
+def test_partial_translation_note_is_only_shown_for_english_mode():
+    import app
+
+    assert app.partial_translation_note("ja") is None
+    assert app.partial_translation_note("unknown") is None
+    assert app.partial_translation_note("en") == app.ENGLISH_PARTIAL_TRANSLATION_NOTE
+    assert "official terms and source titles" in app.partial_translation_note("en")
+    assert "partially translated" in app.partial_translation_note("en")
+
+
 def test_assumption_summary_preserves_japanese_and_translates_prefecture_names():
     import app
 

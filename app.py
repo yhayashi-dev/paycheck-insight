@@ -67,6 +67,12 @@ ENGLISH_WARNING_MESSAGE = (
     "rules are shown as unverified."
 )
 
+ENGLISH_PARTIAL_TRANSLATION_NOTE = (
+    "Some official terms and source titles are currently shown in Japanese. "
+    "This English mode is partially translated and intended as a first step "
+    "for non-Japanese users."
+)
+
 ENGLISH_PREFECTURE_NAMES = {
     "tokyo": "Tokyo",
     "osaka": "Osaka",
@@ -167,6 +173,14 @@ def warning_message(language: str, metadata: dict) -> str:
     if language == "en":
         return ENGLISH_WARNING_MESSAGE
     return metadata["notice"]
+
+
+def partial_translation_note(language: str) -> str | None:
+    """Return the English-only note about the current translation scope."""
+
+    if language == "en":
+        return ENGLISH_PARTIAL_TRANSLATION_NOTE
+    return None
 
 
 def prefecture_display_name(language: str, prefecture_code: str, japanese_name: str) -> str:
@@ -473,6 +487,16 @@ st.markdown(
         color: rgb(92, 64, 0);
         font-size: 0.82rem;
         line-height: 1.35;
+        margin: 0 0 0.45rem;
+        padding: 0.42rem 0.6rem;
+    }
+    .translation-note {
+        background: rgb(241, 247, 252);
+        border: 1px solid rgba(44, 95, 132, 0.2);
+        border-radius: 8px;
+        color: rgb(48, 72, 89);
+        font-size: 0.82rem;
+        line-height: 1.4;
         margin: 0 0 0.45rem;
         padding: 0.42rem 0.6rem;
     }
@@ -820,6 +844,13 @@ st.markdown(
 if metadata["provisional"]:
     st.markdown(
         f'<div class="compact-warning">{escape(warning_message(selected_language, metadata))}</div>',
+        unsafe_allow_html=True,
+    )
+
+translation_note = partial_translation_note(selected_language)
+if translation_note:
+    st.markdown(
+        f'<div class="translation-note">{escape(translation_note)}</div>',
         unsafe_allow_html=True,
     )
 
