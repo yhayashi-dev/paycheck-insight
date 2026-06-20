@@ -156,3 +156,39 @@ def test_verification_html_uses_responsive_cards_with_required_fields():
     assert "出典" in html
     assert 'href="https://example.com/osaka.pdf"' in html
     assert 'target="_blank"' in html
+
+
+def test_prefecture_comparison_html_uses_existing_500_man_yen_results():
+    import app
+
+    tokyo_result = simulate_annual_salary(5_000_000, app.get_rates("tokyo"))
+    osaka_result = simulate_annual_salary(5_000_000, app.get_rates("osaka"))
+
+    html = app.prefecture_comparison_html(tokyo_result, osaka_result)
+
+    assert 'class="comparison-prefecture-grid"' in html
+    assert "東京都" in html
+    assert "大阪府" in html
+    assert "3,885,855円" in html
+    assert "3,880,082円" in html
+    assert "757,336円" in html
+    assert "764,224円" in html
+    assert "356,809円" in html
+    assert "355,694円" in html
+    assert "792,548円" in html
+    assert "799,436円" in html
+    assert "5,792,548円" in html
+    assert "5,799,436円" in html
+    assert (
+        "大阪府は東京都より "
+        '<span class="comparison-difference-value">-5,773円</span>' in html
+    )
+    assert (
+        "大阪府は東京都より "
+        '<span class="comparison-difference-value">-481円</span>' in html
+    )
+    assert (
+        "大阪府は東京都より "
+        '<span class="comparison-difference-value">+6,888円</span>' in html
+    )
+    assert "<table" not in html

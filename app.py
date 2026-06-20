@@ -43,6 +43,16 @@ VERIFICATION_STATUS_LABELS = {
     "pending_implementation": "計算未反映",
 }
 
+PREFECTURE_COMPARISON_SALARY = 5_000_000
+PREFECTURE_COMPARISON_METRICS = (
+    ("年間手取り", lambda result: result.annual_take_home),
+    ("月平均手取り", lambda result: result.monthly_take_home_average),
+    ("社会保険料合計", lambda result: result.insurance.employee_total),
+    ("税金合計", lambda result: result.tax.total),
+    ("会社負担分", lambda result: result.insurance.employer_total),
+    ("総人件費", lambda result: result.total_labor_cost),
+)
+
 
 def collect_verification_items(rates: dict) -> tuple[list[dict], list[dict]]:
     """Collect display-only verification metadata from the rate file."""
@@ -120,6 +130,53 @@ def verification_cards_html(items: list[dict]) -> str:
 
     return (
         f'<div class="verification-card-list">{"".join(cards)}</div>'
+    )
+
+
+def format_signed_yen(value: int) -> str:
+    """Format a comparison difference with an explicit sign."""
+
+    return f"{value:+,}円"
+
+
+def prefecture_comparison_html(tokyo_result, osaka_result) -> str:
+    """Render the fixed-salary Tokyo and Osaka comparison as responsive cards."""
+
+    prefectures = (("東京都", tokyo_result), ("大阪府", osaka_result))
+    prefecture_cards = []
+    for prefecture_name, comparison_result in prefectures:
+        metric_rows = []
+        for label, getter in PREFECTURE_COMPARISON_METRICS:
+            metric_rows.append(
+                '<div class="comparison-metric-row">'
+                f'<dt>{escape(label)}</dt>'
+                f'<dd>{format_yen(getter(comparison_result))}</dd>'
+                "</div>"
+            )
+        prefecture_cards.append(
+            '<article class="comparison-prefecture-card">'
+            f'<h4>{escape(prefecture_name)}</h4>'
+            f'<dl>{"".join(metric_rows)}</dl>'
+            "</article>"
+        )
+
+    difference_rows = []
+    for label, getter in PREFECTURE_COMPARISON_METRICS:
+        difference = getter(osaka_result) - getter(tokyo_result)
+        difference_rows.append(
+            '<div class="comparison-difference-row">'
+            f'<span>{escape(label)}</span>'
+            '<strong>'
+            '大阪府は東京都より '
+            f'<span class="comparison-difference-value">{format_signed_yen(difference)}</span>'
+            "</strong>"
+            "</div>"
+        )
+
+    return (
+        f'<div class="comparison-prefecture-grid">{"".join(prefecture_cards)}</div>'
+        '<h4 class="comparison-difference-title">差額（大阪府 − 東京都）</h4>'
+        f'<div class="comparison-difference-list">{"".join(difference_rows)}</div>'
     )
 
 st.markdown(
@@ -262,6 +319,70 @@ st.markdown(
         overflow-wrap: anywhere;
         letter-spacing: 0;
     }
+    .comparison-prefecture-grid {
+        display: grid;
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+        gap: 0.75rem;
+        margin: 0.55rem 0 0.9rem;
+    }
+    .comparison-prefecture-card {
+        background: white;
+        border: 1px solid rgba(49, 51, 63, 0.16);
+        border-radius: 8px;
+        min-width: 0;
+        overflow: hidden;
+    }
+    .comparison-prefecture-card h4 {
+        background: rgba(240, 242, 246, 0.75);
+        color: rgb(49, 51, 63);
+        font-size: 1rem;
+        margin: 0;
+        padding: 0.7rem 0.8rem;
+    }
+    .comparison-prefecture-card dl {
+        margin: 0;
+        padding: 0 0.8rem;
+    }
+    .comparison-metric-row,
+    .comparison-difference-row {
+        align-items: baseline;
+        border-bottom: 1px solid rgba(49, 51, 63, 0.1);
+        display: flex;
+        gap: 0.75rem;
+        justify-content: space-between;
+        padding: 0.55rem 0;
+    }
+    .comparison-metric-row:last-child,
+    .comparison-difference-row:last-child {
+        border-bottom: 0;
+    }
+    .comparison-metric-row dt,
+    .comparison-difference-row span:first-child {
+        color: rgba(49, 51, 63, 0.68);
+        font-size: 0.84rem;
+        font-weight: 700;
+    }
+    .comparison-metric-row dd,
+    .comparison-difference-row strong {
+        color: rgb(49, 51, 63);
+        font-size: 0.9rem;
+        font-weight: 700;
+        margin: 0;
+        text-align: right;
+    }
+    .comparison-difference-title {
+        color: rgb(49, 51, 63);
+        font-size: 0.95rem;
+        margin: 0.25rem 0 0.35rem;
+    }
+    .comparison-difference-list {
+        border-bottom: 1px solid rgba(49, 51, 63, 0.16);
+        border-top: 1px solid rgba(49, 51, 63, 0.16);
+        margin-bottom: 1rem;
+    }
+    .comparison-difference-value {
+        white-space: nowrap;
+    }
     [data-testid="stDataFrame"] {
         width: 100%;
         max-width: 100%;
@@ -339,6 +460,22 @@ st.markdown(
         }
         .summary-value {
             font-size: 1rem;
+        }
+        .comparison-prefecture-grid {
+            grid-template-columns: minmax(0, 1fr);
+            gap: 0.65rem;
+        }
+        .comparison-metric-row,
+        .comparison-difference-row {
+            align-items: flex-start;
+        }
+        .comparison-metric-row dt,
+        .comparison-difference-row span:first-child {
+            flex: 0 0 42%;
+        }
+        .comparison-metric-row dd,
+        .comparison-difference-row strong {
+            overflow-wrap: anywhere;
         }
         .responsive-table-wrap {
             overflow-x: visible;
@@ -477,6 +614,25 @@ summary_html += "</div>"
 st.markdown(summary_html, unsafe_allow_html=True)
 
 st.table(result_to_display_rows(result))
+
+st.subheader("地域比較")
+st.markdown(
+    f'<p class="app-caption">年収 {format_yen(PREFECTURE_COMPARISON_SALARY)}・52歳・単身・扶養なし・'
+    '賞与なし・12か月均等支給で比較しています。</p>',
+    unsafe_allow_html=True,
+)
+tokyo_comparison_result = simulate_annual_salary(
+    PREFECTURE_COMPARISON_SALARY,
+    get_rates("tokyo"),
+)
+osaka_comparison_result = simulate_annual_salary(
+    PREFECTURE_COMPARISON_SALARY,
+    get_rates("osaka"),
+)
+st.markdown(
+    prefecture_comparison_html(tokyo_comparison_result, osaka_comparison_result),
+    unsafe_allow_html=True,
+)
 
 with st.expander("計算前提"):
     st.write(
