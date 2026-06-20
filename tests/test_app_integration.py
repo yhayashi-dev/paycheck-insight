@@ -258,12 +258,51 @@ def test_verification_html_uses_responsive_cards_with_required_fields():
     assert "<table" not in html
     assert "社会保険料" in html
     assert "健康保険料率" in html
+    assert "分類" in html
+    assert "項目" in html
+    assert "状態" in html
     assert "確認済み" in html
     assert "適用年度・条件" in html
     assert "適用開始日" in html
     assert "出典" in html
     assert 'href="https://example.com/osaka.pdf"' in html
     assert 'target="_blank"' in html
+
+    english_html = app.verification_cards_html(
+        [
+            {
+                "section": "社会保険料",
+                "item": "健康保険料率",
+                "status": "確認済み",
+                "applicable_period": "2026年度・大阪府",
+                "effective_from": "2026年3月分",
+                "last_verified_on": "2026-06-20",
+                "source_name": "協会けんぽ 大阪府保険料額表",
+                "source_url": "https://example.com/osaka.pdf",
+            }
+        ],
+        language="en",
+    )
+    assert "Category" in english_html
+    assert "Item" in english_html
+    assert "Status" in english_html
+    assert "Verified" in english_html
+    assert "Applicable year / conditions" in english_html
+    assert "Effective date" in english_html
+    assert "Last verified date" in english_html
+    assert "Source" in english_html
+    assert "協会けんぽ 大阪府保険料額表" in english_html
+
+
+def test_verification_summary_changes_language_without_changing_counts():
+    import app
+
+    assert app.verification_summary_text("ja", 21, 2) == (
+        "一部未確認項目あり。確認済み 21 件、未確認 2 件です。"
+    )
+    assert app.verification_summary_text("en", 21, 2) == (
+        "Some items are still unverified. Verified: 21, Unverified: 2."
+    )
 
 
 def test_prefecture_comparison_html_uses_existing_500_man_yen_results():

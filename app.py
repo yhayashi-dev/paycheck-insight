@@ -115,6 +115,39 @@ SALARY_EXAMPLE_DETAIL_LABELS = {
     "en": ("Show details", "Hide details"),
 }
 
+VERIFICATION_DISPLAY_TEXT = {
+    "ja": {
+        "verified_items": "確認済み項目",
+        "unverified_items": "未確認項目",
+        "category": "分類",
+        "item": "項目",
+        "status": "状態",
+        "verified": "確認済み",
+        "unverified": "未確認",
+        "pending_implementation": "計算未反映",
+        "applicable_period": "適用年度・条件",
+        "effective_date": "適用開始日",
+        "last_verified_date": "最終確認日",
+        "source": "出典",
+        "empty": "該当項目はありません。",
+    },
+    "en": {
+        "verified_items": "Verified items",
+        "unverified_items": "Unverified items",
+        "category": "Category",
+        "item": "Item",
+        "status": "Status",
+        "verified": "Verified",
+        "unverified": "Unverified",
+        "pending_implementation": "Not reflected in calculation",
+        "applicable_period": "Applicable year / conditions",
+        "effective_date": "Effective date",
+        "last_verified_date": "Last verified date",
+        "source": "Source",
+        "empty": "No items.",
+    },
+}
+
 
 def ui_text(language: str, key: str) -> str:
     """Return a UI label while keeping Japanese as the default language."""
@@ -217,15 +250,36 @@ def collect_verification_items(rates: dict) -> tuple[list[dict], list[dict]]:
     return verified, unverified
 
 
-def verification_cards_html(items: list[dict]) -> str:
+def verification_summary_text(language: str, verified_count: int, unverified_count: int) -> str:
+    """Format verification counts in the selected display language."""
+
+    if language == "en":
+        return (
+            "Some items are still unverified. "
+            f"Verified: {verified_count}, Unverified: {unverified_count}."
+        )
+    return (
+        f"一部未確認項目あり。確認済み {verified_count} 件、"
+        f"未確認 {unverified_count} 件です。"
+    )
+
+
+def verification_cards_html(items: list[dict], language: str = "ja") -> str:
     """Render verification metadata as responsive cards with source links."""
 
+    labels = VERIFICATION_DISPLAY_TEXT.get(language, VERIFICATION_DISPLAY_TEXT["ja"])
     if not items:
-        return "<p>該当項目はありません。</p>"
+        return f'<p>{escape(labels["empty"])}</p>'
 
     cards = []
     for item in items:
         status_class = "is-confirmed" if item["status"] == "確認済み" else "is-pending"
+        status_key = {
+            "確認済み": "verified",
+            "未確認": "unverified",
+            "計算未反映": "pending_implementation",
+        }.get(item["status"], "unverified")
+        displayed_status = labels[status_key]
         source_url = item["source_url"]
         if source_url:
             source = (
@@ -238,25 +292,34 @@ def verification_cards_html(items: list[dict]) -> str:
         cards.append(
             '<article class="verification-card">'
             '<div class="verification-card-header">'
+            '<div class="verification-card-header-field">'
+            f'<span class="verification-card-label">{escape(labels["category"])}</span>'
             f'<span class="verification-card-section">{escape(item["section"])}</span>'
+            "</div>"
+            '<div class="verification-card-header-field">'
+            f'<span class="verification-card-label">{escape(labels["item"])}</span>'
             f'<strong class="verification-card-item">{escape(item["item"])}</strong>'
-            f'<span class="verification-card-status {status_class}">{escape(item["status"])}</span>'
+            "</div>"
+            '<div class="verification-card-header-field">'
+            f'<span class="verification-card-label">{escape(labels["status"])}</span>'
+            f'<span class="verification-card-status {status_class}">{escape(displayed_status)}</span>'
+            "</div>"
             "</div>"
             '<dl class="verification-card-fields">'
             '<div class="verification-card-field">'
-            '<dt>適用年度・条件</dt>'
+            f'<dt>{escape(labels["applicable_period"])}</dt>'
             f'<dd>{escape(item["applicable_period"])}</dd>'
             "</div>"
             '<div class="verification-card-field">'
-            '<dt>適用開始日</dt>'
+            f'<dt>{escape(labels["effective_date"])}</dt>'
             f'<dd>{escape(item["effective_from"])}</dd>'
             "</div>"
             '<div class="verification-card-field">'
-            '<dt>最終確認日</dt>'
+            f'<dt>{escape(labels["last_verified_date"])}</dt>'
             f'<dd>{escape(item["last_verified_on"])}</dd>'
             "</div>"
             '<div class="verification-card-field">'
-            '<dt>出典</dt>'
+            f'<dt>{escape(labels["source"])}</dt>'
             f"<dd>{source}</dd>"
             "</div>"
             "</dl>"
@@ -431,6 +494,15 @@ st.markdown(
         gap: 0.25rem;
         padding: 0.7rem 0.75rem;
         background: rgba(240, 242, 246, 0.7);
+    }
+    .verification-card-header-field {
+        display: grid;
+        gap: 0.14rem;
+    }
+    .verification-card-label {
+        color: rgba(49, 51, 63, 0.58);
+        font-size: 0.7rem;
+        font-weight: 700;
     }
     .verification-card-section {
         color: rgba(49, 51, 63, 0.64);
@@ -753,13 +825,24 @@ if metadata["provisional"]:
 
 verified_items, unverified_items = collect_verification_items(rates)
 with st.expander(ui_text(selected_language, "verification_status_sources")):
+    verification_labels = VERIFICATION_DISPLAY_TEXT[selected_language]
     st.markdown(
-        f"一部未確認項目あり。確認済み {len(verified_items)} 件、未確認 {len(unverified_items)} 件です。"
+        verification_summary_text(
+            selected_language,
+            len(verified_items),
+            len(unverified_items),
+        )
     )
-    st.markdown("#### 確認済み項目")
-    st.markdown(verification_cards_html(verified_items), unsafe_allow_html=True)
-    st.markdown("#### 未確認項目")
-    st.markdown(verification_cards_html(unverified_items), unsafe_allow_html=True)
+    st.markdown(f'#### {verification_labels["verified_items"]}')
+    st.markdown(
+        verification_cards_html(verified_items, selected_language),
+        unsafe_allow_html=True,
+    )
+    st.markdown(f'#### {verification_labels["unverified_items"]}')
+    st.markdown(
+        verification_cards_html(unverified_items, selected_language),
+        unsafe_allow_html=True,
+    )
 
 annual_salary_text = st.text_input(
     ui_text(selected_language, "annual_salary"),
