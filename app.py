@@ -72,13 +72,12 @@ def collect_verification_items(rates: dict) -> tuple[list[dict], list[dict]]:
     return verified, unverified
 
 
-def verification_table_html(items: list[dict]) -> str:
-    """Render verification metadata as a compact HTML table with source links."""
+def verification_cards_html(items: list[dict]) -> str:
+    """Render verification metadata as responsive cards with source links."""
 
     if not items:
         return "<p>該当項目はありません。</p>"
 
-    rows = []
     cards = []
     for item in items:
         status_class = "is-confirmed" if item["status"] == "確認済み" else "is-pending"
@@ -91,38 +90,27 @@ def verification_table_html(items: list[dict]) -> str:
         else:
             source = escape(item["source_name"])
 
-        rows.append(
-            "<tr>"
-            f"<td>{escape(item['section'])}</td>"
-            f"<td>{escape(item['item'])}</td>"
-            f"<td>{escape(item['status'])}</td>"
-            f"<td>{escape(item['applicable_period'])}</td>"
-            f"<td>{escape(item['effective_from'])}</td>"
-            f"<td>{escape(item['last_verified_on'])}</td>"
-            f"<td>{source}</td>"
-            "</tr>"
-        )
         cards.append(
-            '<article class="verification-mobile-card">'
-            '<div class="verification-mobile-header">'
-            f'<span class="verification-mobile-section">{escape(item["section"])}</span>'
-            f'<strong class="verification-mobile-item">{escape(item["item"])}</strong>'
-            f'<span class="verification-mobile-status {status_class}">{escape(item["status"])}</span>'
+            '<article class="verification-card">'
+            '<div class="verification-card-header">'
+            f'<span class="verification-card-section">{escape(item["section"])}</span>'
+            f'<strong class="verification-card-item">{escape(item["item"])}</strong>'
+            f'<span class="verification-card-status {status_class}">{escape(item["status"])}</span>'
             "</div>"
-            '<dl class="verification-mobile-fields">'
-            '<div class="verification-mobile-field">'
+            '<dl class="verification-card-fields">'
+            '<div class="verification-card-field">'
             '<dt>適用年度・条件</dt>'
             f'<dd>{escape(item["applicable_period"])}</dd>'
             "</div>"
-            '<div class="verification-mobile-field">'
+            '<div class="verification-card-field">'
             '<dt>適用開始日</dt>'
             f'<dd>{escape(item["effective_from"])}</dd>'
             "</div>"
-            '<div class="verification-mobile-field">'
+            '<div class="verification-card-field">'
             '<dt>最終確認日</dt>'
             f'<dd>{escape(item["last_verified_on"])}</dd>'
             "</div>"
-            '<div class="verification-mobile-field">'
+            '<div class="verification-card-field">'
             '<dt>出典</dt>'
             f"<dd>{source}</dd>"
             "</div>"
@@ -131,14 +119,7 @@ def verification_table_html(items: list[dict]) -> str:
         )
 
     return (
-        '<div class="verification-table-wrap">'
-        '<table class="verification-table">'
-        "<thead><tr><th>分類</th><th>項目</th><th>状態</th><th>適用年度・条件</th>"
-        "<th>適用開始日</th><th>最終確認日</th><th>出典</th></tr></thead>"
-        f"<tbody>{''.join(rows)}</tbody>"
-        "</table>"
-        "</div>"
-        f'<div class="verification-mobile-list">{"".join(cards)}</div>'
+        f'<div class="verification-card-list">{"".join(cards)}</div>'
     )
 
 st.markdown(
@@ -180,38 +161,69 @@ st.markdown(
         margin: 0 0 0.45rem;
         padding: 0.42rem 0.6rem;
     }
-    .verification-table-wrap {
-        width: 100%;
-        overflow-x: auto;
-        border: 1px solid rgba(49, 51, 63, 0.14);
-        border-radius: 8px;
+    .verification-card-list {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+        gap: 0.75rem;
         margin: 0.35rem 0 0.8rem;
     }
-    .verification-table {
-        width: 100%;
-        min-width: 960px;
-        border-collapse: collapse;
-        font-size: 0.86rem;
-        line-height: 1.35;
+    .verification-card {
+        background: white;
+        border: 1px solid rgba(49, 51, 63, 0.16);
+        border-radius: 8px;
+        min-width: 0;
+        overflow: hidden;
     }
-    .verification-table th,
-    .verification-table td {
-        border-bottom: 1px solid rgba(49, 51, 63, 0.10);
-        padding: 0.5rem 0.6rem;
-        text-align: left;
-        vertical-align: top;
+    .verification-card-header {
+        display: grid;
+        gap: 0.25rem;
+        padding: 0.7rem 0.75rem;
+        background: rgba(240, 242, 246, 0.7);
     }
-    .verification-table th {
-        background: rgba(240, 242, 246, 0.75);
-        color: rgba(49, 51, 63, 0.86);
+    .verification-card-section {
+        color: rgba(49, 51, 63, 0.64);
+        font-size: 0.75rem;
         font-weight: 700;
-        white-space: nowrap;
     }
-    .verification-table tr:last-child td {
+    .verification-card-item {
+        color: rgb(49, 51, 63);
+        font-size: 0.95rem;
+        line-height: 1.4;
+        overflow-wrap: anywhere;
+    }
+    .verification-card-status {
+        font-size: 0.8rem;
+        font-weight: 700;
+    }
+    .verification-card-status.is-confirmed {
+        color: rgb(0, 104, 89);
+    }
+    .verification-card-status.is-pending {
+        color: rgb(146, 92, 0);
+    }
+    .verification-card-fields {
+        margin: 0;
+        padding: 0 0.75rem;
+    }
+    .verification-card-field {
+        border-bottom: 1px solid rgba(49, 51, 63, 0.1);
+        padding: 0.6rem 0;
+    }
+    .verification-card-field:last-child {
         border-bottom: 0;
     }
-    .verification-mobile-list {
-        display: none;
+    .verification-card-field dt {
+        color: rgba(49, 51, 63, 0.64);
+        font-size: 0.75rem;
+        font-weight: 700;
+        margin-bottom: 0.18rem;
+    }
+    .verification-card-field dd {
+        color: rgb(49, 51, 63);
+        font-size: 0.84rem;
+        line-height: 1.45;
+        margin: 0;
+        overflow-wrap: anywhere;
     }
     [data-testid="stTextInput"] {
         margin-bottom: 0.35rem;
@@ -311,70 +323,9 @@ st.markdown(
         .compact-warning {
             padding: 0.4rem 0.55rem;
         }
-        .verification-table-wrap {
-            display: none;
-        }
-        .verification-mobile-list {
-            display: grid;
+        .verification-card-list {
+            grid-template-columns: minmax(0, 1fr);
             gap: 0.65rem;
-            margin: 0.35rem 0 0.8rem;
-        }
-        .verification-mobile-card {
-            background: white;
-            border: 1px solid rgba(49, 51, 63, 0.16);
-            border-radius: 8px;
-            overflow: hidden;
-        }
-        .verification-mobile-header {
-            display: grid;
-            gap: 0.25rem;
-            padding: 0.7rem 0.75rem;
-            background: rgba(240, 242, 246, 0.7);
-        }
-        .verification-mobile-section {
-            color: rgba(49, 51, 63, 0.64);
-            font-size: 0.75rem;
-            font-weight: 700;
-        }
-        .verification-mobile-item {
-            color: rgb(49, 51, 63);
-            font-size: 0.95rem;
-            line-height: 1.4;
-            overflow-wrap: anywhere;
-        }
-        .verification-mobile-status {
-            font-size: 0.8rem;
-            font-weight: 700;
-        }
-        .verification-mobile-status.is-confirmed {
-            color: rgb(0, 104, 89);
-        }
-        .verification-mobile-status.is-pending {
-            color: rgb(146, 92, 0);
-        }
-        .verification-mobile-fields {
-            margin: 0;
-            padding: 0 0.75rem;
-        }
-        .verification-mobile-field {
-            border-bottom: 1px solid rgba(49, 51, 63, 0.1);
-            padding: 0.6rem 0;
-        }
-        .verification-mobile-field:last-child {
-            border-bottom: 0;
-        }
-        .verification-mobile-field dt {
-            color: rgba(49, 51, 63, 0.64);
-            font-size: 0.75rem;
-            font-weight: 700;
-            margin-bottom: 0.18rem;
-        }
-        .verification-mobile-field dd {
-            color: rgb(49, 51, 63);
-            font-size: 0.84rem;
-            line-height: 1.45;
-            margin: 0;
-            overflow-wrap: anywhere;
         }
         .summary-grid {
             grid-template-columns: repeat(2, minmax(0, 1fr));
@@ -488,9 +439,9 @@ with st.expander("確認状況と出典"):
         f"一部未確認項目あり。確認済み {len(verified_items)} 件、未確認 {len(unverified_items)} 件です。"
     )
     st.markdown("#### 確認済み項目")
-    st.markdown(verification_table_html(verified_items), unsafe_allow_html=True)
+    st.markdown(verification_cards_html(verified_items), unsafe_allow_html=True)
     st.markdown("#### 未確認項目")
-    st.markdown(verification_table_html(unverified_items), unsafe_allow_html=True)
+    st.markdown(verification_cards_html(unverified_items), unsafe_allow_html=True)
 
 annual_salary_text = st.text_input(
     "年収",

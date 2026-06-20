@@ -127,10 +127,10 @@ def test_app_osaka_rates_use_osaka_sources_and_preserve_common_sources():
     )
 
 
-def test_verification_html_includes_mobile_card_fields_and_desktop_table():
+def test_verification_html_uses_responsive_cards_with_required_fields():
     import app
 
-    html = app.verification_table_html(
+    html = app.verification_cards_html(
         [
             {
                 "section": "社会保険料",
@@ -145,12 +145,14 @@ def test_verification_html_includes_mobile_card_fields_and_desktop_table():
         ]
     )
 
-    assert 'class="verification-table"' in html
-    assert 'class="verification-mobile-list"' in html
-    assert 'class="verification-mobile-card"' in html
+    assert 'class="verification-card-list"' in html
+    assert 'class="verification-card"' in html
+    assert "<table" not in html
     assert "社会保険料" in html
     assert "健康保険料率" in html
     assert "確認済み" in html
     assert "適用年度・条件" in html
     assert "適用開始日" in html
     assert "出典" in html
+    assert 'href="https://example.com/osaka.pdf"' in html
+    assert 'target="_blank"' in html
