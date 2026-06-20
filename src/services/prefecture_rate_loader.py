@@ -30,6 +30,11 @@ PREFECTURE_RATE_CONFIGS = {
         display_name="大阪府",
         rate_file=DATA_DIR / "rates_2026_osaka.json",
     ),
+    "kanagawa": PrefectureRateConfig(
+        code="kanagawa",
+        display_name="神奈川県（横浜市想定）",
+        rate_file=DATA_DIR / "rates_2026_kanagawa.json",
+    ),
 }
 DEFAULT_RATE_FILE = PREFECTURE_RATE_CONFIGS[DEFAULT_PREFECTURE_CODE].rate_file
 

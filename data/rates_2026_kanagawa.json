@@ -1,0 +1,211 @@
+{
+  "extends": "rates_2026_tokyo.json",
+  "metadata": {
+    "prefecture": "神奈川県（横浜市想定）",
+    "notice": "一部未確認項目あり: 所得税・横浜市の住民税・給与所得控除と主要な社会保険料率は公式資料に基づき確認済みです。所得税額の最終端数処理、子ども・子育て支援金の計算反映、市民税・県民税の個別端数処理は未確認項目として表示します。"
+  },
+  "regional_scope": {
+    "prefecture_code": "kanagawa",
+    "prefecture_name": "神奈川県（横浜市想定）",
+    "prefecture_dependent_fields": [
+      "social_insurance.health_insurance_rate",
+      "resident_tax"
+    ]
+  },
+  "resident_tax": {
+    "provisional": true,
+    "note": "2026年度横浜市の市民税・県民税を使用。所得割合計10.025%、基礎控除43万円、均等割5,200円、森林環境税1,000円、調整控除、横浜市の非課税判定を設定。市民税と県民税を別々に100円未満切り捨てる処理は未実装。",
+    "verification": [
+      {
+        "item": "前年所得課税",
+        "provisional": false,
+        "status": "confirmed",
+        "applicable_period": "2026年度は2025年中所得で算定",
+        "effective_from": "2026年度",
+        "last_verified_on": "2026-06-20",
+        "source_name": "横浜市 個人の市民税・県民税について",
+        "source_url": "https://www.city.yokohama.lg.jp/kurashi/koseki-zei-hoken/zeikin/y-shizei/kojin-shiminzei-kenminzei/kojin-shiminzei-shosai/kojin.html"
+      },
+      {
+        "item": "住民税の基礎控除",
+        "provisional": false,
+        "status": "confirmed",
+        "applicable_period": "令和8年度 430,000円",
+        "effective_from": "2026年度",
+        "last_verified_on": "2026-06-20",
+        "source_name": "横浜市 所得控除（令和8年度課税以降）",
+        "source_url": "https://www.city.yokohama.lg.jp/kurashi/koseki-zei-hoken/zeikin/y-shizei/kojin-shiminzei-kenminzei/kojin-shiminzei-shosai/shotokukoujoR8.html"
+      },
+      {
+        "item": "所得割の税率",
+        "provisional": false,
+        "status": "confirmed",
+        "applicable_period": "2026年度・横浜市8%、神奈川県2.025%（合計10.025%）",
+        "effective_from": "2026年度",
+        "last_verified_on": "2026-06-20",
+        "source_name": "横浜市 個人の市民税・県民税について",
+        "source_url": "https://www.city.yokohama.lg.jp/kurashi/koseki-zei-hoken/zeikin/y-shizei/kojin-shiminzei-kenminzei/kojin-shiminzei-shosai/kojin.html"
+      },
+      {
+        "item": "水源環境保全税",
+        "provisional": false,
+        "status": "confirmed",
+        "applicable_period": "2026年度・県民税所得割0.025%、均等割300円を上乗せ",
+        "effective_from": "令和4年度から令和8年度まで",
+        "last_verified_on": "2026-06-20",
+        "source_name": "神奈川県 水源環境を保全・再生するための個人県民税の超過課税",
+        "source_url": "https://www.pref.kanagawa.jp/zei/kenzei/a001/b001/002.html"
+      },
+      {
+        "item": "均等割",
+        "provisional": false,
+        "status": "confirmed",
+        "applicable_period": "2026年度・横浜市3,900円、神奈川県1,300円（合計5,200円）",
+        "effective_from": "2024年度",
+        "last_verified_on": "2026-06-20",
+        "source_name": "横浜市 個人の市民税・県民税について",
+        "source_url": "https://www.city.yokohama.lg.jp/kurashi/koseki-zei-hoken/zeikin/y-shizei/kojin-shiminzei-kenminzei/kojin-shiminzei-shosai/kojin.html"
+      },
+      {
+        "item": "森林環境税",
+        "provisional": false,
+        "status": "confirmed",
+        "applicable_period": "2026年度 1,000円",
+        "effective_from": "2024年度",
+        "last_verified_on": "2026-06-20",
+        "source_name": "横浜市 個人の市民税・県民税について",
+        "source_url": "https://www.city.yokohama.lg.jp/kurashi/koseki-zei-hoken/zeikin/y-shizei/kojin-shiminzei-kenminzei/kojin-shiminzei-shosai/kojin.html"
+      },
+      {
+        "item": "調整控除",
+        "provisional": false,
+        "status": "confirmed",
+        "applicable_period": "2026年度・市民税4%、県民税1%（最低2,500円）",
+        "effective_from": "2026年度",
+        "last_verified_on": "2026-06-20",
+        "source_name": "横浜市 税額控除（令和8年度課税以降）",
+        "source_url": "https://www.city.yokohama.lg.jp/kurashi/koseki-zei-hoken/zeikin/y-shizei/kojin-shiminzei-kenminzei/kojin-shiminzei-shosai/zeigakukoujoR8.html"
+      },
+      {
+        "item": "非課税判定（横浜市）",
+        "provisional": false,
+        "status": "confirmed",
+        "applicable_period": "令和8年度・扶養なしは合計所得45万円以下",
+        "effective_from": "2026年度",
+        "last_verified_on": "2026-06-20",
+        "source_name": "横浜市 均等割・所得割の納税義務者",
+        "source_url": "https://www.city.yokohama.lg.jp/kurashi/koseki-zei-hoken/zeikin/y-shizei/kojin-shiminzei-kenminzei/kojin-shiminzei-shosai/kojingimusha.html"
+      },
+      {
+        "item": "課税標準の1,000円未満切捨て",
+        "provisional": false,
+        "status": "confirmed",
+        "applicable_period": "2026年度",
+        "effective_from": "2026年度",
+        "last_verified_on": "2026-06-20",
+        "source_name": "横浜市 令和8年度市民税・県民税・森林環境税の計算（例）",
+        "source_url": "https://www.city.yokohama.lg.jp/kurashi/koseki-zei-hoken/zeikin/y-shizei/kojin-shiminzei-kenminzei/kojin-shiminzei-shosai/kojinkeisan.html"
+      },
+      {
+        "item": "市民税・県民税の個別100円未満切捨て（計算未反映）",
+        "provisional": true,
+        "status": "pending_implementation",
+        "applicable_period": "2026年度",
+        "effective_from": "2026年度",
+        "last_verified_on": "2026-06-20",
+        "source_name": "横浜市 令和8年度市民税・県民税・森林環境税の計算（例）",
+        "source_url": "https://www.city.yokohama.lg.jp/kurashi/koseki-zei-hoken/zeikin/y-shizei/kojin-shiminzei-kenminzei/kojin-shiminzei-shosai/kojinkeisan.html"
+      }
+    ],
+    "municipality_class": "yokohama_city",
+    "income_rate": 0.10025,
+    "per_capita": 5200,
+    "non_taxable": {
+      "yokohama_city": {
+        "no_dependents_total_income": 450000,
+        "no_dependents_income_portion_income": 450000,
+        "dependent_base": 350000,
+        "per_person": 350000,
+        "per_person_income_portion": 350000,
+        "dependent_addition": 310000,
+        "dependent_income_portion_addition": 420000
+      }
+    }
+  },
+  "social_insurance": {
+    "note": "協会けんぽ神奈川支部の健康保険料率9.92%を使用。介護保険、厚生年金、標準報酬月額、雇用保険、子ども・子育て拠出金は全国共通の確認済み設定を使用。子ども・子育て支援金0.23%は計算未反映。",
+    "verification": [
+      {
+        "item": "健康保険料率",
+        "provisional": false,
+        "status": "confirmed",
+        "applicable_period": "2026年度・神奈川県・協会けんぽ 9.92%",
+        "effective_from": "2025年3月分（2026年度も継続）",
+        "last_verified_on": "2026-06-20",
+        "source_name": "協会けんぽ 令和8年度 神奈川県保険料額表",
+        "source_url": "https://www.kyoukaikenpo.or.jp/assets/R8_14kanagawa.pdf"
+      },
+      {
+        "item": "介護保険料率",
+        "provisional": false,
+        "status": "confirmed",
+        "applicable_period": "2026年度・40歳から64歳・全国一律 1.62%",
+        "effective_from": "2026年3月分（4月納付分）",
+        "last_verified_on": "2026-06-20",
+        "source_name": "協会けんぽ 令和8年度 神奈川県保険料額表",
+        "source_url": "https://www.kyoukaikenpo.or.jp/assets/R8_14kanagawa.pdf"
+      },
+      {
+        "item": "厚生年金保険料率",
+        "provisional": false,
+        "status": "confirmed",
+        "applicable_period": "2026年度 18.3%（労使折半）",
+        "effective_from": "2017年9月分",
+        "last_verified_on": "2026-06-20",
+        "source_name": "日本年金機構 厚生年金保険の保険料",
+        "source_url": "https://www.nenkin.go.jp/service/kounen/hokenryo/hoshu/20150515-01.html"
+      },
+      {
+        "item": "標準報酬月額",
+        "provisional": false,
+        "status": "confirmed",
+        "applicable_period": "令和8年度・神奈川県・協会けんぽ／厚生年金",
+        "effective_from": "2026年3月分（令和8年度表）",
+        "last_verified_on": "2026-06-20",
+        "source_name": "協会けんぽ 令和8年度 神奈川県保険料額表",
+        "source_url": "https://www.kyoukaikenpo.or.jp/assets/R8_14kanagawa.pdf"
+      },
+      {
+        "item": "雇用保険料率",
+        "provisional": false,
+        "status": "confirmed",
+        "applicable_period": "令和8年度・一般の事業（労働者5/1,000、事業主8.5/1,000）",
+        "effective_from": "2026-04-01",
+        "last_verified_on": "2026-06-20",
+        "source_name": "厚生労働省 令和8年度 雇用保険料率のご案内",
+        "source_url": "https://www.mhlw.go.jp/content/001692566.pdf"
+      },
+      {
+        "item": "子ども・子育て拠出金率",
+        "provisional": false,
+        "status": "confirmed",
+        "applicable_period": "令和8年度 0.36%（事業主のみ負担）",
+        "effective_from": "2020年4月分",
+        "last_verified_on": "2026-06-20",
+        "source_name": "日本年金機構 保険料額表（令和2年9月分～）",
+        "source_url": "https://www.nenkin.go.jp/service/kounen/hokenryo/ryogaku/ryogakuhyo/20200825.html"
+      },
+      {
+        "item": "子ども・子育て支援金率（計算未反映）",
+        "provisional": true,
+        "status": "pending_implementation",
+        "applicable_period": "令和8年度 0.23%（健康保険料と併せて徴収）",
+        "effective_from": "2026年4月分（5月納付分）",
+        "last_verified_on": "2026-06-20",
+        "source_name": "協会けんぽ 令和8年度の都道府県単位保険料率",
+        "source_url": "https://www.kyoukaikenpo.or.jp/about/business/insurance_rate/rate_prefectures/r08/index.html"
+      }
+    ],
+    "health_insurance_rate": 0.0992
+  }
+}

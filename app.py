@@ -139,12 +139,24 @@ def format_signed_yen(value: int) -> str:
     return f"{value:+,}円"
 
 
-def prefecture_comparison_html(tokyo_result, osaka_result) -> str:
-    """Render the fixed-salary Tokyo and Osaka comparison as responsive cards."""
+def prefecture_comparison_html(
+    prefecture_results: list[tuple[str, object]] | object,
+    legacy_osaka_result: object | None = None,
+) -> str:
+    """Render fixed-salary prefecture results and differences from the first item."""
 
-    prefectures = (("東京都", tokyo_result), ("大阪府", osaka_result))
+    if legacy_osaka_result is not None:
+        prefecture_results = [
+            ("東京都", prefecture_results),
+            ("大阪府", legacy_osaka_result),
+        ]
+    if not isinstance(prefecture_results, list):
+        raise TypeError("prefecture_results must be a list of name and result pairs.")
+    if len(prefecture_results) < 2:
+        raise ValueError("Prefecture comparison requires at least two results.")
+
     prefecture_cards = []
-    for prefecture_name, comparison_result in prefectures:
+    for prefecture_name, comparison_result in prefecture_results:
         metric_rows = []
         for label, getter in PREFECTURE_COMPARISON_METRICS:
             metric_rows.append(
@@ -160,23 +172,31 @@ def prefecture_comparison_html(tokyo_result, osaka_result) -> str:
             "</article>"
         )
 
-    difference_rows = []
-    for label, getter in PREFECTURE_COMPARISON_METRICS:
-        difference = getter(osaka_result) - getter(tokyo_result)
-        difference_rows.append(
-            '<div class="comparison-difference-row">'
-            f'<span>{escape(label)}</span>'
-            '<strong>'
-            '大阪府は東京都より '
-            f'<span class="comparison-difference-value">{format_signed_yen(difference)}</span>'
-            "</strong>"
-            "</div>"
+    reference_name, reference_result = prefecture_results[0]
+    difference_sections = []
+    for prefecture_name, comparison_result in prefecture_results[1:]:
+        difference_rows = []
+        for label, getter in PREFECTURE_COMPARISON_METRICS:
+            difference = getter(comparison_result) - getter(reference_result)
+            difference_rows.append(
+                '<div class="comparison-difference-row">'
+                f'<span>{escape(label)}</span>'
+                '<strong>'
+                f'{escape(prefecture_name)}は{escape(reference_name)}より '
+                f'<span class="comparison-difference-value">{format_signed_yen(difference)}</span>'
+                "</strong>"
+                "</div>"
+            )
+        difference_sections.append(
+            '<h4 class="comparison-difference-title">'
+            f'差額（{escape(prefecture_name)} − {escape(reference_name)}）'
+            "</h4>"
+            f'<div class="comparison-difference-list">{"".join(difference_rows)}</div>'
         )
 
     return (
         f'<div class="comparison-prefecture-grid">{"".join(prefecture_cards)}</div>'
-        '<h4 class="comparison-difference-title">差額（大阪府 − 東京都）</h4>'
-        f'<div class="comparison-difference-list">{"".join(difference_rows)}</div>'
+        f'{"".join(difference_sections)}'
     )
 
 st.markdown(
@@ -321,7 +341,7 @@ st.markdown(
     }
     .comparison-prefecture-grid {
         display: grid;
-        grid-template-columns: repeat(2, minmax(0, 1fr));
+        grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
         gap: 0.75rem;
         margin: 0.55rem 0 0.9rem;
     }
@@ -584,16 +604,15 @@ st.markdown(
     '賞与なし・12か月均等支給で比較しています。</p>',
     unsafe_allow_html=True,
 )
-tokyo_comparison_result = simulate_annual_salary(
-    PREFECTURE_COMPARISON_SALARY,
-    get_rates("tokyo"),
-)
-osaka_comparison_result = simulate_annual_salary(
-    PREFECTURE_COMPARISON_SALARY,
-    get_rates("osaka"),
-)
+comparison_results = [
+    (
+        config.display_name,
+        simulate_annual_salary(PREFECTURE_COMPARISON_SALARY, get_rates(config.code)),
+    )
+    for config in prefecture_configs
+]
 st.markdown(
-    prefecture_comparison_html(tokyo_comparison_result, osaka_comparison_result),
+    prefecture_comparison_html(comparison_results),
     unsafe_allow_html=True,
 )
 

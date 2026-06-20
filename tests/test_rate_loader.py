@@ -5,15 +5,17 @@ import pytest
 from src.services.prefecture_rate_loader import get_supported_prefectures, load_rates
 
 
-def test_supported_prefectures_contains_tokyo_and_osaka():
+def test_supported_prefectures_contains_tokyo_osaka_and_kanagawa():
     prefectures = get_supported_prefectures()
 
     assert [(item.code, item.display_name) for item in prefectures] == [
         ("tokyo", "東京都"),
         ("osaka", "大阪府"),
+        ("kanagawa", "神奈川県（横浜市想定）"),
     ]
     assert prefectures[0].rate_file.name == "rates_2026_tokyo.json"
     assert prefectures[1].rate_file.name == "rates_2026_osaka.json"
+    assert prefectures[2].rate_file.name == "rates_2026_kanagawa.json"
 
 
 def test_load_rates_selects_tokyo_and_marks_prefecture_dependent_fields():
