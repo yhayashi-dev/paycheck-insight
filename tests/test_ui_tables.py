@@ -42,32 +42,42 @@ def test_format_results_dataframe_formats_money_columns():
     assert formatted.loc[0, "手取り率"] == "76.7%"
 
 
-def test_dataframe_to_responsive_html_includes_all_required_columns():
+def test_dataframe_to_responsive_html_uses_cards_without_a_table():
     df = pd.DataFrame(
         [
             {
                 "年収": "5,000,000円",
-                "社会保険料合計": "767,500円",
-                "税金合計": "400,000円",
-                "年間手取り": "3,832,500円",
-                "月平均手取り": "319,375円",
-                "健康保険": "250,000円",
-                "介護保険": "40,000円",
-                "厚生年金": "450,000円",
-                "雇用保険": "27,500円",
-                "会社負担分": "795,000円",
-                "総人件費": "5,795,000円",
+                "月額給与": "416,667円",
+                "所得税": "117,109円",
+                "住民税": "239,700円",
+                "健康保険": "242,304円",
+                "介護保険": "39,852円",
+                "厚生年金": "450,180円",
+                "雇用保険": "25,000円",
+                "社会保険料合計": "757,336円",
+                "税金合計": "356,809円",
+                "年間手取り": "3,885,855円",
+                "月平均手取り": "323,821円",
+                "会社負担分": "792,548円",
+                "総人件費": "5,792,548円",
+                "手取り率": "77.7%",
             }
         ]
     )
 
     html = dataframe_to_responsive_html(df)
 
-    assert 'data-label="年間手取り"' in html
-    assert 'data-label="月平均手取り"' in html
-    assert 'data-label="会社負担分"' in html
-    assert 'data-label="総人件費"' in html
-    assert "range-mobile-card" in html
+    assert "<table" not in html
+    assert html.count('class="range-mobile-card"') == 1
     assert "詳細を表示" in html
-    assert "<span>社会保険料合計</span>" in html
-    assert "<span>健康保険</span>" in html
+    for label in [
+        "年収",
+        "月額給与",
+        "所得税",
+        "住民税",
+        "社会保険料合計",
+        "税金合計",
+        "年間手取り",
+        "月平均手取り",
+    ]:
+        assert f"<span>{label}</span>" in html

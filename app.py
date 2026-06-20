@@ -387,42 +387,56 @@ st.markdown(
         width: 100%;
         max-width: 100%;
     }
-    .responsive-table-wrap {
-        width: 100%;
-        max-width: 100%;
-        overflow-x: auto;
+    .range-mobile-list {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+        gap: 0.75rem;
+    }
+    .range-mobile-card {
         border: 1px solid rgba(49, 51, 63, 0.16);
         border-radius: 8px;
+        min-width: 0;
+        overflow: hidden;
+        background: white;
     }
-    .responsive-table {
-        width: max-content;
-        min-width: 100%;
-        border-collapse: collapse;
-        font-size: 0.88rem;
-        line-height: 1.35;
-    }
-    .responsive-table th,
-    .responsive-table td {
-        border-bottom: 1px solid rgba(49, 51, 63, 0.12);
+    .range-mobile-main-row,
+    .range-mobile-detail-row {
+        display: flex;
+        justify-content: space-between;
+        gap: 1rem;
+        border-bottom: 1px solid rgba(49, 51, 63, 0.10);
         padding: 0.55rem 0.65rem;
-        text-align: right;
-        white-space: nowrap;
+        white-space: normal;
+        overflow-wrap: anywhere;
     }
-    .responsive-table th {
-        background: rgba(240, 242, 246, 0.75);
-        color: rgba(49, 51, 63, 0.86);
+    .range-mobile-main-row span,
+    .range-mobile-detail-row span {
+        color: rgba(49, 51, 63, 0.72);
         font-weight: 700;
-    }
-    .responsive-table th:first-child,
-    .responsive-table td:first-child {
         text-align: left;
+        flex: 0 0 42%;
+    }
+    .range-mobile-main-row strong,
+    .range-mobile-detail-row strong {
+        color: rgb(49, 51, 63);
         font-weight: 700;
+        text-align: right;
     }
-    .responsive-table tr:last-child td {
+    .range-mobile-main-row:first-child {
+        background: rgba(240, 242, 246, 0.75);
+    }
+    .range-mobile-details {
+        border-top: 1px solid rgba(49, 51, 63, 0.08);
+    }
+    .range-mobile-details summary {
+        cursor: pointer;
+        padding: 0.55rem 0.65rem;
+        color: rgb(0, 104, 201);
+        font-weight: 700;
+        list-style-position: inside;
+    }
+    .range-mobile-details .range-mobile-detail-row:last-child {
         border-bottom: 0;
-    }
-    .range-mobile-list {
-        display: none;
     }
     @media (max-width: 900px) {
         .summary-grid {
@@ -430,61 +444,8 @@ st.markdown(
         }
     }
     @media (max-width: 760px) {
-        .responsive-table-wrap {
-            overflow-x: visible;
-            border: 0;
-        }
-        .responsive-table {
-            display: none;
-        }
         .range-mobile-list {
-            display: block;
-        }
-        .range-mobile-card {
-            border: 1px solid rgba(49, 51, 63, 0.16);
-            border-radius: 8px;
-            margin-bottom: 0.75rem;
-            overflow: hidden;
-            background: white;
-        }
-        .range-mobile-main-row,
-        .range-mobile-detail-row {
-            display: flex;
-            justify-content: space-between;
-            gap: 1rem;
-            border-bottom: 1px solid rgba(49, 51, 63, 0.10);
-            padding: 0.55rem 0.65rem;
-            white-space: normal;
-            overflow-wrap: anywhere;
-        }
-        .range-mobile-main-row span,
-        .range-mobile-detail-row span {
-            color: rgba(49, 51, 63, 0.72);
-            font-weight: 700;
-            text-align: left;
-            flex: 0 0 42%;
-        }
-        .range-mobile-main-row strong,
-        .range-mobile-detail-row strong {
-            color: rgb(49, 51, 63);
-            font-weight: 700;
-            text-align: right;
-        }
-        .range-mobile-main-row:first-child {
-            background: rgba(240, 242, 246, 0.75);
-        }
-        .range-mobile-details {
-            border-top: 1px solid rgba(49, 51, 63, 0.08);
-        }
-        .range-mobile-details summary {
-            cursor: pointer;
-            padding: 0.55rem 0.65rem;
-            color: rgb(0, 104, 201);
-            font-weight: 700;
-            list-style-position: inside;
-        }
-        .range-mobile-details .range-mobile-detail-row:last-child {
-            border-bottom: 0;
+            grid-template-columns: minmax(0, 1fr);
         }
     }
     @media (max-width: 520px) {

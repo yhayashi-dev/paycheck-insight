@@ -106,6 +106,8 @@ IMPORTANT_RANGE_COLUMNS = [
     "所得税",
     "住民税",
     "健康保険",
+    "社会保険料合計",
+    "税金合計",
     "年間手取り",
     "月平均手取り",
 ]
@@ -114,8 +116,6 @@ DETAIL_RANGE_COLUMNS = [
     "介護保険",
     "厚生年金",
     "雇用保険",
-    "社会保険料合計",
-    "税金合計",
     "会社負担分",
     "総人件費",
     "手取り率",
@@ -123,26 +123,9 @@ DETAIL_RANGE_COLUMNS = [
 
 
 def dataframe_to_responsive_html(df: pd.DataFrame) -> str:
-    """Render a dataframe as a responsive HTML table for Streamlit markdown."""
+    """Render annual income results as responsive cards."""
 
-    headers = list(df.columns)
-    header_html = "".join(f"<th>{escape(column)}</th>" for column in headers)
-    body_rows = []
-    for _, row in df.iterrows():
-        cells = []
-        for column in headers:
-            value = escape(str(row[column]))
-            cells.append(f'<td data-label="{escape(column)}">{value}</td>')
-        body_rows.append(f"<tr>{''.join(cells)}</tr>")
-    return (
-        '<div class="responsive-table-wrap">'
-        '<table class="responsive-table">'
-        f"<thead><tr>{header_html}</tr></thead>"
-        f"<tbody>{''.join(body_rows)}</tbody>"
-        "</table>"
-        f"{_mobile_range_cards(df)}"
-        "</div>"
-    )
+    return _mobile_range_cards(df)
 
 
 def _mobile_range_cards(df: pd.DataFrame) -> str:
