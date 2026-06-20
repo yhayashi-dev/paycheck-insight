@@ -102,19 +102,23 @@ def format_results_dataframe(df: pd.DataFrame) -> pd.DataFrame:
 
 IMPORTANT_RANGE_COLUMNS = [
     "年収",
-    "社会保険料合計",
-    "税金合計",
+    "月額給与",
+    "所得税",
+    "住民税",
+    "健康保険",
     "年間手取り",
     "月平均手取り",
 ]
 
 DETAIL_RANGE_COLUMNS = [
-    "健康保険",
     "介護保険",
     "厚生年金",
     "雇用保険",
+    "社会保険料合計",
+    "税金合計",
     "会社負担分",
     "総人件費",
+    "手取り率",
 ]
 
 

@@ -429,54 +429,7 @@ st.markdown(
             grid-template-columns: repeat(2, minmax(0, 1fr));
         }
     }
-    @media (max-width: 520px) {
-        .block-container {
-            padding: 1rem 0.75rem 1.5rem;
-        }
-        .app-title {
-            font-size: 1.35rem !important;
-            line-height: 1.22;
-        }
-        .app-caption {
-            font-size: 0.82rem !important;
-            line-height: 1.45 !important;
-        }
-        .compact-warning {
-            padding: 0.4rem 0.55rem;
-        }
-        .verification-card-list {
-            grid-template-columns: minmax(0, 1fr);
-            gap: 0.65rem;
-        }
-        .summary-grid {
-            grid-template-columns: repeat(2, minmax(0, 1fr));
-            gap: 0.5rem;
-        }
-        .summary-card {
-            padding: 0.75rem;
-        }
-        .summary-label {
-            white-space: normal;
-        }
-        .summary-value {
-            font-size: 1rem;
-        }
-        .comparison-prefecture-grid {
-            grid-template-columns: minmax(0, 1fr);
-            gap: 0.65rem;
-        }
-        .comparison-metric-row,
-        .comparison-difference-row {
-            align-items: flex-start;
-        }
-        .comparison-metric-row dt,
-        .comparison-difference-row span:first-child {
-            flex: 0 0 42%;
-        }
-        .comparison-metric-row dd,
-        .comparison-difference-row strong {
-            overflow-wrap: anywhere;
-        }
+    @media (max-width: 760px) {
         .responsive-table-wrap {
             overflow-x: visible;
             border: 0;
@@ -532,6 +485,55 @@ st.markdown(
         }
         .range-mobile-details .range-mobile-detail-row:last-child {
             border-bottom: 0;
+        }
+    }
+    @media (max-width: 520px) {
+        .block-container {
+            padding: 1rem 0.75rem 1.5rem;
+        }
+        .app-title {
+            font-size: 1.35rem !important;
+            line-height: 1.22;
+        }
+        .app-caption {
+            font-size: 0.82rem !important;
+            line-height: 1.45 !important;
+        }
+        .compact-warning {
+            padding: 0.4rem 0.55rem;
+        }
+        .verification-card-list {
+            grid-template-columns: minmax(0, 1fr);
+            gap: 0.65rem;
+        }
+        .summary-grid {
+            grid-template-columns: repeat(2, minmax(0, 1fr));
+            gap: 0.5rem;
+        }
+        .summary-card {
+            padding: 0.75rem;
+        }
+        .summary-label {
+            white-space: normal;
+        }
+        .summary-value {
+            font-size: 1rem;
+        }
+        .comparison-prefecture-grid {
+            grid-template-columns: minmax(0, 1fr);
+            gap: 0.65rem;
+        }
+        .comparison-metric-row,
+        .comparison-difference-row {
+            align-items: flex-start;
+        }
+        .comparison-metric-row dt,
+        .comparison-difference-row span:first-child {
+            flex: 0 0 42%;
+        }
+        .comparison-metric-row dd,
+        .comparison-difference-row strong {
+            overflow-wrap: anywhere;
         }
     }
     </style>
