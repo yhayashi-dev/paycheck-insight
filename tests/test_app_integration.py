@@ -77,6 +77,27 @@ def test_warning_message_preserves_japanese_metadata_and_translates_english_mode
     assert "local tax rounding rules" in app.warning_message("en", metadata)
 
 
+def test_assumption_summary_preserves_japanese_and_translates_prefecture_names():
+    import app
+
+    tokyo_metadata = app.get_rates("tokyo")["metadata"]
+    assert app.assumption_summary("ja", "tokyo", tokyo_metadata) == (
+        "東京都・52歳・単身・扶養なし・会社員・協会けんぽ・給与収入のみ・"
+        "賞与なし・12か月均等支給の概算です。"
+    )
+
+    expected_prefecture_names = {
+        "tokyo": "Tokyo",
+        "osaka": "Osaka",
+        "kanagawa": "Kanagawa (Yokohama assumed)",
+    }
+    for prefecture_code, english_name in expected_prefecture_names.items():
+        metadata = app.get_rates(prefecture_code)["metadata"]
+        summary = app.assumption_summary("en", prefecture_code, metadata)
+        assert summary.startswith(f"{english_name} · Age 52 · Single · No dependents")
+        assert summary.endswith("No bonus · Paid evenly over 12 months.")
+
+
 def test_prefecture_comparison_uses_english_labels_when_requested():
     import app
 

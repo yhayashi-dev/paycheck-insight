@@ -67,6 +67,12 @@ ENGLISH_WARNING_MESSAGE = (
     "rules are shown as unverified."
 )
 
+ENGLISH_PREFECTURE_NAMES = {
+    "tokyo": "Tokyo",
+    "osaka": "Osaka",
+    "kanagawa": "Kanagawa (Yokohama assumed)",
+}
+
 
 def ui_text(language: str, key: str) -> str:
     """Return a UI label while keeping Japanese as the default language."""
@@ -80,6 +86,22 @@ def warning_message(language: str, metadata: dict) -> str:
     if language == "en":
         return ENGLISH_WARNING_MESSAGE
     return metadata["notice"]
+
+
+def assumption_summary(language: str, prefecture_code: str, metadata: dict) -> str:
+    """Describe the fixed simulation assumptions in the selected UI language."""
+
+    if language == "en":
+        prefecture_name = ENGLISH_PREFECTURE_NAMES[prefecture_code]
+        return (
+            f"{prefecture_name} · Age {metadata['age']} · Single · No dependents · Employee · "
+            "Japan Health Insurance Association · Salary income only · No bonus · "
+            "Paid evenly over 12 months."
+        )
+    return (
+        f"{metadata['prefecture']}・{metadata['age']}歳・単身・扶養なし・会社員・"
+        "協会けんぽ・給与収入のみ・賞与なし・12か月均等支給の概算です。"
+    )
 
 
 @st.cache_data
@@ -607,8 +629,7 @@ rates = get_rates(selected_prefecture_code)
 metadata = rates["metadata"]
 
 st.markdown(
-    f'<p class="app-caption">{escape(metadata["prefecture"])}・52歳・単身・扶養なし・会社員・'
-    '協会けんぽ・給与収入のみ・賞与なし・12か月均等支給の概算です。</p>',
+    f'<p class="app-caption">{escape(assumption_summary(selected_language, selected_prefecture_code, metadata))}</p>',
     unsafe_allow_html=True,
 )
 
