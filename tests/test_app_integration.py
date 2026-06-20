@@ -65,6 +65,18 @@ def test_app_ui_text_defaults_to_japanese_and_supports_major_english_labels():
     )
 
 
+def test_warning_message_preserves_japanese_metadata_and_translates_english_mode():
+    import app
+
+    metadata = app.get_rates("osaka")["metadata"]
+
+    assert app.warning_message("ja", metadata) == metadata["notice"]
+    assert app.warning_message("unknown", metadata) == metadata["notice"]
+    assert app.warning_message("en", metadata) == app.ENGLISH_WARNING_MESSAGE
+    assert app.warning_message("en", metadata).startswith("Some items are still unverified.")
+    assert "local tax rounding rules" in app.warning_message("en", metadata)
+
+
 def test_prefecture_comparison_uses_english_labels_when_requested():
     import app
 

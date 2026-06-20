@@ -60,11 +60,26 @@ UI_TEXT = {
     },
 }
 
+ENGLISH_WARNING_MESSAGE = (
+    "Some items are still unverified. Income tax, resident tax, salary income deductions, "
+    "and major social insurance rates are based on official sources. Final rounding rules "
+    "for income tax, the child and family support contribution, and some local tax rounding "
+    "rules are shown as unverified."
+)
+
 
 def ui_text(language: str, key: str) -> str:
     """Return a UI label while keeping Japanese as the default language."""
 
     return UI_TEXT.get(language, UI_TEXT["ja"])[key]
+
+
+def warning_message(language: str, metadata: dict) -> str:
+    """Use the existing regional notice in Japanese and a shared English notice."""
+
+    if language == "en":
+        return ENGLISH_WARNING_MESSAGE
+    return metadata["notice"]
 
 
 @st.cache_data
@@ -599,7 +614,7 @@ st.markdown(
 
 if metadata["provisional"]:
     st.markdown(
-        f'<div class="compact-warning">{escape(metadata["notice"])}</div>',
+        f'<div class="compact-warning">{escape(warning_message(selected_language, metadata))}</div>',
         unsafe_allow_html=True,
     )
 
