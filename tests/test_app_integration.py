@@ -3,6 +3,8 @@ from pathlib import Path
 import subprocess
 import sys
 
+from streamlit.testing.v1 import AppTest
+
 from src.services.simulation import simulate_annual_salary
 
 
@@ -64,6 +66,47 @@ def test_app_get_rates_loads_default_rates_for_500_man_yen_case():
     }
 
 
+def test_app_salary_input_recalculates_results_comparison_and_english_display():
+    app_test = AppTest.from_file("app.py").run()
+
+    salary_input = app_test.number_input[0]
+    assert salary_input.label == "年収（円）"
+    assert salary_input.value == 5_000_000
+    assert salary_input.min == 1_000_000
+    assert salary_input.max == 20_000_000
+
+    app_test.number_input[0].set_value(7_300_000).run()
+    assert app_test.number_input[0].value == 7_300_000
+    assert app_test.table[0].value.iloc[8].to_dict() == {
+        "項目": "年間手取り",
+        "金額": "5,445,710円",
+    }
+    assert any(
+        "年収 7,300,000円" in markdown.value
+        for markdown in app_test.markdown
+    )
+    assert any(
+        "5,438,340円" in markdown.value and "5,441,919円" in markdown.value
+        for markdown in app_test.markdown
+    )
+
+    app_test.selectbox[0].set_value("en").run()
+    assert app_test.number_input[0].label == "Annual salary (JPY)"
+    assert app_test.number_input[0].value == 7_300_000
+    assert app_test.table[0].value.iloc[8].to_dict() == {
+        "Item": "Annual take-home pay",
+        "Amount": "5,445,710 JPY",
+    }
+    assert any(
+        "Annual salary 7,300,000 JPY" in markdown.value
+        for markdown in app_test.markdown
+    )
+    assert any(
+        "5,438,340 JPY" in markdown.value and "5,441,919 JPY" in markdown.value
+        for markdown in app_test.markdown
+    )
+
+
 def test_app_ui_text_defaults_to_japanese_and_supports_major_english_labels():
     import app
 
@@ -82,6 +125,11 @@ def test_app_ui_text_defaults_to_japanese_and_supports_major_english_labels():
     assert app.format_display_currency(5_000_000, "円") == "5,000,000円"
     assert app.format_display_currency(5_000_000, "JPY") == "5,000,000 JPY"
     assert app.parse_currency_input("5,000,000 JPY") == 5_000_000
+    assert app.annual_salary_input_label("ja") == "年収（円）"
+    assert app.annual_salary_input_label("en") == "Annual salary (JPY)"
+    assert app.MIN_ANNUAL_SALARY == 1_000_000
+    assert app.MAX_ANNUAL_SALARY == 20_000_000
+    assert app.ANNUAL_SALARY_STEP == 100_000
     assert app.SALARY_EXAMPLE_LABELS["ja"]["年収"] == "年収"
     assert app.SALARY_EXAMPLE_LABELS["en"]["年収"] == "Annual salary"
     assert app.SALARY_EXAMPLE_LABELS["en"]["厚生年金"] == "Employees' pension"
@@ -183,6 +231,38 @@ def test_prefecture_comparison_assumption_summary_changes_language():
         "Annual salary 5,000,000 JPY · Age 52 · Single · No dependents · "
         "No bonus · Paid evenly over 12 months."
     )
+    assert app.comparison_assumption_summary("ja", 7_300_000).startswith(
+        "年収 7,300,000円"
+    )
+    assert app.comparison_assumption_summary("en", 7_300_000).startswith(
+        "Annual salary 7,300,000 JPY"
+    )
+
+
+def test_editable_salary_value_recalculates_results_and_prefecture_comparison():
+    import app
+
+    annual_salary = 7_300_000
+    results = {
+        prefecture_code: simulate_annual_salary(
+            annual_salary,
+            app.get_rates(prefecture_code),
+        )
+        for prefecture_code in ("tokyo", "osaka", "kanagawa")
+    }
+
+    assert all(result.annual_salary == annual_salary for result in results.values())
+    assert all(result.annual_take_home > 0 for result in results.values())
+    assert results["tokyo"].annual_take_home != 3_885_855
+
+    comparison_html = app.prefecture_comparison_html(
+        [
+            (prefecture_code, result)
+            for prefecture_code, result in results.items()
+        ],
+        language="en",
+    )
+    assert format(results["tokyo"].annual_take_home, ",") + " JPY" in comparison_html
 
 
 def test_app_verification_metadata_splits_confirmed_and_unconfirmed_items():

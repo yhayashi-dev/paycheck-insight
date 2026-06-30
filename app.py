@@ -355,7 +355,10 @@ VERIFICATION_STATUS_LABELS = {
     "pending_implementation": "計算未反映",
 }
 
-PREFECTURE_COMPARISON_SALARY = 5_000_000
+DEFAULT_ANNUAL_SALARY = 5_000_000
+MIN_ANNUAL_SALARY = 1_000_000
+MAX_ANNUAL_SALARY = 20_000_000
+ANNUAL_SALARY_STEP = 100_000
 PREFECTURE_COMPARISON_METRICS = (
     ("annual_take_home", lambda result: result.annual_take_home),
     ("monthly_take_home", lambda result: result.monthly_take_home_average),
@@ -495,17 +498,28 @@ def format_signed_yen(value: int, language: str = "ja") -> str:
     return f"{value:+,}{separator}{unit}"
 
 
-def comparison_assumption_summary(language: str) -> str:
-    """Describe the fixed inputs used for the prefecture comparison."""
+def annual_salary_input_label(language: str) -> str:
+    """Show the localized currency unit alongside the editable salary input."""
+
+    if language == "en":
+        return "Annual salary (JPY)"
+    return "年収（円）"
+
+
+def comparison_assumption_summary(
+    language: str,
+    annual_salary: int = DEFAULT_ANNUAL_SALARY,
+) -> str:
+    """Describe the inputs used for the prefecture comparison."""
 
     if language == "en":
         return (
-            f"Annual salary {format_display_currency(PREFECTURE_COMPARISON_SALARY, currency_unit(language))} · "
+            f"Annual salary {format_display_currency(annual_salary, currency_unit(language))} · "
             "Age 52 · Single · "
             "No dependents · No bonus · Paid evenly over 12 months."
         )
     return (
-        f"年収 {format_yen(PREFECTURE_COMPARISON_SALARY)}・52歳・単身・扶養なし・"
+        f"年収 {format_yen(annual_salary)}・52歳・単身・扶養なし・"
         "賞与なし・12か月均等支給で比較しています。"
     )
 
@@ -1017,17 +1031,15 @@ with st.expander(ui_text(selected_language, "verification_status_sources")):
         unsafe_allow_html=True,
     )
 
-annual_salary_text = st.text_input(
-    ui_text(selected_language, "annual_salary"),
-    value=format_display_currency(5_000_000, selected_currency_unit),
-    help="3桁カンマ付きで入力できます。例: 5,000,000円",
+annual_salary = st.number_input(
+    annual_salary_input_label(selected_language),
+    min_value=MIN_ANNUAL_SALARY,
+    max_value=MAX_ANNUAL_SALARY,
+    value=DEFAULT_ANNUAL_SALARY,
+    step=ANNUAL_SALARY_STEP,
+    format="%d",
+    key="annual_salary",
 )
-
-try:
-    annual_salary = parse_currency_input(annual_salary_text)
-except ValueError:
-    st.error("年収は 5,000,000円 のように数字、カンマ、円で入力してください。")
-    st.stop()
 
 result = simulate_annual_salary(int(annual_salary), rates)
 
@@ -1066,13 +1078,13 @@ st.table(localized_result_rows(result, selected_currency_unit, selected_language
 
 st.subheader(ui_text(selected_language, "prefecture_comparison"))
 st.markdown(
-    f'<p class="app-caption">{escape(comparison_assumption_summary(selected_language))}</p>',
+    f'<p class="app-caption">{escape(comparison_assumption_summary(selected_language, int(annual_salary)))}</p>',
     unsafe_allow_html=True,
 )
 comparison_results = [
     (
         prefecture_display_name(selected_language, config.code, config.display_name),
-        simulate_annual_salary(PREFECTURE_COMPARISON_SALARY, get_rates(config.code)),
+        simulate_annual_salary(int(annual_salary), get_rates(config.code)),
     )
     for config in prefecture_configs
 ]
