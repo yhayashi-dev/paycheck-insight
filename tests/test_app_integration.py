@@ -107,6 +107,45 @@ def test_app_salary_input_recalculates_results_comparison_and_english_display():
     )
 
 
+def test_bonus_option_defaults_to_no_bonus_and_keeps_current_calculation():
+    app_test = AppTest.from_file("app.py").run()
+    expected_take_home = app_test.table[0].value.iloc[8].to_dict()
+
+    bonus_input = app_test.selectbox[2]
+    assert bonus_input.label == "賞与設定"
+    assert bonus_input.options == ["賞与なし", "賞与あり"]
+    assert bonus_input.value == "no_bonus"
+    assert not any(
+        "賞与ありの詳細計算は今後対応予定です。" in markdown.value
+        for markdown in app_test.markdown
+    )
+
+    app_test.selectbox[2].set_value("with_bonus").run()
+    assert app_test.selectbox[2].value == "with_bonus"
+    assert app_test.table[0].value.iloc[8].to_dict() == expected_take_home
+    assert any(
+        "賞与ありの詳細計算は今後対応予定です。"
+        in markdown.value
+        for markdown in app_test.markdown
+    )
+    assert any("賞与あり・12か月均等支給" in markdown.value for markdown in app_test.markdown)
+
+    app_test.selectbox[0].set_value("en").run()
+    assert app_test.selectbox[2].label == "Bonus"
+    assert app_test.selectbox[2].options == ["No bonus", "Bonus"]
+    assert app_test.selectbox[2].value == "with_bonus"
+    assert app_test.table[0].value.iloc[8].to_dict() == {
+        "Item": "Annual take-home pay",
+        "Amount": "3,885,855 JPY",
+    }
+    assert any(
+        "Detailed bonus calculation is planned for a future update."
+        in markdown.value
+        for markdown in app_test.markdown
+    )
+    assert any("Bonus · Paid evenly over 12 months" in markdown.value for markdown in app_test.markdown)
+
+
 def test_app_ui_text_defaults_to_japanese_and_supports_major_english_labels():
     import app
 
@@ -177,6 +216,13 @@ def test_assumption_summary_preserves_japanese_and_translates_prefecture_names()
         summary = app.assumption_summary("en", prefecture_code, metadata)
         assert summary.startswith(f"{english_name} · Age 52 · Single · No dependents")
         assert summary.endswith("No bonus · Paid evenly over 12 months.")
+
+    assert app.assumption_summary("ja", "tokyo", tokyo_metadata, "with_bonus").endswith(
+        "賞与あり・12か月均等支給の概算です。"
+    )
+    assert app.assumption_summary("en", "tokyo", tokyo_metadata, "with_bonus").endswith(
+        "Bonus · Paid evenly over 12 months."
+    )
 
 
 def test_prefecture_display_names_change_language_without_changing_rate_keys():

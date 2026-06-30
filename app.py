@@ -30,6 +30,7 @@ UI_TEXT = {
         "title": "2026年 手取り試算",
         "subtitle": "会社員向け 税・社会保険料・手取りの概算",
         "prefecture": "都道府県",
+        "bonus_setting": "賞与設定",
         "annual_salary": "年収",
         "results": "試算結果",
         "annual_take_home": "年間手取り",
@@ -46,6 +47,7 @@ UI_TEXT = {
         "title": "2026 Take-home Pay Simulator",
         "subtitle": "Estimate taxes, social insurance, and take-home pay for employees in Japan",
         "prefecture": "Prefecture",
+        "bonus_setting": "Bonus",
         "annual_salary": "Annual salary",
         "results": "Results",
         "annual_take_home": "Annual take-home pay",
@@ -77,6 +79,19 @@ ENGLISH_PREFECTURE_NAMES = {
     "tokyo": "Tokyo",
     "osaka": "Osaka",
     "kanagawa": "Kanagawa (Yokohama assumed)",
+}
+
+BONUS_OPTIONS = {
+    "no_bonus": {"ja": "賞与なし", "en": "No bonus"},
+    "with_bonus": {"ja": "賞与あり", "en": "Bonus"},
+}
+
+BONUS_NOTES = {
+    "ja": "賞与ありの詳細計算は今後対応予定です。現在は賞与なし前提で計算しています。",
+    "en": (
+        "Detailed bonus calculation is planned for a future update. "
+        "The current calculation still assumes no bonus."
+    ),
 }
 
 SALARY_EXAMPLE_LABELS = {
@@ -321,19 +336,40 @@ def prefecture_display_name(language: str, prefecture_code: str, japanese_name: 
     return japanese_name
 
 
-def assumption_summary(language: str, prefecture_code: str, metadata: dict) -> str:
+def bonus_display_name(language: str, bonus_setting: str) -> str:
+    """Return the localized bonus option without affecting calculations."""
+
+    option = BONUS_OPTIONS[bonus_setting]
+    return option["en"] if language == "en" else option["ja"]
+
+
+def bonus_notice(language: str, bonus_setting: str) -> str | None:
+    """Explain that the bonus option is not yet reflected in calculations."""
+
+    if bonus_setting != "with_bonus":
+        return None
+    return BONUS_NOTES["en"] if language == "en" else BONUS_NOTES["ja"]
+
+
+def assumption_summary(
+    language: str,
+    prefecture_code: str,
+    metadata: dict,
+    bonus_setting: str = "no_bonus",
+) -> str:
     """Describe the fixed simulation assumptions in the selected UI language."""
 
+    bonus_label = bonus_display_name(language, bonus_setting)
     if language == "en":
         prefecture_name = ENGLISH_PREFECTURE_NAMES[prefecture_code]
         return (
             f"{prefecture_name} · Age {metadata['age']} · Single · No dependents · Employee · "
-            "Japan Health Insurance Association · Salary income only · No bonus · "
+            f"Japan Health Insurance Association · Salary income only · {bonus_label} · "
             "Paid evenly over 12 months."
         )
     return (
         f"{metadata['prefecture']}・{metadata['age']}歳・単身・扶養なし・会社員・"
-        "協会けんぽ・給与収入のみ・賞与なし・12か月均等支給の概算です。"
+        f"協会けんぽ・給与収入のみ・{bonus_label}・12か月均等支給の概算です。"
     )
 
 
@@ -509,18 +545,20 @@ def annual_salary_input_label(language: str) -> str:
 def comparison_assumption_summary(
     language: str,
     annual_salary: int = DEFAULT_ANNUAL_SALARY,
+    bonus_setting: str = "no_bonus",
 ) -> str:
     """Describe the inputs used for the prefecture comparison."""
 
+    bonus_label = bonus_display_name(language, bonus_setting)
     if language == "en":
         return (
             f"Annual salary {format_display_currency(annual_salary, currency_unit(language))} · "
             "Age 52 · Single · "
-            "No dependents · No bonus · Paid evenly over 12 months."
+            f"No dependents · {bonus_label} · Paid evenly over 12 months."
         )
     return (
         f"年収 {format_yen(annual_salary)}・52歳・単身・扶養なし・"
-        "賞与なし・12か月均等支給で比較しています。"
+        f"{bonus_label}・12か月均等支給で比較しています。"
     )
 
 
@@ -650,6 +688,15 @@ st.markdown(
         background: rgb(241, 247, 252);
         border: 1px solid rgba(44, 95, 132, 0.2);
         border-radius: 8px;
+        color: rgb(48, 72, 89);
+        font-size: 0.82rem;
+        line-height: 1.4;
+        margin: 0 0 0.45rem;
+        padding: 0.42rem 0.6rem;
+    }
+    .bonus-note {
+        background: rgb(241, 247, 252);
+        border-left: 3px solid rgb(70, 126, 164);
         color: rgb(48, 72, 89);
         font-size: 0.82rem;
         line-height: 1.4;
@@ -988,14 +1035,32 @@ selected_prefecture_code = st.selectbox(
     options=[config.code for config in prefecture_configs],
     format_func=prefecture_names.__getitem__,
 )
+stored_bonus_setting = st.session_state.get("selected_bonus_setting", "no_bonus")
+bonus_widget_key = f"bonus_setting_{selected_language}"
+if bonus_widget_key not in st.session_state:
+    st.session_state[bonus_widget_key] = stored_bonus_setting
+selected_bonus_setting = st.selectbox(
+    ui_text(selected_language, "bonus_setting"),
+    options=list(BONUS_OPTIONS),
+    format_func=lambda option: bonus_display_name(selected_language, option),
+    key=bonus_widget_key,
+)
+st.session_state["selected_bonus_setting"] = selected_bonus_setting
 
 rates = get_rates(selected_prefecture_code)
 metadata = rates["metadata"]
 
 st.markdown(
-    f'<p class="app-caption">{escape(assumption_summary(selected_language, selected_prefecture_code, metadata))}</p>',
+    f'<p class="app-caption">{escape(assumption_summary(selected_language, selected_prefecture_code, metadata, selected_bonus_setting))}</p>',
     unsafe_allow_html=True,
 )
+
+current_bonus_notice = bonus_notice(selected_language, selected_bonus_setting)
+if current_bonus_notice:
+    st.markdown(
+        f'<div class="bonus-note">{escape(current_bonus_notice)}</div>',
+        unsafe_allow_html=True,
+    )
 
 if metadata["provisional"]:
     st.markdown(
@@ -1078,7 +1143,7 @@ st.table(localized_result_rows(result, selected_currency_unit, selected_language
 
 st.subheader(ui_text(selected_language, "prefecture_comparison"))
 st.markdown(
-    f'<p class="app-caption">{escape(comparison_assumption_summary(selected_language, int(annual_salary)))}</p>',
+    f'<p class="app-caption">{escape(comparison_assumption_summary(selected_language, int(annual_salary), selected_bonus_setting))}</p>',
     unsafe_allow_html=True,
 )
 comparison_results = [
@@ -1102,7 +1167,7 @@ with st.expander("計算前提"):
             "世帯": metadata["household"],
             "扶養人数": metadata["dependents"],
             "保険者": metadata["health_insurer"],
-            "賞与": "なし",
+            "賞与": bonus_display_name(selected_language, selected_bonus_setting),
             "健康保険 標準報酬月額": format_display_currency(
                 result.insurance.health_standard_monthly,
                 selected_currency_unit,
