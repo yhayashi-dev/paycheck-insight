@@ -189,6 +189,46 @@ VERIFICATION_DISPLAY_TEXT = {
     },
 }
 
+VERIFICATION_ITEM_ENGLISH_ALIASES = {
+    "介護保険料率": "Long-term care insurance rate",
+    "住民税の基礎控除": "Resident tax basic deduction",
+    "健康保険料率": "Health insurance rate",
+    "前年所得課税": "Taxation based on prior-year income",
+    "厚生年金保険料率": "Employees’ pension insurance rate",
+    "均等割": "Per capita levy",
+    "子ども・子育て拠出金率": "Child and childcare contribution rate",
+    "子ども・子育て支援金率（計算未反映）": (
+        "Child and family support contribution rate (not reflected in calculation)"
+    ),
+    "市民税・府民税の個別100円未満切捨て（計算未反映）": (
+        "Separate rounding down below JPY 100 for municipal and prefectural resident tax "
+        "(not reflected in calculation)"
+    ),
+    "市民税・県民税の個別100円未満切捨て（計算未反映）": (
+        "Separate rounding down below JPY 100 for municipal and prefectural resident tax "
+        "(not reflected in calculation)"
+    ),
+    "復興特別所得税率": "Special income tax for reconstruction rate",
+    "所得割の税率": "Income-based resident tax rate",
+    "所得税の基礎控除": "Income tax basic deduction",
+    "所得税の速算表": "Income tax rate table",
+    "所得税額の最終端数処理": "Final rounding of income tax amount",
+    "森林環境税": "Forest environment tax",
+    "標準報酬月額": "Standard monthly remuneration",
+    "水源環境保全税": "Water source environment conservation tax",
+    "社会保険料控除": "Social insurance premium deduction",
+    "税額の100円未満切捨て": "Rounding down tax amount below JPY 100",
+    "給与所得控除": "Employment income deduction",
+    "給与所得控除の最低保障額": "Minimum guaranteed employment income deduction",
+    "課税所得の1,000円未満切捨て": "Rounding down taxable income below JPY 1,000",
+    "課税標準の1,000円未満切捨て": "Rounding down resident tax base below JPY 1,000",
+    "調整控除": "Adjustment deduction",
+    "雇用保険料率": "Employment insurance rate",
+    "非課税判定（大阪市）": "Tax-exempt eligibility (Osaka City)",
+    "非課税判定（東京23区）": "Tax-exempt eligibility (Tokyo 23 wards)",
+    "非課税判定（横浜市）": "Tax-exempt eligibility (Yokohama City)",
+}
+
 
 def ui_text(language: str, key: str) -> str:
     """Return a UI label while keeping Japanese as the default language."""
@@ -368,6 +408,17 @@ def verification_summary_text(language: str, verified_count: int, unverified_cou
     )
 
 
+def verification_item_display_name(item_name: str, language: str) -> str:
+    """Append a trusted English alias while preserving the official Japanese item name."""
+
+    if language != "en":
+        return item_name
+    english_alias = VERIFICATION_ITEM_ENGLISH_ALIASES.get(item_name)
+    if not english_alias:
+        return item_name
+    return f"{item_name} / {english_alias}"
+
+
 def verification_cards_html(items: list[dict], language: str = "ja") -> str:
     """Render verification metadata as responsive cards with source links."""
 
@@ -377,6 +428,7 @@ def verification_cards_html(items: list[dict], language: str = "ja") -> str:
 
     cards = []
     for item in items:
+        displayed_item_name = verification_item_display_name(item["item"], language)
         status_class = "is-confirmed" if item["status"] == "確認済み" else "is-pending"
         status_key = {
             "確認済み": "verified",
@@ -402,7 +454,7 @@ def verification_cards_html(items: list[dict], language: str = "ja") -> str:
             "</div>"
             '<div class="verification-card-header-field">'
             f'<span class="verification-card-label">{escape(labels["item"])}</span>'
-            f'<strong class="verification-card-item">{escape(item["item"])}</strong>'
+            f'<strong class="verification-card-item">{escape(displayed_item_name)}</strong>'
             "</div>"
             '<div class="verification-card-header-field">'
             f'<span class="verification-card-label">{escape(labels["status"])}</span>'

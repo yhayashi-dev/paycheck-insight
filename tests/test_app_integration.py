@@ -318,7 +318,30 @@ def test_verification_html_uses_responsive_cards_with_required_fields():
     assert "Effective date" in english_html
     assert "Last verified date" in english_html
     assert "Source" in english_html
+    assert "健康保険料率 / Health insurance rate" in english_html
     assert "協会けんぽ 大阪府保険料額表" in english_html
+
+
+def test_verification_item_aliases_preserve_japanese_and_cover_current_items():
+    import app
+
+    assert app.verification_item_display_name("給与所得控除", "ja") == "給与所得控除"
+    assert app.verification_item_display_name("給与所得控除", "en") == (
+        "給与所得控除 / Employment income deduction"
+    )
+    assert app.verification_item_display_name("標準報酬月額", "en") == (
+        "標準報酬月額 / Standard monthly remuneration"
+    )
+    assert app.verification_item_display_name("未登録項目", "en") == "未登録項目"
+
+    current_items = set()
+    for prefecture_code in ("tokyo", "osaka", "kanagawa"):
+        verified_items, unverified_items = app.collect_verification_items(
+            app.get_rates(prefecture_code)
+        )
+        current_items.update(item["item"] for item in verified_items + unverified_items)
+
+    assert current_items <= app.VERIFICATION_ITEM_ENGLISH_ALIASES.keys()
 
 
 def test_verification_summary_changes_language_without_changing_counts():
