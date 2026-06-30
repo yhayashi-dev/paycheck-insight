@@ -122,18 +122,37 @@ def test_bonus_option_defaults_to_no_bonus_and_keeps_current_calculation():
 
     app_test.selectbox[2].set_value("with_bonus").run()
     assert app_test.selectbox[2].value == "with_bonus"
+    assert len(app_test.number_input) == 2
+    assert app_test.number_input[0].label == "年間賞与額（円）"
+    assert app_test.number_input[0].value == 1_000_000
+    assert app_test.number_input[0].min == 0
+    assert app_test.number_input[0].max == 10_000_000
     assert app_test.table[0].value.iloc[8].to_dict() == expected_take_home
     assert any(
         "賞与ありの詳細計算は今後対応予定です。"
         in markdown.value
         for markdown in app_test.markdown
     )
-    assert any("賞与あり・12か月均等支給" in markdown.value for markdown in app_test.markdown)
+    assert any(
+        "賞与あり・年間賞与額 1,000,000円（計算未反映）"
+        in markdown.value
+        for markdown in app_test.markdown
+    )
+
+    app_test.number_input[0].set_value(1_500_000).run()
+    assert app_test.number_input[0].value == 1_500_000
+    assert app_test.table[0].value.iloc[8].to_dict() == expected_take_home
+    assert any(
+        "年間賞与額 1,500,000円（計算未反映）" in markdown.value
+        for markdown in app_test.markdown
+    )
 
     app_test.selectbox[0].set_value("en").run()
     assert app_test.selectbox[2].label == "Bonus"
     assert app_test.selectbox[2].options == ["No bonus", "Bonus"]
     assert app_test.selectbox[2].value == "with_bonus"
+    assert app_test.number_input[0].label == "Annual bonus amount"
+    assert app_test.number_input[0].value == 1_500_000
     assert app_test.table[0].value.iloc[8].to_dict() == {
         "Item": "Annual take-home pay",
         "Amount": "3,885,855 JPY",
@@ -143,7 +162,12 @@ def test_bonus_option_defaults_to_no_bonus_and_keeps_current_calculation():
         in markdown.value
         for markdown in app_test.markdown
     )
-    assert any("Bonus · Paid evenly over 12 months" in markdown.value for markdown in app_test.markdown)
+    assert any("1,500,000 JPY" in caption.value for caption in app_test.caption)
+    assert any(
+        "Bonus · Annual bonus amount 1,500,000 JPY (not reflected in calculation)"
+        in markdown.value
+        for markdown in app_test.markdown
+    )
 
 
 def test_app_ui_text_defaults_to_japanese_and_supports_major_english_labels():
@@ -218,11 +242,17 @@ def test_assumption_summary_preserves_japanese_and_translates_prefecture_names()
         assert summary.endswith("No bonus · Paid evenly over 12 months.")
 
     assert app.assumption_summary("ja", "tokyo", tokyo_metadata, "with_bonus").endswith(
-        "賞与あり・12か月均等支給の概算です。"
+        "賞与あり・年間賞与額 1,000,000円（計算未反映）・12か月均等支給の概算です。"
     )
     assert app.assumption_summary("en", "tokyo", tokyo_metadata, "with_bonus").endswith(
-        "Bonus · Paid evenly over 12 months."
+        "Bonus · Annual bonus amount 1,000,000 JPY (not reflected in calculation) · "
+        "Paid evenly over 12 months."
     )
+    assert app.annual_bonus_input_label("ja") == "年間賞与額（円）"
+    assert app.annual_bonus_input_label("en") == "Annual bonus amount"
+    assert app.MIN_ANNUAL_BONUS == 0
+    assert app.MAX_ANNUAL_BONUS == 10_000_000
+    assert app.ANNUAL_BONUS_STEP == 100_000
 
 
 def test_prefecture_display_names_change_language_without_changing_rate_keys():

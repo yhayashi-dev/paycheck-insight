@@ -94,6 +94,11 @@ BONUS_NOTES = {
     ),
 }
 
+DEFAULT_ANNUAL_BONUS = 1_000_000
+MIN_ANNUAL_BONUS = 0
+MAX_ANNUAL_BONUS = 10_000_000
+ANNUAL_BONUS_STEP = 100_000
+
 SALARY_EXAMPLE_LABELS = {
     "ja": {
         "年収": "年収",
@@ -351,15 +356,49 @@ def bonus_notice(language: str, bonus_setting: str) -> str | None:
     return BONUS_NOTES["en"] if language == "en" else BONUS_NOTES["ja"]
 
 
+def annual_bonus_input_label(language: str) -> str:
+    """Return the localized annual bonus input label."""
+
+    if language == "en":
+        return "Annual bonus amount"
+    return "年間賞与額（円）"
+
+
+def bonus_assumption_text(
+    language: str,
+    bonus_setting: str,
+    annual_bonus_amount: int = DEFAULT_ANNUAL_BONUS,
+) -> str:
+    """Describe the selected bonus setting without implying calculation support."""
+
+    if bonus_setting == "no_bonus":
+        return bonus_display_name(language, bonus_setting)
+    formatted_amount = format_display_currency(
+        annual_bonus_amount,
+        currency_unit(language),
+    )
+    if language == "en":
+        return (
+            f"Bonus · Annual bonus amount {formatted_amount} "
+            "(not reflected in calculation)"
+        )
+    return f"賞与あり・年間賞与額 {formatted_amount}（計算未反映）"
+
+
 def assumption_summary(
     language: str,
     prefecture_code: str,
     metadata: dict,
     bonus_setting: str = "no_bonus",
+    annual_bonus_amount: int = DEFAULT_ANNUAL_BONUS,
 ) -> str:
     """Describe the fixed simulation assumptions in the selected UI language."""
 
-    bonus_label = bonus_display_name(language, bonus_setting)
+    bonus_label = bonus_assumption_text(
+        language,
+        bonus_setting,
+        annual_bonus_amount,
+    )
     if language == "en":
         prefecture_name = ENGLISH_PREFECTURE_NAMES[prefecture_code]
         return (
@@ -546,10 +585,15 @@ def comparison_assumption_summary(
     language: str,
     annual_salary: int = DEFAULT_ANNUAL_SALARY,
     bonus_setting: str = "no_bonus",
+    annual_bonus_amount: int = DEFAULT_ANNUAL_BONUS,
 ) -> str:
     """Describe the inputs used for the prefecture comparison."""
 
-    bonus_label = bonus_display_name(language, bonus_setting)
+    bonus_label = bonus_assumption_text(
+        language,
+        bonus_setting,
+        annual_bonus_amount,
+    )
     if language == "en":
         return (
             f"Annual salary {format_display_currency(annual_salary, currency_unit(language))} · "
@@ -1047,11 +1091,32 @@ selected_bonus_setting = st.selectbox(
 )
 st.session_state["selected_bonus_setting"] = selected_bonus_setting
 
+selected_annual_bonus = int(
+    st.session_state.get("selected_annual_bonus", DEFAULT_ANNUAL_BONUS)
+)
+if selected_bonus_setting == "with_bonus":
+    bonus_amount_widget_key = f"annual_bonus_amount_{selected_language}"
+    if bonus_amount_widget_key not in st.session_state:
+        st.session_state[bonus_amount_widget_key] = selected_annual_bonus
+    selected_annual_bonus = int(
+        st.number_input(
+            annual_bonus_input_label(selected_language),
+            min_value=MIN_ANNUAL_BONUS,
+            max_value=MAX_ANNUAL_BONUS,
+            value=DEFAULT_ANNUAL_BONUS,
+            step=ANNUAL_BONUS_STEP,
+            format="%d",
+            key=bonus_amount_widget_key,
+        )
+    )
+    st.session_state["selected_annual_bonus"] = selected_annual_bonus
+    st.caption(format_display_currency(selected_annual_bonus, selected_currency_unit))
+
 rates = get_rates(selected_prefecture_code)
 metadata = rates["metadata"]
 
 st.markdown(
-    f'<p class="app-caption">{escape(assumption_summary(selected_language, selected_prefecture_code, metadata, selected_bonus_setting))}</p>',
+    f'<p class="app-caption">{escape(assumption_summary(selected_language, selected_prefecture_code, metadata, selected_bonus_setting, selected_annual_bonus))}</p>',
     unsafe_allow_html=True,
 )
 
@@ -1143,7 +1208,7 @@ st.table(localized_result_rows(result, selected_currency_unit, selected_language
 
 st.subheader(ui_text(selected_language, "prefecture_comparison"))
 st.markdown(
-    f'<p class="app-caption">{escape(comparison_assumption_summary(selected_language, int(annual_salary), selected_bonus_setting))}</p>',
+    f'<p class="app-caption">{escape(comparison_assumption_summary(selected_language, int(annual_salary), selected_bonus_setting, selected_annual_bonus))}</p>',
     unsafe_allow_html=True,
 )
 comparison_results = [
@@ -1168,6 +1233,11 @@ with st.expander("計算前提"):
             "扶養人数": metadata["dependents"],
             "保険者": metadata["health_insurer"],
             "賞与": bonus_display_name(selected_language, selected_bonus_setting),
+            "年間賞与額": (
+                format_display_currency(selected_annual_bonus, selected_currency_unit)
+                if selected_bonus_setting == "with_bonus"
+                else "-"
+            ),
             "健康保険 標準報酬月額": format_display_currency(
                 result.insurance.health_standard_monthly,
                 selected_currency_unit,
