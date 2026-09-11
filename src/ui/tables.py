@@ -55,6 +55,8 @@ def result_to_display_rows(
         {"項目": "月平均手取り", "金額": format_currency(result.monthly_take_home_average, unit)},
         {"項目": "会社負担分", "金額": format_currency(result.insurance.employer_total, unit)},
         {"項目": "総人件費", "金額": format_currency(result.total_labor_cost, unit)},
+        {"項目": "子ども・子育て支援金（本人・内数）", "金額": format_currency(result.insurance.child_support_employee, unit)},
+        {"項目": "子ども・子育て支援金（会社・内数）", "金額": format_currency(result.insurance.child_support_employer, unit)},
     ]
 
 
@@ -73,6 +75,8 @@ def results_to_dataframe(results: list[SimulationResult]) -> pd.DataFrame:
                 "介護保険": result.insurance.care_employee,
                 "厚生年金": result.insurance.pension_employee,
                 "雇用保険": result.insurance.employment_employee,
+                "子ども・子育て支援金（本人・内数）": result.insurance.child_support_employee,
+                "子ども・子育て支援金（会社・内数）": result.insurance.child_support_employer,
                 "社会保険料合計": result.insurance.employee_total,
                 "税金合計": result.tax.total,
                 "年間手取り": result.annual_take_home,
@@ -98,6 +102,8 @@ def format_results_dataframe(df: pd.DataFrame, unit: str = "円") -> pd.DataFram
         "介護保険",
         "厚生年金",
         "雇用保険",
+        "子ども・子育て支援金（本人・内数）",
+        "子ども・子育て支援金（会社・内数）",
         "社会保険料合計",
         "税金合計",
         "年間手取り",
@@ -106,7 +112,8 @@ def format_results_dataframe(df: pd.DataFrame, unit: str = "円") -> pd.DataFram
         "総人件費",
     ]
     for column in yen_columns:
-        formatted[column] = formatted[column].map(lambda value: format_currency(value, unit))
+        if column in formatted.columns:
+            formatted[column] = formatted[column].map(lambda value: format_currency(value, unit))
     formatted["手取り率"] = formatted["手取り率"].map(format_percent)
     return formatted
 
@@ -124,6 +131,8 @@ IMPORTANT_RANGE_COLUMNS = [
 ]
 
 DETAIL_RANGE_COLUMNS = [
+    "子ども・子育て支援金（本人・内数）",
+    "子ども・子育て支援金（会社・内数）",
     "介護保険",
     "厚生年金",
     "雇用保険",

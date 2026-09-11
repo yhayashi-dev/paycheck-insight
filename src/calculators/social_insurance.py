@@ -1,9 +1,17 @@
 from __future__ import annotations
 
+from decimal import Decimal, ROUND_HALF_DOWN
 from typing import Any
 
 from src.calculators.common import yen
 from src.models import InsuranceBreakdown
+
+
+def child_support_monthly(standard: int, rate: float) -> tuple[int, int]:
+    """表の支援金を個別に丸める概算。会社額は一人分納付額との差額。"""
+    total = Decimal(standard) * Decimal(str(rate))
+    employee = int((total / 2).quantize(Decimal("1"), rounding=ROUND_HALF_DOWN))
+    return employee, int(total) - employee
 
 
 def find_standard_monthly(monthly_salary: int, table: list[dict[str, int | None]]) -> int:
@@ -50,6 +58,12 @@ def calculate_social_insurance(annual_salary: int, rates: dict[str, Any]) -> Ins
     # 子ども・子育て拠出金: 会社のみ負担する項目として総人件費に含める。
     child_care_contribution = yen(pension_standard * social["child_care_contribution_rate"] * 12)
 
+    # 支援金は健康保険の標準報酬が基礎。会社のみの拠出金とは別制度。
+    # 既存の年額モデルに合わせ、施行後の料率を12か月適用した換算額。
+    support_employee, support_employer = child_support_monthly(
+        health_standard, social["child_support"]["rate"]
+    )
+
     return InsuranceBreakdown(
         health_employee=monthly_health_employee * 12,
         health_employer=monthly_health_employer * 12,
@@ -62,4 +76,6 @@ def calculate_social_insurance(annual_salary: int, rates: dict[str, Any]) -> Ins
         child_care_contribution_employer=child_care_contribution,
         health_standard_monthly=health_standard,
         pension_standard_monthly=pension_standard,
+        child_support_employee=support_employee * 12,
+        child_support_employer=support_employer * 12,
     )

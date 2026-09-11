@@ -18,6 +18,8 @@ class InsuranceBreakdown:
     child_care_contribution_employer: int
     health_standard_monthly: int
     pension_standard_monthly: int
+    child_support_employee: int = 0
+    child_support_employer: int = 0
 
     @property
     def employee_total(self) -> int:
@@ -26,6 +28,7 @@ class InsuranceBreakdown:
             + self.care_employee
             + self.pension_employee
             + self.employment_employee
+            + self.child_support_employee
         )
 
     @property
@@ -36,6 +39,7 @@ class InsuranceBreakdown:
             + self.pension_employer
             + self.employment_employer
             + self.child_care_contribution_employer
+            + self.child_support_employer
         )
 
 

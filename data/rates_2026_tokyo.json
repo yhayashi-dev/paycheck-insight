@@ -11,7 +11,7 @@
     "bonus": false,
     "salary_payment": "年収を12か月均等支給",
     "provisional": true,
-    "notice": "一部未確認項目あり: 所得税・住民税・給与所得控除と主要な社会保険料率は公式資料に基づき確認済みです。所得税額の最終端数処理と、子ども・子育て支援金の計算反映は未確認項目として表示します。"
+    "notice": "2026年度料率を12か月適用した換算額です。支援金は実際には4月分（5月納付分）からで、2026年中の実徴収額ではありません。所得税は年末調整方式で100円未満を切り捨てます。その他の既存の概算条件は継続します。"
   },
   "regional_scope": {
     "prefecture_code": "tokyo",
@@ -23,7 +23,7 @@
   },
   "rounding": {
     "taxable_income_unit": 1000,
-    "annual_tax_unit": 1,
+    "annual_tax_unit": 100,
     "monthly_premium_unit": 1
   },
   "salary_income_deduction": {
@@ -54,8 +54,8 @@
     ]
   },
   "income_tax": {
-    "provisional": true,
-    "note": "2026年分の基礎控除、速算表、復興特別所得税、社会保険料控除、課税所得の1,000円未満切捨ては公式資料で確認。所得税額の最終端数処理は公式確認前のため現行処理を維持。",
+    "provisional": false,
+    "note": "基礎控除・税率等の既存設定を維持。年調年税額は復興特別所得税を含め100円未満切捨て（No.2662）。",
     "verification": [
       {
         "item": "所得税の基礎控除",
@@ -94,10 +94,11 @@
       },
       {
         "item": "所得税額の最終端数処理",
-        "provisional": true,
-        "applicable_period": "未確認",
-        "source_name": "未確認",
-        "source_url": ""
+        "provisional": false,
+        "applicable_period": "年末調整の年税額（復興特別所得税込み・100円未満切捨て）",
+        "source_name": "国税庁 No.2662 年末調整のしかた",
+        "source_url": "https://www.nta.go.jp/taxes/shiraberu/taxanswer/gensen/2662.htm",
+        "last_verified_on": "2026-09-11"
       }
     ],
     "basic_deduction_brackets": [
@@ -209,7 +210,7 @@
   },
   "social_insurance": {
     "provisional": true,
-    "note": "健康保険、介護保険、厚生年金、標準報酬月額、雇用保険、子ども・子育て拠出金は公式資料で確認済み。別制度の子ども・子育て支援金0.23%は現在の計算に未反映のため、区分全体は provisional=true を維持。",
+    "note": "支援金0.23%を健康保険の標準報酬月額から別計算し12か月換算。給与天引き本人額は50銭以下切捨て。会社額は一人分納付額との差額概算で、事業所全体の請求額とは端数差があり得ます。",
     "verification": [
       {
         "item": "健康保険料率",
@@ -272,16 +273,17 @@
         "source_url": "https://www.nenkin.go.jp/service/kounen/hokenryo/ryogaku/ryogakuhyo/20200825.html"
       },
       {
-        "item": "子ども・子育て支援金率（計算未反映）",
-        "provisional": true,
-        "status": "pending_implementation",
-        "applicable_period": "令和8年度 0.23%（健康保険料と併せて徴収）",
+        "item": "子ども・子育て支援金率・給与天引き端数処理",
+        "provisional": false,
+        "status": "confirmed",
+        "applicable_period": "令和8年度0.23%・給与天引き特約なし・12か月換算",
         "effective_from": "2026年4月分（5月納付分）",
-        "last_verified_on": "2026-06-20",
-        "source_name": "協会けんぽ 令和8年度の都道府県単位保険料率",
-        "source_url": "https://www.kyoukaikenpo.or.jp/about/business/insurance_rate/rate_prefectures/r08/index.html"
+        "last_verified_on": "2026-09-11",
+        "source_name": "協会けんぽ 令和8年度保険料額表（全国共通の支援金）",
+        "source_url": "https://www.kyoukaikenpo.or.jp/assets/R8_13tokyo.pdf"
       }
     ],
+    "child_support": {"rate": 0.0023, "effective_from": "2026-04-01", "payment_from": "2026-05", "annualization": "12_month_equivalent", "employee_rounding": "half_down", "employer_allocation": "single_employee_bill_remainder"},
     "health_insurance_rate": 0.0985,
     "care_insurance_rate": 0.0162,
     "pension_rate": 0.183,

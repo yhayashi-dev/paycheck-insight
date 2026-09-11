@@ -1,8 +1,9 @@
 from __future__ import annotations
 
+from decimal import Decimal
 from typing import Any
 
-from src.calculators.common import round_down_to_unit, yen
+from src.calculators.common import round_down_to_unit
 
 
 def calculate_income_tax(salary_income: int, social_insurance_employee: int, rates: dict[str, Any]) -> tuple[int, int]:
@@ -18,10 +19,14 @@ def calculate_income_tax(salary_income: int, social_insurance_employee: int, rat
 
     bracket = _find_tax_bracket(taxable_income, income_tax["brackets"])
     # 所得税本税: 課税所得 x 税率 - 速算控除で計算する。
-    base_tax = max(taxable_income * bracket["rate"] - bracket["deduction"], 0)
+    base_tax = max(
+        Decimal(taxable_income) * Decimal(str(bracket["rate"])) - bracket["deduction"],
+        Decimal(0),
+    )
     # 復興特別所得税: 所得税本税に復興特別所得税率を掛けて合算する。
-    total_tax = base_tax * (1 + income_tax["reconstruction_surtax_rate"])
-    return yen(total_tax), taxable_income
+    total_tax = base_tax * (1 + Decimal(str(income_tax["reconstruction_surtax_rate"])))
+    # 国税庁 No.2662：年調年税額は復興特別所得税の合算後に100円未満切捨て。
+    return int(total_tax // 100) * 100, taxable_income
 
 
 def _get_basic_deduction_brackets(income_tax: dict[str, Any]) -> list[dict[str, int | None]]:

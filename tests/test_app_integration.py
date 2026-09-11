@@ -41,28 +41,28 @@ def test_app_get_rates_loads_default_rates_for_500_man_yen_case():
 
     assert rates["income_tax"]["basic_deduction_brackets"][2]["deduction"] == 680_000
     assert result.salary_income == 3_560_000
-    assert result.tax.taxable_income_for_income_tax == 2_122_000
-    assert result.tax.income_tax == 117_109
-    assert result.tax.taxable_income_for_resident_tax == 2_372_000
-    assert result.tax.resident_tax == 239_700
-    assert result.insurance.employee_total == 757_336
-    assert result.insurance.employer_total == 792_548
-    assert result.annual_take_home == 3_885_855
-    assert result.monthly_take_home_average == 323_821
-    assert result.total_labor_cost == 5_792_548
+    assert result.tax.taxable_income_for_income_tax == 2_117_000
+    assert result.tax.income_tax == 116_500
+    assert result.tax.taxable_income_for_resident_tax == 2_367_000
+    assert result.tax.resident_tax == 239_200
+    assert result.insurance.employee_total == 762_988
+    assert result.insurance.employer_total == 798_212
+    assert result.annual_take_home == 3_881_312
+    assert result.monthly_take_home_average == 323_443
+    assert result.total_labor_cost == 5_798_212
 
     japanese_rows = app.localized_result_rows(result, "円", "ja")
-    assert japanese_rows[0] == {"項目": "所得税", "金額": "117,109円"}
+    assert japanese_rows[0] == {"項目": "所得税", "金額": "116,500円"}
 
     english_rows = app.localized_result_rows(result, "JPY", "en")
-    assert english_rows[0] == {"Item": "Income tax", "Amount": "117,109 JPY"}
+    assert english_rows[0] == {"Item": "Income tax", "Amount": "116,500 JPY"}
     assert english_rows[3]["Item"] == "Long-term care insurance"
     assert english_rows[4]["Item"] == "Employees’ pension"
     assert english_rows[6]["Item"] == "Total social insurance"
     assert english_rows[7]["Item"] == "Total taxes"
     assert english_rows[8] == {
         "Item": "Annual take-home pay",
-        "Amount": "3,885,855 JPY",
+        "Amount": "3,881,312 JPY",
     }
 
 
@@ -79,14 +79,14 @@ def test_app_salary_input_recalculates_results_comparison_and_english_display():
     assert app_test.number_input[0].value == 7_300_000
     assert app_test.table[0].value.iloc[8].to_dict() == {
         "項目": "年間手取り",
-        "金額": "5,445,710円",
+        "金額": "5,439,900円",
     }
     assert any(
         "年収 7,300,000円" in markdown.value
         for markdown in app_test.markdown
     )
     assert any(
-        "5,438,340円" in markdown.value and "5,441,919円" in markdown.value
+        "5,432,284円" in markdown.value and "5,436,196円" in markdown.value
         for markdown in app_test.markdown
     )
 
@@ -95,14 +95,14 @@ def test_app_salary_input_recalculates_results_comparison_and_english_display():
     assert app_test.number_input[0].value == 7_300_000
     assert app_test.table[0].value.iloc[8].to_dict() == {
         "Item": "Annual take-home pay",
-        "Amount": "5,445,710 JPY",
+        "Amount": "5,439,900 JPY",
     }
     assert any(
         "Annual salary 7,300,000 JPY" in markdown.value
         for markdown in app_test.markdown
     )
     assert any(
-        "5,438,340 JPY" in markdown.value and "5,441,919 JPY" in markdown.value
+        "5,432,284 JPY" in markdown.value and "5,436,196 JPY" in markdown.value
         for markdown in app_test.markdown
     )
 
@@ -155,7 +155,7 @@ def test_bonus_option_defaults_to_no_bonus_and_keeps_current_calculation():
     assert app_test.number_input[0].value == 1_500_000
     assert app_test.table[0].value.iloc[8].to_dict() == {
         "Item": "Annual take-home pay",
-        "Amount": "3,885,855 JPY",
+        "Amount": "3,881,312 JPY",
     }
     assert any(
         "Detailed bonus calculation is planned for a future update."
@@ -291,9 +291,9 @@ def test_prefecture_comparison_uses_english_labels_when_requested():
     assert "Difference (Osaka - Tokyo)" in html
     assert (
         "Osaka compared with Tokyo: "
-        '<span class="comparison-difference-value">-5,773 JPY</span>' in html
+        '<span class="comparison-difference-value">-5,788 JPY</span>' in html
     )
-    assert "3,885,855 JPY" in html
+    assert "3,881,312 JPY" in html
 
 
 def test_prefecture_comparison_assumption_summary_changes_language():
@@ -329,7 +329,7 @@ def test_editable_salary_value_recalculates_results_and_prefecture_comparison():
 
     assert all(result.annual_salary == annual_salary for result in results.values())
     assert all(result.annual_take_home > 0 for result in results.values())
-    assert results["tokyo"].annual_take_home != 3_885_855
+    assert results["tokyo"].annual_take_home != 3_881_312
 
     comparison_html = app.prefecture_comparison_html(
         [
@@ -349,15 +349,15 @@ def test_app_verification_metadata_splits_confirmed_and_unconfirmed_items():
 
     assert rates["metadata"]["provisional"] is True
     assert rates["salary_income_deduction"]["provisional"] is False
-    assert rates["income_tax"]["provisional"] is True
+    assert rates["income_tax"]["provisional"] is False
     assert rates["resident_tax"]["provisional"] is False
     assert rates["social_insurance"]["provisional"] is True
-    assert "一部未確認項目あり" in rates["metadata"]["notice"]
+    assert "12か月" in rates["metadata"]["notice"]
 
     assert any(item["item"] == "所得税の基礎控除" for item in verified_items)
     assert any(item["item"] == "均等割" for item in verified_items)
-    assert len(verified_items) == 21
-    assert len(unverified_items) == 2
+    assert len(verified_items) == 23
+    assert len(unverified_items) == 0
     assert all(
         item["status"] == "確認済み"
         for item in verified_items
@@ -374,17 +374,18 @@ def test_app_verification_metadata_splits_confirmed_and_unconfirmed_items():
         "標準報酬月額",
         "雇用保険料率",
         "子ども・子育て拠出金率",
+        "子ども・子育て支援金率・給与天引き端数処理",
     }
-    assert any(item["item"] == "所得税額の最終端数処理" for item in unverified_items)
+    assert any(item["item"] == "所得税額の最終端数処理" for item in verified_items)
     assert any(
-        item["item"] == "子ども・子育て支援金率（計算未反映）"
-        and item["status"] == "計算未反映"
-        for item in unverified_items
+        item["item"] == "子ども・子育て支援金率・給与天引き端数処理"
+        and item["status"] == "確認済み"
+        for item in verified_items
     )
     assert all("source_name" in item for item in verified_items + unverified_items)
     assert all("applicable_period" in item for item in verified_items + unverified_items)
     assert all(
-        item["effective_from"] != "-" and item["last_verified_on"] == "2026-06-20"
+        item["effective_from"] != "-" and item["last_verified_on"] in {"2026-06-20", "2026-09-11"}
         for item in verified_items + unverified_items
         if item["section"] == "社会保険料"
     )
@@ -522,23 +523,23 @@ def test_prefecture_comparison_html_uses_existing_500_man_yen_results():
     assert 'class="comparison-prefecture-grid"' in html
     assert "東京都" in html
     assert "大阪府" in html
-    assert "3,885,855円" in html
-    assert "3,880,082円" in html
-    assert "757,336円" in html
-    assert "764,224円" in html
-    assert "356,809円" in html
-    assert "355,694円" in html
-    assert "792,548円" in html
-    assert "799,436円" in html
-    assert "5,792,548円" in html
-    assert "5,799,436円" in html
+    assert "3,881,312円" in html
+    assert "3,875,524円" in html
+    assert "762,988円" in html
+    assert "769,876円" in html
+    assert "355,700円" in html
+    assert "354,600円" in html
+    assert "798,212円" in html
+    assert "805,100円" in html
+    assert "5,798,212円" in html
+    assert "5,805,100円" in html
     assert (
         "大阪府は東京都より "
-        '<span class="comparison-difference-value">-5,773円</span>' in html
+        '<span class="comparison-difference-value">-5,788円</span>' in html
     )
     assert (
         "大阪府は東京都より "
-        '<span class="comparison-difference-value">-481円</span>' in html
+        '<span class="comparison-difference-value">-483円</span>' in html
     )
     assert (
         "大阪府は東京都より "

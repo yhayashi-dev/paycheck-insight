@@ -63,10 +63,9 @@ UI_TEXT = {
 }
 
 ENGLISH_WARNING_MESSAGE = (
-    "Some items are still unverified. Income tax, resident tax, salary income deductions, "
-    "and major social insurance rates are based on official sources. Final rounding rules "
-    "for income tax, the child and family support contribution, and some local tax rounding "
-    "rules are shown as unverified."
+    "Some items are still unverified. Estimates use 2026 rates annualized over 12 months. "
+    "Income tax is rounded down to JPY 100 after reconstruction surtax. The child support levy "
+    "is included; existing calendar-year simplifications and some local tax rounding rules remain."
 )
 
 ENGLISH_PARTIAL_TRANSLATION_NOTE = (
@@ -109,6 +108,8 @@ SALARY_EXAMPLE_LABELS = {
         "介護保険": "介護保険",
         "厚生年金": "厚生年金",
         "雇用保険": "雇用保険",
+        "子ども・子育て支援金（本人・内数）": "子ども・子育て支援金（本人・内数）",
+        "子ども・子育て支援金（会社・内数）": "子ども・子育て支援金（会社・内数）",
         "社会保険料合計": "社会保険料合計",
         "税金合計": "税金合計",
         "年間手取り": "年間手取り",
@@ -126,6 +127,8 @@ SALARY_EXAMPLE_LABELS = {
         "介護保険": "Long-term care insurance",
         "厚生年金": "Employees' pension",
         "雇用保険": "Employment insurance",
+        "子ども・子育て支援金（本人・内数）": "Child support levy (employee, included)",
+        "子ども・子育て支援金（会社・内数）": "Child support levy (employer, included)",
         "社会保険料合計": "Total social insurance",
         "税金合計": "Total taxes",
         "年間手取り": "Annual take-home pay",
@@ -151,6 +154,8 @@ RESULT_BREAKDOWN_LABELS = {
         "介護保険": "介護保険",
         "厚生年金": "厚生年金",
         "雇用保険": "雇用保険",
+        "子ども・子育て支援金（本人・内数）": "子ども・子育て支援金（本人・内数）",
+        "子ども・子育て支援金（会社・内数）": "子ども・子育て支援金（会社・内数）",
         "社会保険料合計": "社会保険料合計",
         "税金合計": "税金合計",
         "年間手取り": "年間手取り",
@@ -167,6 +172,8 @@ RESULT_BREAKDOWN_LABELS = {
         "介護保険": "Long-term care insurance",
         "厚生年金": "Employees’ pension",
         "雇用保険": "Employment insurance",
+        "子ども・子育て支援金（本人・内数）": "Child support levy (employee, included)",
+        "子ども・子育て支援金（会社・内数）": "Child support levy (employer, included)",
         "社会保険料合計": "Total social insurance",
         "税金合計": "Total taxes",
         "年間手取り": "Annual take-home pay",
@@ -217,8 +224,8 @@ VERIFICATION_ITEM_ENGLISH_ALIASES = {
     "厚生年金保険料率": "Employees’ pension insurance rate",
     "均等割": "Per capita levy",
     "子ども・子育て拠出金率": "Child and childcare contribution rate",
-    "子ども・子育て支援金率（計算未反映）": (
-        "Child and family support contribution rate (not reflected in calculation)"
+    "子ども・子育て支援金率・給与天引き端数処理": (
+        "Child and family support rate and payroll rounding"
     ),
     "市民税・府民税の個別100円未満切捨て（計算未反映）": (
         "Separate rounding down below JPY 100 for municipal and prefectural resident tax "
@@ -475,6 +482,12 @@ def collect_verification_items(rates: dict) -> tuple[list[dict], list[dict]]:
 def verification_summary_text(language: str, verified_count: int, unverified_count: int) -> str:
     """Format verification counts in the selected display language."""
 
+    if unverified_count == 0:
+        return (
+            f"Listed items verified: {verified_count}. Estimation assumptions still apply."
+            if language == "en" else
+            f"掲載する確認項目は {verified_count} 件確認済みです。概算条件は引き続き適用されます。"
+        )
     if language == "en":
         return (
             "Some items are still unverified. "
@@ -1113,6 +1126,16 @@ if selected_bonus_setting == "with_bonus":
     st.caption(format_display_currency(selected_annual_bonus, selected_currency_unit))
 
 rates = get_rates(selected_prefecture_code)
+st.info(
+    "2026年度料率の12か月換算です。支援金は4月分（5月納付分）開始のため、2026年中の実徴収額とは異なります。所得税は年末調整方式の概算です。"
+    if selected_language == "ja" else
+    "Annualized using 2026 rates for 12 months. The child support levy starts with April premiums (May payment), so this is not the actual amount collected in calendar 2026. Income tax uses year-end adjustment rounding."
+)
+st.caption(
+    "支援金は個別計算の概算です。会社負担は一人分の納付額との差額として配賦します。勤務先の合算・端数処理により差が生じます。内数のため合計への二重加算は不要です。"
+    if selected_language == "ja" else
+    "The levy is estimated separately. Employer cost is allocated as the single-person bill less the employee share. Employer aggregation and rounding may differ. The breakdown is already included in totals."
+)
 metadata = rates["metadata"]
 
 st.markdown(

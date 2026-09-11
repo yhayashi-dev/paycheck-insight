@@ -46,4 +46,5 @@ def test_social_insurance_rates_are_officially_confirmed_without_value_changes()
         "標準報酬月額",
         "雇用保険料率",
         "子ども・子育て拠出金率",
+        "子ども・子育て支援金率・給与天引き端数処理",
     }

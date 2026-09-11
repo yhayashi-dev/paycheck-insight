@@ -9,7 +9,7 @@ def test_income_tax_returns_tax_and_taxable_income():
     tax, taxable_income = calculate_income_tax(3_560_000, 750_000, rates)
 
     assert taxable_income == 2_130_000
-    assert tax == 117_925
+    assert tax == 117_900
 
 
 def test_income_tax_uses_2026_basic_deduction_table_for_500_man_yen_case():
@@ -18,7 +18,7 @@ def test_income_tax_uses_2026_basic_deduction_table_for_500_man_yen_case():
     tax, taxable_income = calculate_income_tax(3_560_000, 757_336, rates)
 
     assert taxable_income == 2_122_000
-    assert tax == 117_109
+    assert tax == 117_100
 
 
 def test_income_tax_uses_low_income_basic_deduction_band():
@@ -27,7 +27,7 @@ def test_income_tax_uses_low_income_basic_deduction_band():
     tax, taxable_income = calculate_income_tax(1_320_000, 313_648, rates)
 
     assert taxable_income == 56_000
-    assert tax == 2_859
+    assert tax == 2_800
 
 
 def test_resident_tax_returns_tax_and_taxable_income():
