@@ -1,16 +1,21 @@
 from __future__ import annotations
 
 from typing import Any
+from copy import deepcopy
 
 from src.calculators.income_tax import calculate_income_tax
 from src.calculators.resident_tax import calculate_resident_tax
 from src.calculators.salary_income import calculate_salary_income, calculate_salary_income_deduction
 from src.calculators.social_insurance import calculate_social_insurance
+from src.services.period_settings import PreviousYearInputs
 from src.models import SimulationResult, TaxBreakdown
 
 
-def simulate_annual_salary(annual_salary: int, rates: dict[str, Any]) -> SimulationResult:
-    """Run one take-home pay simulation for the fixed 2026 Tokyo employee scenario."""
+def simulate_annual_salary(annual_salary: int, rates: dict[str, Any], *, previous_year: PreviousYearInputs | None = None) -> SimulationResult:
+    """Annualize one explicitly selected insurance month; never a calendar-year ledger."""
+
+    if rates["calculation_context"]["mode"] != "annualized_12_month":
+        raise ValueError("unsupported_calculation_mode")
 
     monthly_salary = round(annual_salary / 12)
 
@@ -22,8 +27,21 @@ def simulate_annual_salary(annual_salary: int, rates: dict[str, Any]) -> Simulat
     insurance = calculate_social_insurance(annual_salary, rates)
     # 所得税: 給与所得から基礎控除・社会保険料控除を差し引いて算出。
     income_tax, income_taxable = calculate_income_tax(salary_income, insurance.employee_total, rates)
-    # 住民税: 入力年収を前年所得相当とみなす概算。
-    resident_tax, resident_taxable = calculate_resident_tax(salary_income, insurance.employee_total, rates)
+    # Local tax's previous-year inputs are an explicit policy, not a hidden fallback.
+    expected_year = rates["resident_tax"]["salary_income_year"]
+    policy = rates["assumptions"]["previous_year_policy"]
+    if previous_year is not None:
+        if previous_year.income_year != expected_year:
+            raise ValueError("previous_income_year_mismatch")
+        if previous_year.annual_salary < 0 or previous_year.social_insurance_paid < 0:
+            raise ValueError("negative_previous_year_input")
+        prior_salary, prior_social = previous_year.annual_salary, previous_year.social_insurance_paid
+    elif policy == "same_as_current":
+        prior_salary, prior_social = annual_salary, insurance.employee_total
+    else:
+        raise ValueError("previous_year_inputs_required")
+    resident_salary_income = calculate_salary_income(prior_salary, rates, income_year=expected_year)
+    resident_tax, resident_taxable = calculate_resident_tax(resident_salary_income, prior_social, rates)
 
     tax = TaxBreakdown(
         income_tax=income_tax,
@@ -50,7 +68,14 @@ def simulate_annual_salary(annual_salary: int, rates: dict[str, Any]) -> Simulat
         monthly_take_home_average=monthly_take_home_average,
         total_labor_cost=total_labor_cost,
         provisional=bool(rates["metadata"]["provisional"]),
-        notice=rates["metadata"]["notice"],
+        notice=rates["metadata"]["notice"] if previous_year is None else
+            "12か月換算概算。住民税は明示指定された前年給与・社会保険料で計算。",
+        calculation_context=deepcopy(rates["calculation_context"]),
+        assumptions={**deepcopy(rates["assumptions"]),
+                     "previous_year_policy": "explicit" if previous_year is not None else policy,
+                     "previous_income_year": expected_year,
+                     "previous_annual_salary": prior_salary,
+                     "previous_social_insurance": prior_social},
     )
 
 

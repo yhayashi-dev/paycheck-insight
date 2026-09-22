@@ -31,3 +31,34 @@ Library/
 .vscode/
 .idea/
 
+
+# Local nationwide research (not required by the 21-region release)
+/data/candidates/
+/docs/audits/
+/src/national_import/
+/scripts/
+# Research/region audit tests depend on local official source artifacts.
+/tests/test_block_binding.py
+/tests/test_bundle_importer.py
+/tests/test_chiba.py
+/tests/test_exemption_separation.py
+/tests/exemption_migration_support.py
+/tests/test_fukuoka.py
+/tests/test_municipality_pilot.py
+/tests/test_national_import.py
+/tests/test_niigata_hold.py
+/tests/test_pdf_review_importer.py
+/tests/test_period_binding.py
+/tests/test_period_foundation.py
+/tests/test_prefecture_overrides.py
+/tests/test_prefecture_routes.py
+/tests/test_regions_10_12.py
+/tests/test_regions_13_15.py
+/tests/test_regions_16_18.py
+/tests/test_regions_19_21.py
+/tests/test_regions_7_9_regression.py
+/tests/test_review_importer.py
+/tests/test_root_heading_binding.py
+/tests/test_saitama.py
+/tests/test_sapporo.py
+/tests/test_sendai.py

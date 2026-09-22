@@ -35,6 +35,28 @@ PREFECTURE_RATE_CONFIGS = {
         display_name="神奈川県（横浜市想定）",
         rate_file=DATA_DIR / "rates_2026_kanagawa.json",
     ),
+    "fukuoka": PrefectureRateConfig(
+        code="fukuoka",
+        display_name="福岡市（協会けんぽ福岡支部）",
+        rate_file=DATA_DIR / "rates_2026_fukuoka.json",
+    ),
+    "chiba": PrefectureRateConfig(code="chiba", display_name="千葉市（協会けんぽ千葉支部）", rate_file=DATA_DIR / "rates_2026_chiba.json"),
+    "saitama": PrefectureRateConfig(code="saitama", display_name="さいたま市（協会けんぽ埼玉支部）", rate_file=DATA_DIR / "rates_2026_saitama.json"),
+    "sapporo": PrefectureRateConfig(code="sapporo", display_name="札幌市（協会けんぽ北海道支部）", rate_file=DATA_DIR / "rates_2026_sapporo.json"),
+    "sendai": PrefectureRateConfig(code="sendai", display_name="仙台市（協会けんぽ宮城支部）", rate_file=DATA_DIR / "rates_2026_sendai.json"),
+    "niigata": PrefectureRateConfig(code="niigata", display_name="新潟市（協会けんぽ新潟支部）", rate_file=DATA_DIR / "rates_2026_niigata.json"),
+    "hiroshima": PrefectureRateConfig(code="hiroshima", display_name="広島市（協会けんぽ広島支部）", rate_file=DATA_DIR / "rates_2026_hiroshima.json"),
+    "takamatsu": PrefectureRateConfig(code="takamatsu", display_name="高松市（協会けんぽ香川支部）", rate_file=DATA_DIR / "rates_2026_takamatsu.json"),
+    "kanazawa": PrefectureRateConfig(code="kanazawa", display_name="金沢市（協会けんぽ石川支部）", rate_file=DATA_DIR / "rates_2026_kanazawa.json"),
+    "shizuoka": PrefectureRateConfig(code="shizuoka", display_name="静岡市（協会けんぽ静岡支部）", rate_file=DATA_DIR / "rates_2026_shizuoka.json"),
+    "kyoto": PrefectureRateConfig(code="kyoto", display_name="京都市（協会けんぽ京都支部）", rate_file=DATA_DIR / "rates_2026_kyoto.json"),
+    "kobe": PrefectureRateConfig(code="kobe", display_name="神戸市（協会けんぽ兵庫支部）", rate_file=DATA_DIR / "rates_2026_kobe.json"),
+    "nagano": PrefectureRateConfig(code="nagano", display_name="長野市（協会けんぽ長野支部）", rate_file=DATA_DIR / "rates_2026_nagano.json"),
+    "okayama": PrefectureRateConfig(code="okayama", display_name="岡山市（協会けんぽ岡山支部）", rate_file=DATA_DIR / "rates_2026_okayama.json"),
+    "kumamoto": PrefectureRateConfig(code="kumamoto", display_name="熊本市（協会けんぽ熊本支部）", rate_file=DATA_DIR / "rates_2026_kumamoto.json"),
+    "naha": PrefectureRateConfig(code="naha", display_name="那覇市（協会けんぽ沖縄支部）", rate_file=DATA_DIR / "rates_2026_naha.json"),
+    "matsuyama": PrefectureRateConfig(code="matsuyama", display_name="松山市（協会けんぽ愛媛支部）", rate_file=DATA_DIR / "rates_2026_matsuyama.json"),
+    "morioka": PrefectureRateConfig(code="morioka", display_name="盛岡市（協会けんぽ岩手支部）", rate_file=DATA_DIR / "rates_2026_morioka.json"),
 }
 DEFAULT_RATE_FILE = PREFECTURE_RATE_CONFIGS[DEFAULT_PREFECTURE_CODE].rate_file
 
@@ -76,25 +98,18 @@ def _load_rate_file(rate_file: Path, loading: frozenset[Path] = frozenset()) -> 
     with rate_file.open(encoding="utf-8") as file:
         rates = json.load(file)
 
-    parent_name = rates.pop("extends", None)
-    if parent_name is None:
-        return rates
-    if not isinstance(parent_name, str) or Path(parent_name).name != parent_name:
-        raise ValueError(f"{rate_file} extends must name a JSON file in the same directory.")
-
-    parent_file = rate_file.parent / parent_name
-    parent_rates = _load_rate_file(parent_file, loading | {resolved_file})
-    return _deep_merge(parent_rates, rates)
-
-
-def _deep_merge(base: dict[str, Any], overrides: dict[str, Any]) -> dict[str, Any]:
-    merged = dict(base)
-    for key, value in overrides.items():
-        if isinstance(value, dict) and isinstance(merged.get(key), dict):
-            merged[key] = _deep_merge(merged[key], value)
-        else:
-            merged[key] = value
-    return merged
+    if rates.get("schema_version") == 1 and "calculation_context" in rates:
+        from src.services.period_settings import CalculationContext, load_calculation_rates
+        result = load_calculation_rates(
+            CalculationContext(**rates["calculation_context"]),
+            assumptions=rates["assumptions"],
+        )
+        result["metadata"].update(rates["metadata"])
+        result["regional_scope"] = rates["regional_scope"]
+        return result
+    if "extends" in rates:
+        raise ValueError("Regional inheritance is no longer supported; use an explicit preset")
+    return rates
 
 
 def _validate_prefecture_scope(

@@ -39,6 +39,6 @@
 
 ## 人生資産シミュレーターと共通化
 
-`/Users/hayashi/solo-life-simulator/src/solo_life_simulator/employment.py` の `_social_insurance` に支援金なし、`_income_tax` に旧1円丸めあり。`docs/paycheck_insight_reuse.md` と独立した料率JSONからもコピー運用を確認。今回変更していない。既存の未コミット3ファイルも保持。
+`別のローカルプロジェクトの employment.py` の `_social_insurance` に支援金なし、`_income_tax` に旧1円丸めあり。`docs/paycheck_insight_reuse.md` と独立した料率JSONからもコピー運用を確認。今回変更していない。既存の未コミット3ファイルも保持。
 
 共通化は推奨するが、最初は所得税端数処理・支援金関数・年度別料率の定義・公式例テストを、版固定で取り込める小さな計算部品に限定する。シミュレーターには年齢や賞与・長期予測の独自条件があるため、給与計算全体を無検証で置換しない。画面・DBは独立維持。他リポジトリの絶対パスを直接importする構成は避ける。共通化とシミュレーター修正は別途承認後。

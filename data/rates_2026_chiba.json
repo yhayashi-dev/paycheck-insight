@@ -1,0 +1,32 @@
+{
+  "schema_version": 1,
+  "preset_id": "chiba",
+  "metadata": {
+    "prefecture": "千葉市（協会けんぽ千葉支部）"
+  },
+  "regional_scope": {
+    "prefecture_code": "chiba",
+    "prefecture_name": "千葉市（協会けんぽ千葉支部）",
+    "prefecture_dependent_fields": [
+      "social_insurance.health_insurance_rate",
+      "resident_tax"
+    ]
+  },
+  "calculation_context": {
+    "mode": "annualized_12_month",
+    "income_year": 2026,
+    "municipality_id": "chiba_city",
+    "fiscal_year": 2026,
+    "insurer_id": "kyokai_kenpo",
+    "branch_id": "chiba",
+    "effective_month": "2026-04",
+    "business_type": "general"
+  },
+  "assumptions": {
+    "previous_year_policy": "same_as_current",
+    "salary_payment": "equal_12_months",
+    "age": 52,
+    "dependents": 0,
+    "bonus_included": false
+  }
+}

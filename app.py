@@ -65,7 +65,7 @@ UI_TEXT = {
 ENGLISH_WARNING_MESSAGE = (
     "Some items are still unverified. Estimates use 2026 rates annualized over 12 months. "
     "Income tax is rounded down to JPY 100 after reconstruction surtax. The child support levy "
-    "is included; existing calendar-year simplifications and some local tax rounding rules remain."
+    "is included; existing calendar-year simplifications remain; local income taxes are rounded separately."
 )
 
 ENGLISH_PARTIAL_TRANSLATION_NOTE = (
@@ -75,9 +75,27 @@ ENGLISH_PARTIAL_TRANSLATION_NOTE = (
 )
 
 ENGLISH_PREFECTURE_NAMES = {
+    "morioka": "Morioka City (Kyokai Kenpo Iwate branch)",
+    "matsuyama": "Matsuyama City (Kyokai Kenpo Ehime branch)",
+    "naha": "Naha City (Kyokai Kenpo Okinawa branch)",
+    "kumamoto": "Kumamoto City (Kyokai Kenpo Kumamoto branch)",
+    "okayama": "Okayama City (Kyokai Kenpo Okayama branch)",
+    "nagano": "Nagano City (Kyokai Kenpo Nagano branch)",
+    "kobe": "Kobe City (Kyokai Kenpo Hyogo branch)",
+    "kyoto": "Kyoto City (Kyokai Kenpo Kyoto branch)",
+    "shizuoka": "Shizuoka City (Kyokai Kenpo Shizuoka branch)",
+    "kanazawa": "Kanazawa City (Kyokai Kenpo Ishikawa branch)",
+    "takamatsu": "Takamatsu City (Kyokai Kenpo Kagawa branch)",
+    "hiroshima": "Hiroshima City (Kyokai Kenpo Hiroshima branch)",
     "tokyo": "Tokyo",
     "osaka": "Osaka",
     "kanagawa": "Kanagawa (Yokohama assumed)",
+    "fukuoka": "Fukuoka City (Kyokai Kenpo Fukuoka branch)",
+    "chiba": "Chiba City (Kyokai Kenpo Chiba branch)",
+    "saitama": "Saitama City (Kyokai Kenpo Saitama branch)",
+    "niigata": "Niigata City (Kyokai Kenpo Niigata branch)",
+    "sendai": "Sendai City (Kyokai Kenpo Miyagi branch)",
+    "sapporo": "Sapporo City (Kyokai Kenpo Hokkaido branch)",
 }
 
 BONUS_OPTIONS = {
@@ -217,6 +235,9 @@ VERIFICATION_DISPLAY_TEXT = {
 }
 
 VERIFICATION_ITEM_ENGLISH_ALIASES = {
+    "2026年分給与所得表": "2026 annual salary income table",
+    "市民税・府民税の個別100円未満切捨て": "Separate municipal and prefectural rounding",
+    "市民税・県民税の個別100円未満切捨て": "Separate municipal and prefectural rounding",
     "介護保険料率": "Long-term care insurance rate",
     "住民税の基礎控除": "Resident tax basic deduction",
     "健康保険料率": "Health insurance rate",
@@ -1079,6 +1100,11 @@ st.markdown(
 )
 
 prefecture_configs = get_supported_prefectures()
+st.caption(
+    f"現在対応している地域：確認済みの{len(prefecture_configs)}地域。全国すべての自治体には対応していません。確認中のcandidateは選択対象外です。"
+    if selected_language == "ja" else
+    f"Currently supports {len(prefecture_configs)} verified regional presets, not every municipality in Japan. Unverified candidates are not selectable."
+)
 prefecture_names = {
     config.code: prefecture_display_name(
         selected_language,
@@ -1126,6 +1152,17 @@ if selected_bonus_setting == "with_bonus":
     st.caption(format_display_currency(selected_annual_bonus, selected_currency_unit))
 
 rates = get_rates(selected_prefecture_code)
+context = rates["calculation_context"]
+st.caption(
+    f"12か月換算概算モード｜所得税 {context['income_year']}年分｜住民税 {context['fiscal_year']}年度（{rates['resident_tax']['salary_income_year']}年所得）｜保険料 {context['effective_month']}分を12か月適用"
+    if selected_language == "ja" else
+    f"12-month annualized estimate | Income tax {context['income_year']} | Local tax FY{context['fiscal_year']} (income {rates['resident_tax']['salary_income_year']}) | Insurance: {context['effective_month']} rates for 12 months"
+)
+st.caption(
+    "地域選択は自治体と協会けんぽ支部を組み合わせたプリセットです。住所だけから実際の加入支部を判定していません。"
+    if selected_language == "ja" else
+    "Each preset pairs a municipality with a Kyokai Kenpo branch; your address does not determine your actual insurance branch."
+)
 st.info(
     "2026年度料率の12か月換算です。支援金は4月分（5月納付分）開始のため、2026年中の実徴収額とは異なります。所得税は年末調整方式の概算です。"
     if selected_language == "ja" else
@@ -1136,7 +1173,17 @@ st.caption(
     if selected_language == "ja" else
     "The levy is estimated separately. Employer cost is allocated as the single-person bill less the employee share. Employer aggregation and rounding may differ. The breakdown is already included in totals."
 )
+st.caption(
+    f"住民税は{context['fiscal_year']}年1月1日の住所地で判定します。東京は23区、大阪は大阪市の設定です。引越しや実際の加入保険がこのプリセットと異なる場合は、そのまま適用できません。"
+    if selected_language == "ja" else
+    f"Resident tax uses your address on January 1, {context['fiscal_year']}. Tokyo means the 23 wards; Osaka means Osaka City. A different address or insurance enrollment may require different settings."
+)
 metadata = rates["metadata"]
+st.caption(
+    "地域は東京23区・大阪市・横浜市・福岡市・千葉市・さいたま市・札幌市・仙台市・新潟市・広島市・高松市・金沢市・静岡市・京都市・神戸市・長野市・岡山市・熊本市・那覇市・松山市・盛岡市想定。所得税は2026年分（12月施行改正）、住民税は2026年度の別制度です。前年収入・社会保険料を同額と仮定します。52歳・扶養なし・国内居住者・協会けんぽ・一般の事業専用で、毎月の給与明細を再現するものではありません。"
+    if selected_language == "ja" else
+    "Assumes Tokyo's 23 wards, Osaka City, Yokohama, Fukuoka, Chiba, Saitama, Sapporo, Sendai or Niigata City. Hiroshima City is also supported. Takamatsu City is also supported. Kanazawa City is also supported. Shizuoka City is also supported. Kyoto City is also supported. Kobe City is also supported. Nagano City is also supported. Okayama City is also supported. Kumamoto City is also supported. Naha City is also supported. Matsuyama City is also supported. Morioka City is also supported. National tax uses the 2026 year-end rules; local tax uses fiscal 2026 with the same income and insurance assumed for the previous year. For a resident aged 52, no dependents, Kyokai Kenpo and a general business. This does not reproduce monthly payslips."
+)
 
 st.markdown(
     f'<p class="app-caption">{escape(assumption_summary(selected_language, selected_prefecture_code, metadata, selected_bonus_setting, selected_annual_bonus))}</p>',

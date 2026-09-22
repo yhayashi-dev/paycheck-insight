@@ -1,0 +1,1650 @@
+{
+  "type": "object",
+  "properties": {
+    "schema_version": {
+      "enum": [
+        1,
+        2
+      ]
+    },
+    "common": {
+      "type": "object",
+      "properties": {
+        "metadata": {
+          "type": "object",
+          "properties": {
+            "year": {
+              "type": "integer",
+              "minimum": 1900,
+              "maximum": 9999
+            },
+            "age": {
+              "type": "integer",
+              "minimum": 0
+            },
+            "household": {
+              "type": "string",
+              "minLength": 1
+            },
+            "dependents": {
+              "type": "integer",
+              "minimum": 0
+            },
+            "employee_type": {
+              "type": "string",
+              "minLength": 1
+            },
+            "health_insurer": {
+              "type": "string",
+              "minLength": 1
+            },
+            "income_type": {
+              "type": "string",
+              "minLength": 1
+            },
+            "bonus": {
+              "type": "boolean"
+            },
+            "salary_payment": {
+              "type": "string",
+              "minLength": 1
+            },
+            "provisional": {
+              "type": "boolean"
+            },
+            "notice": {
+              "type": "string",
+              "minLength": 1
+            },
+            "audit_checked_on": {
+              "type": "string",
+              "format": "date"
+            }
+          },
+          "required": [
+            "year",
+            "age",
+            "household",
+            "dependents",
+            "employee_type",
+            "health_insurer",
+            "income_type",
+            "bonus",
+            "salary_payment",
+            "provisional",
+            "notice",
+            "audit_checked_on"
+          ],
+          "additionalProperties": false
+        },
+        "rounding": {
+          "type": "object",
+          "properties": {
+            "taxable_income_unit": {
+              "type": "integer",
+              "minimum": 1
+            },
+            "annual_tax_unit": {
+              "type": "integer",
+              "minimum": 1
+            },
+            "monthly_premium_unit": {
+              "type": "integer",
+              "minimum": 1
+            }
+          },
+          "required": [
+            "taxable_income_unit",
+            "annual_tax_unit",
+            "monthly_premium_unit"
+          ],
+          "additionalProperties": false
+        },
+        "assumptions": {
+          "type": "object",
+          "properties": {
+            "previous_year_policy": {
+              "enum": [
+                "same_as_current",
+                "explicit"
+              ]
+            },
+            "salary_payment": {
+              "enum": [
+                "equal_12_months"
+              ]
+            },
+            "age": {
+              "const": 52
+            },
+            "dependents": {
+              "const": 0
+            },
+            "bonus_included": {
+              "const": false
+            }
+          },
+          "required": [
+            "previous_year_policy",
+            "salary_payment",
+            "age",
+            "dependents",
+            "bonus_included"
+          ],
+          "additionalProperties": false
+        },
+        "standard_monthly_remuneration": {
+          "type": "object",
+          "properties": {
+            "health": {
+              "type": "array",
+              "minItems": 1,
+              "items": {
+                "type": "object",
+                "properties": {
+                  "standard": {
+                    "type": "integer",
+                    "minimum": 1
+                  },
+                  "lower": {
+                    "type": "integer",
+                    "minimum": 0
+                  },
+                  "upper": {
+                    "type": [
+                      "integer",
+                      "null"
+                    ],
+                    "minimum": 0
+                  }
+                },
+                "required": [
+                  "standard",
+                  "lower",
+                  "upper"
+                ],
+                "additionalProperties": false
+              }
+            },
+            "pension": {
+              "type": "array",
+              "minItems": 1,
+              "items": {
+                "type": "object",
+                "properties": {
+                  "standard": {
+                    "type": "integer",
+                    "minimum": 1
+                  },
+                  "lower": {
+                    "type": "integer",
+                    "minimum": 0
+                  },
+                  "upper": {
+                    "type": [
+                      "integer",
+                      "null"
+                    ],
+                    "minimum": 0
+                  }
+                },
+                "required": [
+                  "standard",
+                  "lower",
+                  "upper"
+                ],
+                "additionalProperties": false
+              }
+            }
+          },
+          "required": [
+            "health",
+            "pension"
+          ],
+          "additionalProperties": false
+        },
+        "provenance": {
+          "type": "object",
+          "properties": {
+            "effective_from": {
+              "type": "string",
+              "format": "date"
+            },
+            "effective_to": {
+              "type": [
+                "string",
+                "null"
+              ],
+              "format": "date"
+            },
+            "effective_to_reason": {
+              "type": [
+                "string",
+                "null"
+              ]
+            },
+            "sources": {
+              "type": "array",
+              "minItems": 1,
+              "items": {
+                "type": "object",
+                "properties": {
+                  "authority": {
+                    "type": "string",
+                    "minLength": 1
+                  },
+                  "source_url": {
+                    "type": "string",
+                    "format": "uri"
+                  },
+                  "checked_at": {
+                    "type": "string",
+                    "format": "date"
+                  },
+                  "applicable_period": {
+                    "type": "string",
+                    "minLength": 1
+                  },
+                  "checked_at_reason": {
+                    "type": [
+                      "string",
+                      "null"
+                    ]
+                  }
+                },
+                "required": [
+                  "authority",
+                  "source_url",
+                  "checked_at",
+                  "applicable_period"
+                ],
+                "additionalProperties": false
+              }
+            }
+          },
+          "required": [
+            "effective_from",
+            "effective_to",
+            "effective_to_reason",
+            "sources"
+          ],
+          "additionalProperties": false
+        },
+        "status": {
+          "enum": [
+            "verified",
+            "candidate",
+            "needs_review",
+            "rejected"
+          ]
+        }
+      },
+      "required": [
+        "metadata",
+        "rounding",
+        "assumptions",
+        "standard_monthly_remuneration",
+        "provenance",
+        "status"
+      ],
+      "additionalProperties": false
+    },
+    "national_tax": {
+      "type": "object",
+      "minProperties": 1,
+      "patternProperties": {
+        "^\\d{4}$": {
+          "type": "object",
+          "properties": {
+            "values": {
+              "type": "object",
+              "properties": {
+                "salary_income_deduction": {
+                  "type": "object",
+                  "properties": {
+                    "table_year": {
+                      "type": "integer",
+                      "minimum": 1900,
+                      "maximum": 9999
+                    },
+                    "brackets": {
+                      "type": "array",
+                      "minItems": 1,
+                      "items": {
+                        "type": "object",
+                        "properties": {
+                          "upper": {
+                            "type": [
+                              "integer",
+                              "null"
+                            ],
+                            "minimum": 0
+                          },
+                          "fixed": {
+                            "type": "integer",
+                            "minimum": 0
+                          },
+                          "rate": {
+                            "type": "number",
+                            "minimum": 0,
+                            "maximum": 1
+                          },
+                          "adjustment": {
+                            "type": "integer",
+                            "minimum": 0
+                          }
+                        },
+                        "required": [
+                          "upper",
+                          "fixed",
+                          "rate",
+                          "adjustment"
+                        ],
+                        "additionalProperties": false
+                      }
+                    },
+                    "note": {
+                      "type": "string",
+                      "minLength": 1
+                    },
+                    "provisional": {
+                      "type": "boolean"
+                    },
+                    "verification": {
+                      "type": "array",
+                      "minItems": 1,
+                      "items": {
+                        "type": "object"
+                      }
+                    }
+                  },
+                  "required": [
+                    "table_year",
+                    "brackets"
+                  ],
+                  "additionalProperties": false
+                },
+                "income_tax": {
+                  "type": "object",
+                  "properties": {
+                    "basic_deduction_brackets": {
+                      "type": "array",
+                      "minItems": 1,
+                      "items": {
+                        "type": "object",
+                        "properties": {
+                          "upper": {
+                            "type": [
+                              "integer",
+                              "null"
+                            ],
+                            "minimum": 0
+                          },
+                          "deduction": {
+                            "type": "integer",
+                            "minimum": 0
+                          }
+                        },
+                        "required": [
+                          "upper",
+                          "deduction"
+                        ],
+                        "additionalProperties": false
+                      }
+                    },
+                    "reconstruction_surtax_rate": {
+                      "type": "number",
+                      "minimum": 0,
+                      "maximum": 1
+                    },
+                    "brackets": {
+                      "type": "array",
+                      "minItems": 1,
+                      "items": {
+                        "type": "object",
+                        "properties": {
+                          "lower": {
+                            "type": "integer",
+                            "minimum": 0
+                          },
+                          "upper": {
+                            "type": [
+                              "integer",
+                              "null"
+                            ],
+                            "minimum": 0
+                          },
+                          "rate": {
+                            "type": "number",
+                            "minimum": 0,
+                            "maximum": 1
+                          },
+                          "deduction": {
+                            "type": "integer",
+                            "minimum": 0
+                          }
+                        },
+                        "required": [
+                          "lower",
+                          "upper",
+                          "rate",
+                          "deduction"
+                        ],
+                        "additionalProperties": false
+                      }
+                    },
+                    "note": {
+                      "type": "string",
+                      "minLength": 1
+                    },
+                    "provisional": {
+                      "type": "boolean"
+                    },
+                    "verification": {
+                      "type": "array",
+                      "minItems": 1,
+                      "items": {
+                        "type": "object"
+                      }
+                    }
+                  },
+                  "required": [
+                    "basic_deduction_brackets",
+                    "reconstruction_surtax_rate",
+                    "brackets"
+                  ],
+                  "additionalProperties": false
+                }
+              },
+              "required": [
+                "salary_income_deduction",
+                "income_tax"
+              ],
+              "additionalProperties": false
+            },
+            "provenance": {
+              "type": "object",
+              "properties": {
+                "effective_from": {
+                  "type": "string",
+                  "format": "date"
+                },
+                "effective_to": {
+                  "type": [
+                    "string",
+                    "null"
+                  ],
+                  "format": "date"
+                },
+                "effective_to_reason": {
+                  "type": [
+                    "string",
+                    "null"
+                  ]
+                },
+                "sources": {
+                  "type": "array",
+                  "minItems": 1,
+                  "items": {
+                    "type": "object",
+                    "properties": {
+                      "authority": {
+                        "type": "string",
+                        "minLength": 1
+                      },
+                      "source_url": {
+                        "type": "string",
+                        "format": "uri"
+                      },
+                      "checked_at": {
+                        "type": "string",
+                        "format": "date"
+                      },
+                      "applicable_period": {
+                        "type": "string",
+                        "minLength": 1
+                      },
+                      "checked_at_reason": {
+                        "type": [
+                          "string",
+                          "null"
+                        ]
+                      }
+                    },
+                    "required": [
+                      "authority",
+                      "source_url",
+                      "checked_at",
+                      "applicable_period"
+                    ],
+                    "additionalProperties": false
+                  }
+                }
+              },
+              "required": [
+                "effective_from",
+                "effective_to",
+                "effective_to_reason",
+                "sources"
+              ],
+              "additionalProperties": false
+            },
+            "status": {
+              "enum": [
+                "verified",
+                "candidate",
+                "needs_review",
+                "rejected"
+              ]
+            },
+            "income_year": {
+              "type": "integer",
+              "minimum": 1900,
+              "maximum": 9999
+            }
+          },
+          "required": [
+            "values",
+            "provenance",
+            "status",
+            "income_year"
+          ],
+          "additionalProperties": false
+        }
+      },
+      "additionalProperties": false
+    },
+    "resident_tax": {
+      "type": "object",
+      "minProperties": 1,
+      "patternProperties": {
+        "^[a-z][a-z0-9_]*$": {
+          "type": "object",
+          "minProperties": 1,
+          "patternProperties": {
+            "^\\d{4}$": {
+              "type": "object",
+              "properties": {
+                "values": {
+                  "type": "object",
+                  "properties": {
+                    "municipality_class": {
+                      "type": "string",
+                      "minLength": 1
+                    },
+                    "basic_deduction": {
+                      "type": "integer",
+                      "minimum": 0
+                    },
+                    "income_rate": {
+                      "type": "number",
+                      "minimum": 0,
+                      "maximum": 1
+                    },
+                    "per_capita": {
+                      "type": "integer",
+                      "minimum": 0
+                    },
+                    "forest_environment_tax": {
+                      "type": "integer",
+                      "minimum": 0
+                    },
+                    "tax_amount_unit": {
+                      "type": "integer",
+                      "minimum": 1
+                    },
+                    "non_taxable": {
+                      "type": "object",
+                      "minProperties": 1,
+                      "patternProperties": {
+                        "^[a-z][a-z0-9_]*$": {
+                          "type": "object",
+                          "properties": {
+                            "no_dependents_total_income": {
+                              "type": "integer",
+                              "minimum": 0
+                            },
+                            "no_dependents_income_portion_income": {
+                              "type": "integer",
+                              "minimum": 0
+                            },
+                            "dependent_base": {
+                              "type": "integer",
+                              "minimum": 0
+                            },
+                            "per_person": {
+                              "type": "integer",
+                              "minimum": 0
+                            },
+                            "per_person_income_portion": {
+                              "type": "integer",
+                              "minimum": 0
+                            },
+                            "dependent_addition": {
+                              "type": "integer",
+                              "minimum": 0
+                            },
+                            "dependent_income_portion_addition": {
+                              "type": "integer",
+                              "minimum": 0
+                            }
+                          },
+                          "required": [
+                            "no_dependents_total_income",
+                            "no_dependents_income_portion_income",
+                            "dependent_base",
+                            "per_person",
+                            "per_person_income_portion",
+                            "dependent_addition",
+                            "dependent_income_portion_addition"
+                          ],
+                          "additionalProperties": false
+                        }
+                      },
+                      "additionalProperties": false
+                    },
+                    "adjustment_deduction": {
+                      "type": "object",
+                      "properties": {
+                        "enabled": {
+                          "type": "boolean"
+                        },
+                        "threshold": {
+                          "type": "integer",
+                          "minimum": 0
+                        },
+                        "rate": {
+                          "type": "number",
+                          "minimum": 0,
+                          "maximum": 1
+                        },
+                        "minimum": {
+                          "type": "integer",
+                          "minimum": 0
+                        },
+                        "personal_difference": {
+                          "type": "integer",
+                          "minimum": 0
+                        },
+                        "total_income_limit": {
+                          "type": "integer",
+                          "minimum": 0
+                        }
+                      },
+                      "required": [
+                        "enabled",
+                        "threshold",
+                        "rate",
+                        "minimum",
+                        "personal_difference",
+                        "total_income_limit"
+                      ],
+                      "additionalProperties": false
+                    },
+                    "salary_income_year": {
+                      "type": "integer",
+                      "minimum": 1900,
+                      "maximum": 9999
+                    },
+                    "income_components": {
+                      "type": "array",
+                      "minItems": 2,
+                      "maxItems": 2,
+                      "items": {
+                        "type": "object",
+                        "properties": {
+                          "name": {
+                            "enum": [
+                              "municipal",
+                              "prefectural"
+                            ]
+                          },
+                          "income_rate": {
+                            "type": "number",
+                            "minimum": 0,
+                            "maximum": 1
+                          },
+                          "adjustment_rate": {
+                            "type": "number",
+                            "minimum": 0,
+                            "maximum": 1
+                          }
+                        },
+                        "required": [
+                          "name",
+                          "income_rate",
+                          "adjustment_rate"
+                        ],
+                        "additionalProperties": false
+                      }
+                    },
+                    "note": {
+                      "type": "string",
+                      "minLength": 1
+                    },
+                    "provisional": {
+                      "type": "boolean"
+                    },
+                    "verification": {
+                      "type": "array",
+                      "minItems": 1,
+                      "items": {
+                        "type": "object"
+                      }
+                    },
+                    "income_levy_exemption": {
+                      "type": "object",
+                      "properties": {
+                        "scope": {
+                          "const": "single_salary_only"
+                        },
+                        "income_basis": {
+                          "const": "total_income_after_loss_carryforward"
+                        },
+                        "inclusive_limit": {
+                          "type": "integer",
+                          "minimum": 0
+                        },
+                        "source_urls": {
+                          "type": "array",
+                          "minItems": 1,
+                          "items": {
+                            "type": "string",
+                            "format": "uri"
+                          }
+                        },
+                        "checked_at": {
+                          "type": "string",
+                          "format": "date"
+                        }
+                      },
+                      "required": [
+                        "scope",
+                        "income_basis",
+                        "inclusive_limit",
+                        "source_urls",
+                        "checked_at"
+                      ],
+                      "additionalProperties": false
+                    },
+                    "per_capita_levy_exemption": {
+                      "type": "object",
+                      "properties": {
+                        "scope": {
+                          "const": "single_salary_only"
+                        },
+                        "income_basis": {
+                          "const": "aggregate_income_before_loss_carryforward"
+                        },
+                        "inclusive_limit": {
+                          "type": "integer",
+                          "minimum": 0
+                        },
+                        "source_urls": {
+                          "type": "array",
+                          "minItems": 1,
+                          "items": {
+                            "type": "string",
+                            "format": "uri"
+                          }
+                        },
+                        "checked_at": {
+                          "type": "string",
+                          "format": "date"
+                        }
+                      },
+                      "required": [
+                        "scope",
+                        "income_basis",
+                        "inclusive_limit",
+                        "source_urls",
+                        "checked_at"
+                      ],
+                      "additionalProperties": false
+                    },
+                    "forest_environment_tax_exemption": {
+                      "type": "object",
+                      "properties": {
+                        "scope": {
+                          "const": "single_salary_only"
+                        },
+                        "income_basis": {
+                          "const": "aggregate_income_before_loss_carryforward"
+                        },
+                        "inclusive_limit": {
+                          "type": "integer",
+                          "minimum": 0
+                        },
+                        "source_urls": {
+                          "type": "array",
+                          "minItems": 1,
+                          "items": {
+                            "type": "string",
+                            "format": "uri"
+                          }
+                        },
+                        "checked_at": {
+                          "type": "string",
+                          "format": "date"
+                        }
+                      },
+                      "required": [
+                        "scope",
+                        "income_basis",
+                        "inclusive_limit",
+                        "source_urls",
+                        "checked_at"
+                      ],
+                      "additionalProperties": false
+                    }
+                  },
+                  "required": [
+                    "municipality_class",
+                    "basic_deduction",
+                    "income_rate",
+                    "per_capita",
+                    "forest_environment_tax",
+                    "tax_amount_unit",
+                    "non_taxable",
+                    "adjustment_deduction",
+                    "salary_income_year",
+                    "income_components"
+                  ],
+                  "additionalProperties": false
+                },
+                "provenance": {
+                  "type": "object",
+                  "properties": {
+                    "effective_from": {
+                      "type": "string",
+                      "format": "date"
+                    },
+                    "effective_to": {
+                      "type": [
+                        "string",
+                        "null"
+                      ],
+                      "format": "date"
+                    },
+                    "effective_to_reason": {
+                      "type": [
+                        "string",
+                        "null"
+                      ]
+                    },
+                    "sources": {
+                      "type": "array",
+                      "minItems": 1,
+                      "items": {
+                        "type": "object",
+                        "properties": {
+                          "authority": {
+                            "type": "string",
+                            "minLength": 1
+                          },
+                          "source_url": {
+                            "type": "string",
+                            "format": "uri"
+                          },
+                          "checked_at": {
+                            "type": "string",
+                            "format": "date"
+                          },
+                          "applicable_period": {
+                            "type": "string",
+                            "minLength": 1
+                          },
+                          "checked_at_reason": {
+                            "type": [
+                              "string",
+                              "null"
+                            ]
+                          }
+                        },
+                        "required": [
+                          "authority",
+                          "source_url",
+                          "checked_at",
+                          "applicable_period"
+                        ],
+                        "additionalProperties": false
+                      }
+                    }
+                  },
+                  "required": [
+                    "effective_from",
+                    "effective_to",
+                    "effective_to_reason",
+                    "sources"
+                  ],
+                  "additionalProperties": false
+                },
+                "status": {
+                  "enum": [
+                    "verified",
+                    "candidate",
+                    "needs_review",
+                    "rejected"
+                  ]
+                },
+                "municipality_id": {
+                  "type": "string",
+                  "minLength": 1
+                },
+                "display_name": {
+                  "type": "string",
+                  "minLength": 1
+                },
+                "fiscal_year": {
+                  "type": "integer",
+                  "minimum": 1900,
+                  "maximum": 9998
+                },
+                "previous_income_year": {
+                  "type": "integer",
+                  "minimum": 1900,
+                  "maximum": 9999
+                },
+                "surtax": {
+                  "type": "object",
+                  "properties": {
+                    "included_in_rates": {
+                      "const": true
+                    },
+                    "income_rate": {
+                      "type": "number",
+                      "minimum": 0,
+                      "maximum": 1
+                    },
+                    "per_capita": {
+                      "type": "integer",
+                      "minimum": 0
+                    },
+                    "note": {
+                      "type": "string",
+                      "minLength": 1
+                    }
+                  },
+                  "required": [
+                    "included_in_rates",
+                    "income_rate",
+                    "per_capita",
+                    "note"
+                  ],
+                  "additionalProperties": false
+                }
+              },
+              "required": [
+                "values",
+                "provenance",
+                "status",
+                "municipality_id",
+                "display_name",
+                "fiscal_year",
+                "previous_income_year",
+                "surtax"
+              ],
+              "additionalProperties": false
+            }
+          },
+          "additionalProperties": false
+        }
+      },
+      "additionalProperties": false
+    },
+    "health_insurance": {
+      "type": "object",
+      "minProperties": 1,
+      "patternProperties": {
+        "^[a-z][a-z0-9_]*$": {
+          "type": "object",
+          "minProperties": 1,
+          "patternProperties": {
+            "^[a-z][a-z0-9_]*$": {
+              "type": "object",
+              "minProperties": 1,
+              "patternProperties": {
+                "^\\d{4}-(0[1-9]|1[0-2])$": {
+                  "type": "object",
+                  "properties": {
+                    "values": {
+                      "type": "object",
+                      "properties": {
+                        "health_insurance_rate": {
+                          "type": "number",
+                          "minimum": 0,
+                          "maximum": 1
+                        },
+                        "care_insurance_rate": {
+                          "type": "number",
+                          "minimum": 0,
+                          "maximum": 1
+                        },
+                        "note": {
+                          "type": "string",
+                          "minLength": 1
+                        },
+                        "provisional": {
+                          "type": "boolean"
+                        },
+                        "verification": {
+                          "type": "array",
+                          "minItems": 1,
+                          "items": {
+                            "type": "object"
+                          }
+                        }
+                      },
+                      "required": [
+                        "health_insurance_rate",
+                        "care_insurance_rate"
+                      ],
+                      "additionalProperties": false
+                    },
+                    "provenance": {
+                      "type": "object",
+                      "properties": {
+                        "effective_from": {
+                          "type": "string",
+                          "format": "date"
+                        },
+                        "effective_to": {
+                          "type": [
+                            "string",
+                            "null"
+                          ],
+                          "format": "date"
+                        },
+                        "effective_to_reason": {
+                          "type": [
+                            "string",
+                            "null"
+                          ]
+                        },
+                        "sources": {
+                          "type": "array",
+                          "minItems": 1,
+                          "items": {
+                            "type": "object",
+                            "properties": {
+                              "authority": {
+                                "type": "string",
+                                "minLength": 1
+                              },
+                              "source_url": {
+                                "type": "string",
+                                "format": "uri"
+                              },
+                              "checked_at": {
+                                "type": "string",
+                                "format": "date"
+                              },
+                              "applicable_period": {
+                                "type": "string",
+                                "minLength": 1
+                              },
+                              "checked_at_reason": {
+                                "type": [
+                                  "string",
+                                  "null"
+                                ]
+                              }
+                            },
+                            "required": [
+                              "authority",
+                              "source_url",
+                              "checked_at",
+                              "applicable_period"
+                            ],
+                            "additionalProperties": false
+                          }
+                        }
+                      },
+                      "required": [
+                        "effective_from",
+                        "effective_to",
+                        "effective_to_reason",
+                        "sources"
+                      ],
+                      "additionalProperties": false
+                    },
+                    "status": {
+                      "enum": [
+                        "verified",
+                        "candidate",
+                        "needs_review",
+                        "rejected"
+                      ]
+                    },
+                    "effective_month": {
+                      "type": "string",
+                      "pattern": "^\\d{4}-(0[1-9]|1[0-2])$"
+                    },
+                    "coverage_months": {
+                      "type": "array",
+                      "minItems": 1,
+                      "uniqueItems": true,
+                      "items": {
+                        "type": "string",
+                        "pattern": "^\\d{4}-(0[1-9]|1[0-2])$"
+                      }
+                    },
+                    "insurer_id": {
+                      "type": "string",
+                      "minLength": 1
+                    },
+                    "branch_id": {
+                      "type": "string",
+                      "minLength": 1
+                    }
+                  },
+                  "required": [
+                    "values",
+                    "provenance",
+                    "status",
+                    "effective_month",
+                    "coverage_months",
+                    "insurer_id",
+                    "branch_id"
+                  ],
+                  "additionalProperties": false
+                }
+              },
+              "additionalProperties": false
+            }
+          },
+          "additionalProperties": false
+        }
+      },
+      "additionalProperties": false
+    },
+    "pension": {
+      "type": "object",
+      "minProperties": 1,
+      "patternProperties": {
+        "^\\d{4}-(0[1-9]|1[0-2])$": {
+          "type": "object",
+          "properties": {
+            "values": {
+              "type": "object",
+              "properties": {
+                "pension_rate": {
+                  "type": "number",
+                  "minimum": 0,
+                  "maximum": 1
+                },
+                "child_care_contribution_rate": {
+                  "type": "number",
+                  "minimum": 0,
+                  "maximum": 1
+                },
+                "note": {
+                  "type": "string",
+                  "minLength": 1
+                },
+                "provisional": {
+                  "type": "boolean"
+                },
+                "verification": {
+                  "type": "array",
+                  "minItems": 1,
+                  "items": {
+                    "type": "object"
+                  }
+                }
+              },
+              "required": [
+                "pension_rate",
+                "child_care_contribution_rate"
+              ],
+              "additionalProperties": false
+            },
+            "provenance": {
+              "type": "object",
+              "properties": {
+                "effective_from": {
+                  "type": "string",
+                  "format": "date"
+                },
+                "effective_to": {
+                  "type": [
+                    "string",
+                    "null"
+                  ],
+                  "format": "date"
+                },
+                "effective_to_reason": {
+                  "type": [
+                    "string",
+                    "null"
+                  ]
+                },
+                "sources": {
+                  "type": "array",
+                  "minItems": 1,
+                  "items": {
+                    "type": "object",
+                    "properties": {
+                      "authority": {
+                        "type": "string",
+                        "minLength": 1
+                      },
+                      "source_url": {
+                        "type": "string",
+                        "format": "uri"
+                      },
+                      "checked_at": {
+                        "type": "string",
+                        "format": "date"
+                      },
+                      "applicable_period": {
+                        "type": "string",
+                        "minLength": 1
+                      },
+                      "checked_at_reason": {
+                        "type": [
+                          "string",
+                          "null"
+                        ]
+                      }
+                    },
+                    "required": [
+                      "authority",
+                      "source_url",
+                      "checked_at",
+                      "applicable_period"
+                    ],
+                    "additionalProperties": false
+                  }
+                }
+              },
+              "required": [
+                "effective_from",
+                "effective_to",
+                "effective_to_reason",
+                "sources"
+              ],
+              "additionalProperties": false
+            },
+            "status": {
+              "enum": [
+                "verified",
+                "candidate",
+                "needs_review",
+                "rejected"
+              ]
+            },
+            "effective_month": {
+              "type": "string",
+              "pattern": "^\\d{4}-(0[1-9]|1[0-2])$"
+            },
+            "coverage_months": {
+              "type": "array",
+              "minItems": 1,
+              "uniqueItems": true,
+              "items": {
+                "type": "string",
+                "pattern": "^\\d{4}-(0[1-9]|1[0-2])$"
+              }
+            },
+            "component_effective_from": {
+              "type": "object",
+              "properties": {
+                "pension_rate": {
+                  "type": "string",
+                  "format": "date"
+                },
+                "child_care_contribution_rate": {
+                  "type": "string",
+                  "format": "date"
+                }
+              },
+              "required": [
+                "pension_rate",
+                "child_care_contribution_rate"
+              ],
+              "additionalProperties": false
+            }
+          },
+          "required": [
+            "values",
+            "provenance",
+            "status",
+            "effective_month",
+            "coverage_months",
+            "component_effective_from"
+          ],
+          "additionalProperties": false
+        }
+      },
+      "additionalProperties": false
+    },
+    "employment_insurance": {
+      "type": "object",
+      "minProperties": 1,
+      "patternProperties": {
+        "^[a-z][a-z0-9_]*$": {
+          "type": "object",
+          "minProperties": 1,
+          "patternProperties": {
+            "^\\d{4}-(0[1-9]|1[0-2])$": {
+              "type": "object",
+              "properties": {
+                "values": {
+                  "type": "object",
+                  "properties": {
+                    "worker_rate": {
+                      "type": "number",
+                      "minimum": 0,
+                      "maximum": 1
+                    },
+                    "employer_rate": {
+                      "type": "number",
+                      "minimum": 0,
+                      "maximum": 1
+                    },
+                    "note": {
+                      "type": "string",
+                      "minLength": 1
+                    },
+                    "provisional": {
+                      "type": "boolean"
+                    },
+                    "verification": {
+                      "type": "array",
+                      "minItems": 1,
+                      "items": {
+                        "type": "object"
+                      }
+                    }
+                  },
+                  "required": [
+                    "worker_rate",
+                    "employer_rate"
+                  ],
+                  "additionalProperties": false
+                },
+                "provenance": {
+                  "type": "object",
+                  "properties": {
+                    "effective_from": {
+                      "type": "string",
+                      "format": "date"
+                    },
+                    "effective_to": {
+                      "type": [
+                        "string",
+                        "null"
+                      ],
+                      "format": "date"
+                    },
+                    "effective_to_reason": {
+                      "type": [
+                        "string",
+                        "null"
+                      ]
+                    },
+                    "sources": {
+                      "type": "array",
+                      "minItems": 1,
+                      "items": {
+                        "type": "object",
+                        "properties": {
+                          "authority": {
+                            "type": "string",
+                            "minLength": 1
+                          },
+                          "source_url": {
+                            "type": "string",
+                            "format": "uri"
+                          },
+                          "checked_at": {
+                            "type": "string",
+                            "format": "date"
+                          },
+                          "applicable_period": {
+                            "type": "string",
+                            "minLength": 1
+                          },
+                          "checked_at_reason": {
+                            "type": [
+                              "string",
+                              "null"
+                            ]
+                          }
+                        },
+                        "required": [
+                          "authority",
+                          "source_url",
+                          "checked_at",
+                          "applicable_period"
+                        ],
+                        "additionalProperties": false
+                      }
+                    }
+                  },
+                  "required": [
+                    "effective_from",
+                    "effective_to",
+                    "effective_to_reason",
+                    "sources"
+                  ],
+                  "additionalProperties": false
+                },
+                "status": {
+                  "enum": [
+                    "verified",
+                    "candidate",
+                    "needs_review",
+                    "rejected"
+                  ]
+                },
+                "effective_month": {
+                  "type": "string",
+                  "pattern": "^\\d{4}-(0[1-9]|1[0-2])$"
+                },
+                "coverage_months": {
+                  "type": "array",
+                  "minItems": 1,
+                  "uniqueItems": true,
+                  "items": {
+                    "type": "string",
+                    "pattern": "^\\d{4}-(0[1-9]|1[0-2])$"
+                  }
+                }
+              },
+              "required": [
+                "values",
+                "provenance",
+                "status",
+                "effective_month",
+                "coverage_months"
+              ],
+              "additionalProperties": false
+            }
+          },
+          "additionalProperties": false
+        }
+      },
+      "additionalProperties": false
+    },
+    "child_support": {
+      "type": "object",
+      "minProperties": 1,
+      "patternProperties": {
+        "^\\d{4}-(0[1-9]|1[0-2])$": {
+          "type": "object",
+          "properties": {
+            "values": {
+              "type": "object",
+              "properties": {
+                "rate": {
+                  "type": "number",
+                  "minimum": 0,
+                  "maximum": 1
+                },
+                "effective_from": {
+                  "type": "string",
+                  "format": "date"
+                },
+                "payment_from": {
+                  "type": "string",
+                  "pattern": "^\\d{4}-(0[1-9]|1[0-2])$"
+                },
+                "annualization": {
+                  "enum": [
+                    "12_month_equivalent"
+                  ]
+                },
+                "employee_rounding": {
+                  "enum": [
+                    "half_down"
+                  ]
+                },
+                "employer_allocation": {
+                  "enum": [
+                    "single_employee_bill_remainder"
+                  ]
+                },
+                "note": {
+                  "type": "string",
+                  "minLength": 1
+                },
+                "provisional": {
+                  "type": "boolean"
+                },
+                "verification": {
+                  "type": "array",
+                  "minItems": 1,
+                  "items": {
+                    "type": "object"
+                  }
+                }
+              },
+              "required": [
+                "rate",
+                "effective_from",
+                "payment_from",
+                "annualization",
+                "employee_rounding",
+                "employer_allocation"
+              ],
+              "additionalProperties": false
+            },
+            "provenance": {
+              "type": "object",
+              "properties": {
+                "effective_from": {
+                  "type": "string",
+                  "format": "date"
+                },
+                "effective_to": {
+                  "type": [
+                    "string",
+                    "null"
+                  ],
+                  "format": "date"
+                },
+                "effective_to_reason": {
+                  "type": [
+                    "string",
+                    "null"
+                  ]
+                },
+                "sources": {
+                  "type": "array",
+                  "minItems": 1,
+                  "items": {
+                    "type": "object",
+                    "properties": {
+                      "authority": {
+                        "type": "string",
+                        "minLength": 1
+                      },
+                      "source_url": {
+                        "type": "string",
+                        "format": "uri"
+                      },
+                      "checked_at": {
+                        "type": "string",
+                        "format": "date"
+                      },
+                      "applicable_period": {
+                        "type": "string",
+                        "minLength": 1
+                      },
+                      "checked_at_reason": {
+                        "type": [
+                          "string",
+                          "null"
+                        ]
+                      }
+                    },
+                    "required": [
+                      "authority",
+                      "source_url",
+                      "checked_at",
+                      "applicable_period"
+                    ],
+                    "additionalProperties": false
+                  }
+                }
+              },
+              "required": [
+                "effective_from",
+                "effective_to",
+                "effective_to_reason",
+                "sources"
+              ],
+              "additionalProperties": false
+            },
+            "status": {
+              "enum": [
+                "verified",
+                "candidate",
+                "needs_review",
+                "rejected"
+              ]
+            },
+            "effective_month": {
+              "type": "string",
+              "pattern": "^\\d{4}-(0[1-9]|1[0-2])$"
+            },
+            "coverage_months": {
+              "type": "array",
+              "minItems": 1,
+              "uniqueItems": true,
+              "items": {
+                "type": "string",
+                "pattern": "^\\d{4}-(0[1-9]|1[0-2])$"
+              }
+            }
+          },
+          "required": [
+            "values",
+            "provenance",
+            "status",
+            "effective_month",
+            "coverage_months"
+          ],
+          "additionalProperties": false
+        }
+      },
+      "additionalProperties": false
+    }
+  },
+  "required": [
+    "schema_version",
+    "common",
+    "national_tax",
+    "resident_tax",
+    "health_insurance",
+    "pension",
+    "employment_insurance",
+    "child_support"
+  ],
+  "additionalProperties": false,
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "urn:paycheck-insight:period-settings:v1",
+  "title": "Paycheck Insight period settings admission schema v1"
+}

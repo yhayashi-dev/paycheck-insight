@@ -49,15 +49,15 @@ def test_support_uses_health_standard_above_pension_ceiling():
 
 def test_nta_example_year_end_tax_44600_times_1021_percent():
     # 課税所得892000、所得税44600、復興特別所得税込45536.6 → 45500。
-    assert calculate_income_tax(1772000, 0, load_rates()) == (45500, 892000)
+    assert calculate_income_tax(1932000, 0, load_rates()) == (45500, 892000)
 
 
 @pytest.mark.parametrize("salary_income,social,tax,taxable", [
     (950000, 0, 0, 0),
     (950999, 0, 0, 0),
-    (1050000, 0, 5100, 100000),
-    (1050000, 1, 5000, 99000),
-    (3560000, 757336, 117100, 2122000),
+    (1050000, 0, 500, 10000),
+    (1050000, 1, 400, 9000),
+    (3560000, 757336, 89900, 1762000),
 ])
 def test_tax_rounding_order_and_boundaries(salary_income, social, tax, taxable):
     assert calculate_income_tax(salary_income, social, load_rates()) == (tax, taxable)
@@ -65,12 +65,12 @@ def test_tax_rounding_order_and_boundaries(salary_income, social, tax, taxable):
 
 def test_support_is_deducted_once_and_flows_to_tax_and_net():
     result = simulate_annual_salary(5000000, load_rates())
-    # 3560000 - 680000 - 762988 = 2117012 → 2117000。
-    # (211700 - 97500)×1.021 = 116598.2 → 116500。
+    # 3560000 - 1040000 - 762988 = 1757012 → 1757000。
+    # 1757000×0.05×1.021 = 89694.85 → 89600。
     assert result.insurance.employee_total == 762988
-    assert result.tax.taxable_income_for_income_tax == 2117000
-    assert result.tax.income_tax == 116500
-    assert result.annual_take_home == 3881312
+    assert result.tax.taxable_income_for_income_tax == 1757000
+    assert result.tax.income_tax == 89600
+    assert result.annual_take_home == 3908312
     df = format_results_dataframe(results_to_dataframe([result]))
     assert df.iloc[0]["子ども・子育て支援金（本人・内数）"] == "5,652円"
 

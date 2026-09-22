@@ -1,0 +1,231 @@
+{
+  "schema_version": 1,
+  "authorities": {
+    "国税庁": [
+      "www.keisan.nta.go.jp",
+      "www.nta.go.jp"
+    ],
+    "東京都主税局": [
+      "www.tax.metro.tokyo.lg.jp"
+    ],
+    "e-Gov": [
+      "laws.e-gov.go.jp"
+    ],
+    "大阪市": [
+      "www.city.osaka.lg.jp"
+    ],
+    "横浜市": [
+      "www.city.yokohama.lg.jp"
+    ],
+    "神奈川県": [
+      "www.pref.kanagawa.jp"
+    ],
+    "協会けんぽ": [
+      "www.kyoukaikenpo.or.jp"
+    ],
+    "日本年金機構": [
+      "www.nenkin.go.jp"
+    ],
+    "厚生労働省": [
+      "www.mhlw.go.jp"
+    ],
+    "福岡市": [
+      "www.city.fukuoka.lg.jp"
+    ],
+    "福岡県": [
+      "www.pref.fukuoka.lg.jp"
+    ],
+    "千葉市": [
+      "www.city.chiba.jp"
+    ],
+    "さいたま市": [
+      "www.city.saitama.lg.jp"
+    ],
+    "札幌市": [
+      "www.city.sapporo.jp"
+    ],
+    "仙台市": [
+      "www.city.sendai.jp"
+    ],
+    "新潟市": [
+      "www.city.niigata.lg.jp"
+    ],
+    "広島市": [
+      "www.city.hiroshima.lg.jp"
+    ],
+    "高松市": [
+      "www.city.takamatsu.kagawa.jp"
+    ],
+    "金沢市": [
+      "www4.city.kanazawa.lg.jp"
+    ],
+    "静岡市": [
+      "www.city.shizuoka.lg.jp"
+    ],
+    "京都市": [
+      "www.city.kyoto.lg.jp"
+    ],
+    "神戸市": [
+      "www.city.kobe.lg.jp"
+    ],
+    "長野市": [
+      "www.city.nagano.nagano.jp"
+    ],
+    "岡山市": [
+      "www.city.okayama.jp"
+    ],
+    "熊本市": [
+      "www.city.kumamoto.jp"
+    ],
+    "那覇市": [
+      "www.city.naha.okinawa.jp"
+    ],
+    "松山市": [
+      "www.city.matsuyama.ehime.jp"
+    ],
+    "盛岡市": [
+      "www.city.morioka.iwate.jp"
+    ]
+  },
+  "municipalities": {
+    "tokyo_23_wards": {
+      "display_name": "東京23区",
+      "municipality_code": null,
+      "code_reason": "group_of_wards"
+    },
+    "osaka_city": {
+      "display_name": "大阪市",
+      "municipality_code": null,
+      "code_reason": "not_registered"
+    },
+    "yokohama_city": {
+      "display_name": "横浜市",
+      "municipality_code": null,
+      "code_reason": "not_registered"
+    },
+    "fukuoka_city": {
+      "display_name": "福岡市",
+      "municipality_code": null,
+      "code_reason": "not_registered"
+    },
+    "chiba_city": {
+      "display_name": "千葉市",
+      "municipality_code": null,
+      "code_reason": "not_registered"
+    },
+    "saitama_city": {
+      "display_name": "さいたま市",
+      "municipality_code": null,
+      "code_reason": "not_registered"
+    },
+    "sapporo_city": {
+      "display_name": "札幌市",
+      "municipality_code": null,
+      "code_reason": "not_registered"
+    },
+    "sendai_city": {
+      "display_name": "仙台市",
+      "municipality_code": null,
+      "code_reason": "not_registered"
+    },
+    "niigata_city": {
+      "display_name": "新潟市",
+      "municipality_code": null,
+      "code_reason": "not_registered"
+    },
+    "hiroshima_city": {
+      "display_name": "広島市",
+      "municipality_code": null,
+      "code_reason": "not_registered"
+    },
+    "takamatsu_city": {
+      "display_name": "高松市",
+      "municipality_code": null,
+      "code_reason": "not_registered"
+    },
+    "kanazawa_city": {
+      "display_name": "金沢市",
+      "municipality_code": null,
+      "code_reason": "not_registered"
+    },
+    "shizuoka_city": {
+      "display_name": "静岡市",
+      "municipality_code": null,
+      "code_reason": "not_registered"
+    },
+    "kyoto_city": {
+      "display_name": "京都市",
+      "municipality_code": null,
+      "code_reason": "not_registered"
+    },
+    "kobe_city": {
+      "display_name": "神戸市",
+      "municipality_code": null,
+      "code_reason": "not_registered"
+    },
+    "nagano_city": {
+      "display_name": "長野市",
+      "municipality_code": null,
+      "code_reason": "not_registered"
+    },
+    "okayama_city": {
+      "display_name": "岡山市",
+      "municipality_code": null,
+      "code_reason": "not_registered"
+    },
+    "kumamoto_city": {
+      "display_name": "熊本市",
+      "municipality_code": null,
+      "code_reason": "not_registered"
+    },
+    "naha_city": {
+      "display_name": "那覇市",
+      "municipality_code": null,
+      "code_reason": "not_registered"
+    },
+    "matsuyama_city": {
+      "display_name": "松山市",
+      "municipality_code": null,
+      "code_reason": "not_registered"
+    },
+    "morioka_city": {
+      "display_name": "盛岡市",
+      "municipality_code": null,
+      "code_reason": "not_registered"
+    }
+  },
+  "insurers": {
+    "kyokai_kenpo": {
+      "branches": [
+        "tokyo",
+        "osaka",
+        "kanagawa",
+        "fukuoka",
+        "chiba",
+        "saitama",
+        "hokkaido",
+        "miyagi",
+        "niigata",
+        "hiroshima",
+        "kagawa",
+        "ishikawa",
+        "shizuoka",
+        "kyoto",
+        "hyogo",
+        "nagano",
+        "okayama",
+        "kumamoto",
+        "okinawa",
+        "ehime",
+        "iwate"
+      ]
+    }
+  },
+  "business_types": [
+    "general"
+  ],
+  "supported_salary_income_years": [
+    2025,
+    2026
+  ]
+}

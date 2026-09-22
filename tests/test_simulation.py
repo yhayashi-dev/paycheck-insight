@@ -14,13 +14,13 @@ def test_simulation_calculates_required_output_items():
     assert result.insurance.pension_employee == 450_180
     assert result.insurance.employment_employee == 25_000
     assert result.insurance.employee_total == 762_988
-    assert result.tax.income_tax == 116_500
-    assert result.tax.resident_tax == 239_200
-    assert result.tax.total == 355_700
-    assert result.insurance.employer_total == 798_212
-    assert result.annual_take_home == 3_881_312
-    assert result.monthly_take_home_average == 323_443
-    assert result.total_labor_cost == 5_798_212
+    assert result.tax.income_tax == 89_600
+    assert result.tax.resident_tax == 239_100
+    assert result.tax.total == 328_700
+    assert result.insurance.employer_total == 798_224
+    assert result.annual_take_home == 3_908_312
+    assert result.monthly_take_home_average == 325_693
+    assert result.total_labor_cost == 5_798_224
     assert result.provisional is True
 
 
@@ -51,15 +51,15 @@ def test_salary_range_contains_200_to_1000_man_yen():
         )
         for result in results
     ] == [
-        (2_000_000, 315_988, 39_100, 1_644_912, 137_076, 330_344, 2_330_344),
-        (3_000_000, 483_000, 126_700, 2_390_300, 199_192, 504_732, 3_504_732),
-        (4_000_000, 632_000, 216_000, 3_152_000, 262_667, 660_688, 4_660_688),
-        (5_000_000, 762_988, 355_700, 3_881_312, 323_443, 798_212, 5_798_212),
-        (6_000_000, 930_000, 483_700, 4_586_300, 382_192, 972_600, 6_972_600),
-        (7_000_000, 1_097_000, 642_500, 5_260_500, 438_375, 1_147_000, 8_147_000),
-        (8_000_000, 1_231_060, 875_200, 5_893_740, 491_145, 1_287_140, 9_287_140),
-        (9_000_000, 1_285_200, 1_157_900, 6_556_900, 546_408, 1_344_792, 10_344_792),
-        (10_000_000, 1_346_360, 1_443_600, 7_210_040, 600_837, 1_409_452, 11_409_452),
+        (2000000, 315988, 59800, 1624212, 135351, 330356, 2330356),
+        (3000000, 483000, 138400, 2378600, 198217, 504732, 3504732),
+        (4000000, 632000, 227700, 3140300, 261692, 660688, 4660688),
+        (5000000, 762988, 328700, 3908312, 325693, 798224, 5798224),
+        (6000000, 930000, 446900, 4623100, 385258, 972600, 6972600),
+        (7000000, 1096988, 634200, 5268812, 439068, 1147000, 8147000),
+        (8000000, 1231060, 866900, 5902040, 491837, 1287140, 9287140),
+        (9000000, 1285188, 1149700, 6565112, 547093, 1344792, 10344792),
+        (10000000, 1346348, 1435300, 7218352, 601529, 1409452, 11409452),
     ]
 
 
@@ -73,9 +73,9 @@ def test_osaka_simulation_uses_osaka_health_rate_and_resident_tax_settings():
     assert result.insurance.pension_employee == 450_180
     assert result.insurance.employment_employee == 25_000
     assert result.insurance.employee_total == 769_876
-    assert result.tax.income_tax == 115_800
+    assert result.tax.income_tax == 89_300
     assert result.tax.resident_tax == 238_800
-    assert result.insurance.employer_total == 805_100
-    assert result.annual_take_home == 3_875_524
-    assert result.monthly_take_home_average == 322_960
-    assert result.total_labor_cost == 5_805_100
+    assert result.insurance.employer_total == 805_112
+    assert result.annual_take_home == 3_902_024
+    assert result.monthly_take_home_average == 325_169
+    assert result.total_labor_cost == 5_805_112

@@ -1,6 +1,6 @@
 from __future__ import annotations
 
-from dataclasses import dataclass
+from dataclasses import dataclass, field
 
 
 @dataclass(frozen=True)
@@ -72,3 +72,5 @@ class SimulationResult:
     total_labor_cost: int
     provisional: bool
     notice: str
+    calculation_context: dict = field(default_factory=dict)
+    assumptions: dict = field(default_factory=dict)

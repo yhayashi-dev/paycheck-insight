@@ -8,8 +8,8 @@ def test_income_tax_returns_tax_and_taxable_income():
 
     tax, taxable_income = calculate_income_tax(3_560_000, 750_000, rates)
 
-    assert taxable_income == 2_130_000
-    assert tax == 117_900
+    assert taxable_income == 1_770_000
+    assert tax == 90_300
 
 
 def test_income_tax_uses_2026_basic_deduction_table_for_500_man_yen_case():
@@ -17,8 +17,8 @@ def test_income_tax_uses_2026_basic_deduction_table_for_500_man_yen_case():
 
     tax, taxable_income = calculate_income_tax(3_560_000, 757_336, rates)
 
-    assert taxable_income == 2_122_000
-    assert tax == 117_100
+    assert taxable_income == 1_762_000
+    assert tax == 89_900
 
 
 def test_income_tax_uses_low_income_basic_deduction_band():
@@ -26,8 +26,8 @@ def test_income_tax_uses_low_income_basic_deduction_band():
 
     tax, taxable_income = calculate_income_tax(1_320_000, 313_648, rates)
 
-    assert taxable_income == 56_000
-    assert tax == 2_800
+    assert taxable_income == 0
+    assert tax == 0
 
 
 def test_resident_tax_returns_tax_and_taxable_income():
@@ -45,7 +45,7 @@ def test_resident_tax_applies_adjustment_deduction_for_500_man_yen_case():
     tax, taxable_income = calculate_resident_tax(3_560_000, 757_336, rates)
 
     assert taxable_income == 2_372_000
-    assert tax == 239_700
+    assert tax == 239_600
 
 
 def test_resident_tax_uses_tokyo_23_wards_non_taxable_threshold():

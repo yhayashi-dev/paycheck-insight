@@ -2,26 +2,41 @@ from __future__ import annotations
 
 from typing import Any
 
-from src.calculators.common import yen
+
+def calculate_salary_income(annual_salary: int, rates: dict[str, Any], *, income_year: int | None = None) -> int:
+    """Official annual salary-income tables; national 2026 and local FY2026 differ."""
+    year = income_year or rates['salary_income_deduction']['table_year']
+    if year not in (2025, 2026):
+        raise ValueError('Unsupported salary income year')
+    if annual_salary < 0:
+        raise ValueError('Salary must be nonnegative')
+    if year == 2026:
+        if annual_salary < 741000:
+            return 0
+        if annual_salary < 2191000:
+            return annual_salary - 740000
+        if annual_salary < 2193000:
+            return 1451000
+        if annual_salary < 2196000:
+            return 1453000
+        if annual_salary < 2200000:
+            return 1456000
+    else:
+        if annual_salary < 651000:
+            return 0
+        if annual_salary < 1900000:
+            return annual_salary - 650000
+    # NTA: A / 4, truncate below 1,000 yen, then multiply.
+    quarter = annual_salary // 4000 * 1000
+    if annual_salary < 3600000:
+        return quarter * 28 // 10 - 80000
+    if annual_salary < 6600000:
+        return quarter * 32 // 10 - 440000
+    if annual_salary < 8500000:
+        return annual_salary * 9 // 10 - 1100000
+    return annual_salary - 1950000
 
 
 def calculate_salary_income_deduction(annual_salary: int, rates: dict[str, Any]) -> int:
-    """Calculate給与所得控除 from the configured bracket table."""
-
-    brackets = rates["salary_income_deduction"]["brackets"]
-    for bracket in brackets:
-        upper = bracket["upper"]
-        if upper is None or annual_salary <= upper:
-            # 給与所得控除: 固定額がある区分は固定額、その他は収入 x 率 + 調整額で計算する。
-            if bracket["fixed"]:
-                return yen(bracket["fixed"])
-            return yen(annual_salary * bracket["rate"] + bracket["adjustment"])
-    raise ValueError("Salary income deduction bracket was not found.")
-
-
-def calculate_salary_income(annual_salary: int, rates: dict[str, Any]) -> int:
-    """Calculate給与所得 after salary income deduction."""
-
-    deduction = calculate_salary_income_deduction(annual_salary, rates)
-    # 給与所得: 給与収入から給与所得控除を差し引き、0円未満にはしない。
-    return max(annual_salary - deduction, 0)
+    """Effective deduction, capped at gross salary for the zero-income bands."""
+    return annual_salary - calculate_salary_income(annual_salary, rates)

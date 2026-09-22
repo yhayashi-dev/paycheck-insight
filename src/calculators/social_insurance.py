@@ -34,20 +34,21 @@ def calculate_social_insurance(annual_salary: int, rates: dict[str, Any]) -> Ins
 
     # 健康保険: 年収を12か月均等支給した月額給与から標準報酬月額を選び、労使折半で計算する。
     health_standard = find_standard_monthly(int(monthly_salary), tables["health"])
-    monthly_health_total = health_standard * social["health_insurance_rate"]
-    monthly_health_employee = yen(monthly_health_total / 2)
-    monthly_health_employer = yen(monthly_health_total / 2)
+    # Payroll withholding without a special rounding agreement: <= 0.50 yen down.
+    def employee_half(amount: Decimal) -> int:
+        return int((amount / 2).quantize(Decimal("1"), rounding=ROUND_HALF_DOWN))
 
-    # 介護保険: 52歳は40歳以上65歳未満のため、標準報酬月額に介護保険料率を掛けて労使折半する。
-    monthly_care_total = health_standard * social["care_insurance_rate"]
-    monthly_care_employee = yen(monthly_care_total / 2)
-    monthly_care_employer = yen(monthly_care_total / 2)
+    monthly_health_total = Decimal(health_standard) * Decimal(str(social["health_insurance_rate"]))
+    monthly_health_employee = employee_half(monthly_health_total)
+    monthly_health_employer = int(monthly_health_total) - monthly_health_employee
+    combined = monthly_health_total + Decimal(health_standard) * Decimal(str(social["care_insurance_rate"]))
+    monthly_care_employee = employee_half(combined) - monthly_health_employee
+    monthly_care_employer = int(combined) - employee_half(combined) - monthly_health_employer
 
-    # 厚生年金: 厚生年金用の標準報酬月額を選び、厚生年金保険料率を労使折半する。
     pension_standard = find_standard_monthly(int(monthly_salary), tables["pension"])
-    monthly_pension_total = pension_standard * social["pension_rate"]
-    monthly_pension_employee = yen(monthly_pension_total / 2)
-    monthly_pension_employer = yen(monthly_pension_total / 2)
+    monthly_pension_total = Decimal(pension_standard) * Decimal(str(social["pension_rate"]))
+    monthly_pension_employee = employee_half(monthly_pension_total)
+    monthly_pension_employer = int(monthly_pension_total) - monthly_pension_employee
 
     employment = social["employment_insurance"]
     # 雇用保険: 給与収入を賃金額として、労働者負担率を掛ける。

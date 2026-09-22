@@ -1,65 +1,48 @@
 from __future__ import annotations
 
+from decimal import Decimal
+from fractions import Fraction
 from typing import Any
-
-from src.calculators.common import round_down_to_unit, yen
+from src.calculators.common import round_down_to_unit
 
 
 def calculate_resident_tax(salary_income: int, social_insurance_employee: int, rates: dict[str, Any]) -> tuple[int, int]:
-    """Calculate annual resident tax using the selected regional settings."""
+    """FY2026 local tax: single/no dependents, no other deductions or credits."""
+    local = rates['resident_tax']
+    # Salary-only scope: the two statutory income bases coincide. Neither is
+    # taxable income after deductions. Never infer one levy's exemption from another.
+    keys = ('income_levy_exemption', 'per_capita_levy_exemption',
+            'forest_environment_tax_exemption')
+    if any(key not in local for key in keys):
+        raise ValueError('exemption_evidence_missing: migrate legacy settings explicitly')
+    income_exempt, per_capita_exempt, forest_exempt = (
+        salary_income <= local[key]['inclusive_limit'] for key in keys)
+    taxable = round_down_to_unit(max(salary_income - local['basic_deduction'] - social_insurance_employee, 0), 1000)
+    base = _adjustment_base(salary_income, taxable, local)
+    amounts = []
+    for part in ([] if income_exempt else local['income_components']):
+        assessed = int(Decimal(taxable) * Decimal(str(part['income_rate'])))
+        credit = Decimal(base) * Decimal(str(part['adjustment_rate']))
+        amounts.append(Fraction(max(Decimal(assessed) - credit, 0)))
+    # Local Tax Act Supplementary Provisions 3-3(2),(5): marginal relief,
+    # apportioned by assessed component amounts BEFORE final 100-yen rounding.
+    # This is distinct from the personal-allowance adjustment credit above.
+    total = sum(amounts)
+    available = max(salary_income - local['income_levy_exemption']['inclusive_limit'], 0)
+    if total > available:
+        amounts = [amount * available / total for amount in amounts]
+    income_portion = sum(int(amount // 100) * 100 for amount in amounts)
+    fixed = (0 if per_capita_exempt else local['per_capita'])
+    forest = (0 if forest_exempt else local['forest_environment_tax'])
+    return income_portion + fixed + forest, 0 if income_exempt else taxable
 
-    resident_tax = rates["resident_tax"]
-    rounding = rates["rounding"]
-    municipality_class = resident_tax["municipality_class"]
 
-    if _is_non_taxable_single_no_dependents(salary_income, resident_tax, municipality_class):
-        return 0, 0
-
-    # 住民税の課税所得: 給与所得から住民税の基礎控除と社会保険料控除を差し引き、1,000円未満を切り捨てる。
-    taxable_income = salary_income - resident_tax["basic_deduction"] - social_insurance_employee
-    taxable_income = round_down_to_unit(max(taxable_income, 0), rounding["taxable_income_unit"])
-
-    # 所得割: 課税所得に住民税所得割率を掛け、人的控除差に基づく調整控除を差し引く。
-    income_portion = taxable_income * resident_tax["income_rate"]
-    adjustment_deduction = _calculate_adjustment_deduction(salary_income, taxable_income, rates)
-    income_portion = max(income_portion - adjustment_deduction, 0)
-    # 均等割・森林環境税: 設定ファイルの年額を所得割に加算する。
-    total_tax = income_portion + resident_tax["per_capita"] + resident_tax["forest_environment_tax"]
-    total_tax = round_down_to_unit(total_tax, resident_tax["tax_amount_unit"])
-    return yen(total_tax), taxable_income
-
-
-def _is_non_taxable_single_no_dependents(total_income: int, resident_tax: dict[str, Any], municipality_class: str) -> bool:
-    """Apply the configured no-dependent non-taxable threshold for the municipality class."""
-
-    non_taxable = resident_tax["non_taxable"][municipality_class]
-    return total_income <= non_taxable["no_dependents_total_income"]
-
-
-def _calculate_adjustment_deduction(total_income: int, taxable_income: int, rates: dict[str, Any]) -> int:
-    resident_tax = rates["resident_tax"]
-    adjustment = resident_tax["adjustment_deduction"]
-    if not adjustment["enabled"] or taxable_income <= 0:
+def _adjustment_base(total_income: int, taxable: int, local: dict[str, Any]) -> int:
+    adjustment = local['adjustment_deduction']
+    if not adjustment['enabled'] or total_income > adjustment['total_income_limit']:
         return 0
-
-    personal_deduction_difference = _find_income_tax_basic_deduction(total_income, rates) - resident_tax["basic_deduction"]
-    personal_deduction_difference = max(personal_deduction_difference, 0)
-    if personal_deduction_difference == 0:
-        return 0
-
-    if taxable_income <= adjustment["threshold"]:
-        deduction_base = min(personal_deduction_difference, taxable_income)
-        deduction = deduction_base * adjustment["rate"]
-    else:
-        deduction_base = personal_deduction_difference - (taxable_income - adjustment["threshold"])
-        deduction = max(deduction_base * adjustment["rate"], adjustment["minimum"])
-
-    return yen(deduction)
-
-
-def _find_income_tax_basic_deduction(total_income: int, rates: dict[str, Any]) -> int:
-    for bracket in rates["income_tax"]["basic_deduction_brackets"]:
-        upper = bracket["upper"]
-        if upper is None or total_income <= upper:
-            return int(bracket["deduction"])
-    raise ValueError("Income tax basic deduction bracket was not found.")
+    # Statutory old-system personal allowance difference; NOT current national minus local.
+    difference = adjustment['personal_difference']
+    if taxable <= adjustment['threshold']:
+        return min(difference, taxable)
+    return max(difference - (taxable - adjustment['threshold']), 50000)

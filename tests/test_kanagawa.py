@@ -35,12 +35,12 @@ def test_kanagawa_500_man_yen_simulation_matches_expected_values():
     assert result.insurance.health_standard_monthly == 410_000
     assert result.insurance.health_employee == 244_032
     assert result.insurance.employee_total == 764_716
-    assert result.tax.income_tax == 116_300
+    assert result.tax.income_tax == 89_500
     assert result.tax.resident_tax == 240_700
-    assert result.tax.total == 357_000
+    assert result.tax.total == 330_200
     assert result.insurance.employer_total == 799_940
-    assert result.annual_take_home == 3_878_284
-    assert result.monthly_take_home_average == 323_190
+    assert result.annual_take_home == 3_905_084
+    assert result.monthly_take_home_average == 325_424
     assert result.total_labor_cost == 5_799_940
 
 
@@ -62,9 +62,9 @@ def test_app_comparison_includes_kanagawa_and_preserves_existing_results():
     html = app.prefecture_comparison_html(comparison_results)
 
     assert html.count('class="comparison-prefecture-card"') == 3
-    assert "3,881,312円" in html
-    assert "3,875,524円" in html
-    assert "3,878,284円" in html
+    assert "3,908,312円" in html
+    assert "3,902,024円" in html
+    assert "3,905,084円" in html
     assert "差額（神奈川県（横浜市想定） − 東京都）" in html
     assert "神奈川県（横浜市想定）は東京都より " in html
-    assert '<span class="comparison-difference-value">-3,028円</span>' in html
+    assert '<span class="comparison-difference-value">-3,228円</span>' in html
