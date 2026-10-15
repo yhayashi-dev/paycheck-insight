@@ -1,0 +1,12 @@
+{
+  "enabled": false,
+  "measurementId": null,
+  "siteId": "P04",
+  "origin": "https://paycheck-insight-dfnvaodwxttypa7gtdouhj.streamlit.app",
+  "basePath": "/",
+  "privacyUrl": "https://paycheck-insight-dfnvaodwxttypa7gtdouhj.streamlit.app/",
+  "pages": {
+    "/": "2026年 手取り試算"
+  },
+  "campaigns": {}
+}

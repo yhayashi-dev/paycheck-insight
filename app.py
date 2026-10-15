@@ -12,6 +12,7 @@ sys.path.insert(0, str(PROJECT_ROOT))
 
 from src.services.prefecture_rate_loader import get_supported_prefectures, load_rates
 from src.services.simulation import simulate_annual_salary, simulate_salary_range
+from src.ui.analytics import render_analytics, render_analytics_privacy
 from src.ui.tables import (
     dataframe_to_responsive_html,
     format_results_dataframe,
@@ -23,6 +24,7 @@ from src.ui.tables import (
 
 
 st.set_page_config(page_title="2026年 手取り試算", layout="wide")
+render_analytics()
 
 
 UI_TEXT = {
@@ -1342,3 +1344,6 @@ st.markdown(
     ),
     unsafe_allow_html=True,
 )
+
+
+render_analytics_privacy()

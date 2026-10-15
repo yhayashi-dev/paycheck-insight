@@ -61,3 +61,14 @@ python3 -m pytest -q
 https://paycheck-insight-dfnvaodwxttypa7gtdouhj.streamlit.app
 
 このURLの公開版と、ローカルの21地域版が同じであるとは限りません。今回の作業は公開前監査であり、push・デプロイは行っていません。公開リポジトリの更新と公開環境の動作確認は、別途実施します。
+
+
+## アクセス解析の準備（現在は無効）
+
+Streamlit 1.56.0の公式 `st.html(..., unsafe_allow_javascript=True)` で、
+コミット済みの `analytics/analytics-config.json` と `analytics/analytics.js` だけを読みます。
+入力・計算結果・セッション状態を渡しません。iframeやStreamlit内部の変更は使用しません。
+現在の設定は `enabled: false`、測定IDなしで、Googleへの解析通信は行いません。
+アカウントの規約確認・測定ID・公開環境とブラウザの通信確認が済むまで有効にしません。
+有効時も閲覧者が同意した場合だけ計測し、共通スクリプトの解析設定から撤回できます。
+画面下部に解析対象・送信しない情報の説明があります。
