@@ -74,7 +74,7 @@
     granted=true;
     window['ga-disable-' + id] = false;
     const s=source(p);
-    const params={page_location:p.url,page_title:p.title,page_referrer:s.referrer,send_page_view:false,cookie_prefix:gaPrefix,cookie_path:c.basePath,cookie_expires:7776000,cookie_update:false,allow_google_signals:false,allow_ad_personalization_signals:false};
+    const params={page_location:p.url,page_title:p.title,page_referrer:s.referrer,send_page_view:false,cookie_prefix:gaPrefix,cookie_domain:'none',cookie_flags:'SameSite=Lax;Secure',cookie_path:c.basePath,cookie_expires:7776000,cookie_update:false,allow_google_signals:false,allow_ad_personalization_signals:false};
     if (p.campaign) Object.assign(params,{campaign_source:p.campaign.source,campaign_medium:p.campaign.medium,campaign_name:p.campaign.name});
     if (!started) {
       started=true;tag('consent','default',{analytics_storage:'denied',ad_storage:'denied',ad_user_data:'denied',ad_personalization:'denied'});

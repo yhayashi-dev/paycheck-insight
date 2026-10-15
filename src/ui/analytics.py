@@ -31,14 +31,14 @@ def render_analytics() -> None:
 def render_analytics_privacy() -> None:
     with st.expander("アクセス解析・プライバシー / Analytics privacy"):
         st.markdown(
-            "現在、アクセス解析は無効です。測定を有効にした場合も、同意した方だけを対象に、"
+            "2026年10月16日（日本時間）から、同意した方だけを対象に、"
             "無料のGoogle Analytics 4で閲覧ページ・閲覧時間・端末情報・大まかな流入元と、"
             "このサイトのCookieによる仮名IDを計測します。"
             "通信時にはIPアドレスがGoogleへ届きます。広告機能・Google Signalsは使いません。"
             "年収・賞与・地域などの入力、計算結果、フォーム、メール、URLの検索文字列や"
             "生の参照元URLは送りません。拒否しても試算できます。同意は解析設定から撤回できます。\n\n"
             "Googleへの通信が利用できない中国本土などの地域、通信遮断、同意拒否、広告ブロッカー等の来訪は捕捉できないことがあります。簡体字の読者がすべて中国本土にいるとも限りません。Google検索経由と中国語での閲覧は別で、記録がないことを実来訪0とは扱いません。\n\n"
-            "Analytics is currently disabled. When enabled, only consenting visitors are measured using "
+            "From 16 October 2026 (Japan time), only consenting visitors are measured using "
             "free GA4: fixed page, engagement time, device, broad source category and a site cookie's "
             "pseudonymous ID. Google receives the IP address in transport. No ads or Google Signals. "
             "Salary, bonus, region, results, forms, email, query strings and raw referrer URLs are excluded. "

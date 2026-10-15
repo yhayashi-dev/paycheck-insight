@@ -1,6 +1,6 @@
 {
-  "enabled": false,
-  "measurementId": null,
+  "enabled": true,
+  "measurementId": "G-YRNBP3YGN7",
   "siteId": "P04",
   "origin": "https://paycheck-insight-dfnvaodwxttypa7gtdouhj.streamlit.app",
   "basePath": "/",

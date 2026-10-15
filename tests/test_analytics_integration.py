@@ -9,10 +9,10 @@ from src.ui.analytics import analytics_html
 ROOT = Path(__file__).resolve().parents[1]
 
 
-def test_committed_analytics_is_disabled_and_only_maps_the_public_root():
+def test_committed_analytics_is_authorized_and_only_maps_the_public_root():
     config = json.loads((ROOT / "analytics/analytics-config.json").read_text())
-    assert config["enabled"] is False
-    assert config["measurementId"] is None
+    assert config["enabled"] is True
+    assert config["measurementId"] == "G-YRNBP3YGN7"
     assert config["pages"] == {"/": "2026年 手取り試算"}
     assert config["origin"] == "https://paycheck-insight-dfnvaodwxttypa7gtdouhj.streamlit.app"
 
