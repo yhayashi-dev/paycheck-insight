@@ -17,10 +17,18 @@ def analytics_html() -> str:
     script = (_ASSET_ROOT / "analytics.js").read_text(encoding="utf-8")
     if "</script" in script.lower():
         raise ValueError("Trusted analytics asset contains an unsafe script terminator")
+    payload = json.dumps(f"window.SuzumeAnalyticsConfig={serialized};\n{script}", ensure_ascii=True).replace("<", "\\u003c")
     return (
-        '<div hidden aria-hidden="true"></div><script>'
-        f"window.SuzumeAnalyticsConfig={serialized};\n"
-        f"{script}\n</script>"
+        '<div hidden aria-hidden="true"></div><script>(()=>{'
+        'let target=window;'
+        'if(window.self!==window.top){try{'
+        'const host="https://paycheck-insight-dfnvaodwxttypa7gtdouhj.streamlit.app";'
+        'if(location.origin!==host||location.pathname!=="/~/+/"||window.top.location.origin!==host)return;'
+        'target=window.top;'
+        '}catch{return;}}'
+        'const trusted=target.document.createElement("script");'
+        f'trusted.textContent={payload};'
+        'target.document.head.append(trusted);})();</script>'
     )
 
 
